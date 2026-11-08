@@ -1,8 +1,6 @@
 # Revo OS – ekran główny „Gotowa”: schemat maszyny, kafelki temperatur, DRUKUJ, presety, menu
-import json
 import logging
 import threading
-import urllib.request
 
 import gi
 
@@ -10,6 +8,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk
 
 from ks_includes import revo_home_logic as logic
+from ks_includes import revo_agent_client as agent
 
 PRESETS = [("PLA", 210, 60), ("PETG", 240, 80), ("ABS/ASA", 250, 100)]
 
@@ -187,6 +186,7 @@ class RevoHome(Gtk.Box):
         self.pack_start(nav, False, False, 0)
 
         self._timer = None
+        self._asked = False
 
     # --- akcje ---
     def gcode(self, script):
@@ -269,14 +269,48 @@ class RevoHome(Gtk.Box):
 
     def _poll_agent(self):
         def run():
-            try:
-                with urllib.request.urlopen("http://127.0.0.1:7130/status", timeout=1) as r:
-                    h = json.loads(r.read().decode()).get("hours")
-                GLib.idle_add(self._set_hours, h)
-            except Exception:
-                pass
+            code, st = agent.call("/status", timeout=1)
+            if code == 200:
+                GLib.idle_add(self._set_hours, st.get("hours"))
+                GLib.idle_add(self._consent_check, st)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _consent_check(self, st):
+        """Powitanie: pierwsze uruchomienie – pytanie o zgody (alerty ON, statystyki OFF)."""
+        if self._asked or st.get("consent", {}).get("asked", True):
+            return False
+        self._asked = True
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.get_style_context().add_class("revo_home")
+        box.pack_start(_lbl("WITAJ W REVO OS", "revo_state", 0.5), False, False, 6)
+        t = _lbl("Maszyna może wysyłać do Revotech informacje, które pomagają szybciej reagować na usterki. "
+                 "Możesz to zmienić później w Menu.", "revo_splash_text", 0.0)
+        t.set_line_wrap(True)
+        box.pack_start(t, False, False, 0)
+        self._sw = {}
+        for key, title, desc, default in (
+                ("alerts", "Alerty o błędach", "Gdy maszyna zgłosi błąd lub 3 nieudane wydruki z rzędu, serwis dostaje powiadomienie.", True),
+                ("stats", "Statystyki (dobrowolnie)", "Przebieg oraz liczba udanych i nieudanych wydruków tej maszyny – pomagają nam ulepszać maszyny.", False)):
+            row = Gtk.Box(spacing=12)
+            col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            col.add(_lbl(title, "revo_tile_value_small"))
+            d = _lbl(desc, "revo_info")
+            d.set_line_wrap(True)
+            col.add(d)
+            sw = Gtk.Switch(active=default, valign=Gtk.Align.CENTER)
+            self._sw[key] = sw
+            row.pack_start(col, True, True, 0)
+            row.pack_end(sw, False, False, 0)
+            box.pack_start(row, False, False, 6)
+        buttons = [{"name": "Zapisz", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+        self.p._gtk.Dialog("Powitanie", buttons, box, self._consent_resp)
+        return False
+
+    def _consent_resp(self, dialog, resp):
+        body = {k: sw.get_active() for k, sw in self._sw.items()}
+        self.p._gtk.remove_dialog(dialog)
+        threading.Thread(target=agent.call, args=("/zgody", body), daemon=True).start()
 
     def _set_hours(self, h):
         self.hours = h
