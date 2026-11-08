@@ -297,3 +297,8 @@ button.revo_preset:checked, radiobutton.revo_preset:checked, .revo_preset:checke
 .action_bar button image { opacity: 0.75; }
 .action_bar button:active { background-color: #131518; }
 .title_bar { background-color: #050607; }
+button.revo_estop { background-color: #FF4D52; color: #FFFFFF; border-radius: 14px; font-weight: bold; letter-spacing: 2px; }
+button.revo_estop label { color: #FFFFFF; }
+button.revo_estop:active { background-color: #B3262B; }
+button.revo_file { background-color: #131518; border: 1px solid #23262B; border-radius: 14px; padding: 8px; }
+button.revo_compact { min-height: 36px; padding: 2px 4px; }

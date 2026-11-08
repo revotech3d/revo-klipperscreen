@@ -264,7 +264,7 @@ class RevoHome(RevoActions, Gtk.Box):
 
         druk = Gtk.Button(label="DRUKUJ · WYBIERZ PLIK")
         druk.get_style_context().add_class("revo_print")
-        druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"}))
+        druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"}))
         self.pack_start(druk, False, False, 0)
 
         pre = Gtk.Grid(column_homogeneous=True, column_spacing=8)
@@ -282,7 +282,7 @@ class RevoHome(RevoActions, Gtk.Box):
         nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
         items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "revo_filament", "name": "Filament"})),
                  ("extruder", "Dysza", self.nozzle_dialog),
-                 ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"})),
+                 ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"})),
                  ("settings", "Menu", self.open_menu)]
         for i, (icon, name, cb) in enumerate(items):
             bt = self.p._gtk.Button(icon, name, None, 0.9)
