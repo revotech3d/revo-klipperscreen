@@ -175,10 +175,9 @@ class RevoHome(Gtk.Box):
         self.pack_start(pre, False, False, 0)
 
         nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
-        items = [("move", "Ruch", lambda: self.p.menu_item_clicked(None, {"panel": "move", "name": "Ruch"})),
-                 ("filament", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "extrude", "name": "Filament"})),
+        items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "extrude", "name": "Filament"})),
+                 ("extruder", "Dysza", self.nozzle_dialog),
                  ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"})),
-                 ("complete", "Test", self.selftest),
                  ("settings", "Menu", self.open_menu)]
         for i, (icon, name, cb) in enumerate(items):
             bt = self.p._gtk.Button(icon, name, None, 0.9)
@@ -201,6 +200,52 @@ class RevoHome(Gtk.Box):
         if pin:
             on = (self.printer.get_stat(f"output_pin {pin}", "value") or 0) > 0
             self.gcode(f"SET_PIN PIN={pin} VALUE={0 if on else 1}")
+
+    def nozzle_dialog(self):
+        """Wybór zamontowanej dyszy: średnica + materiał → REVO_SET_NOZZLE."""
+        self._noz = {"d": None, "t": None}
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.get_style_context().add_class("revo_home")
+        title = _lbl("ZAMONTOWANA DYSZA", "revo_state", 0.5)
+        box.pack_start(title, False, False, 0)
+        vars_ = self.printer.get_stat("save_variables", "variables") or {}
+        cur = str(vars_.get("revo_nozzle", "")).split()
+        rows = (("ŚREDNICA", "d", ["0.25", "0.4", "0.6", "0.8"]),
+                ("MATERIAŁ", "t", ["mosiadz", "stal", "wolfram"]))
+        names = {"mosiadz": "Mosiądz", "stal": "Stal hart.", "wolfram": "Wolfram"}
+        for head, key, opts in rows:
+            box.pack_start(_lbl(head, "revo_tile_title"), False, False, 0)
+            g = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+            first = None
+            for i, o in enumerate(opts):
+                rb = Gtk.RadioButton.new_with_label_from_widget(first, names.get(o, f"Ø{o}"))
+                rb.set_mode(False)
+                rb.get_style_context().add_class("revo_preset")
+                first = first or rb
+                if (key == "d" and cur and cur[0] == o) or (key == "t" and len(cur) > 1 and cur[1] == o):
+                    rb.set_active(True)
+                    self._noz[key] = o
+                rb.connect("toggled", lambda w, k=key, v=o: w.get_active() and self._noz.__setitem__(k, v))
+                g.attach(rb, i, 0, 1, 1)
+            if self._noz[key] is None:
+                self._noz[key] = opts[1] if key == "d" else opts[0]
+            box.pack_start(g, False, False, 0)
+        hint = _lbl("Maszyna porówna ją z dyszą zapisaną w pliku przy każdym starcie druku.", "revo_info", 0.0)
+        hint.set_line_wrap(True)
+        box.pack_start(hint, False, False, 0)
+        buttons = [{"name": "Zapisz", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        self.p._gtk.Dialog("Dysza", buttons, box, self._nozzle_response)
+
+    def _nozzle_response(self, dialog, response):
+        self.p._gtk.remove_dialog(dialog)
+        if response == Gtk.ResponseType.OK:
+            self.gcode(f"REVO_SET_NOZZLE DIAMETER={self._noz['d']} TYPE={self._noz['t']}")
+            # save_variables nie jest subskrybowane – od razu pokaż nową dyszę
+            sv = self.printer.data.setdefault("save_variables", {}).setdefault("variables", {})
+            sv["revo_nozzle_diameter"] = float(self._noz["d"])
+            sv["revo_nozzle"] = f"{self._noz['d']} {self._noz['t']}"
+            self.refresh()
 
     def selftest(self):
         self.gcode("REVO_SELFTEST")
