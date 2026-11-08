@@ -141,7 +141,7 @@ class RevoHome(Gtk.Box):
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
-        self.t_bed = Tile("TAŚMA", lambda: self.p.menu_item_clicked(None, {"panel": "temperature", "name": "Temperatura"}))
+        self.t_bed = Tile("TAŚMA", lambda: self.heater_dialog("heater_bed", "TAŚMA", [0, 60, 70, 80, 90, 100, 110], 130))
         self.t_chamber = Tile("KOMORA")
         self.t_light = Tile("ŚWIATŁO", self.toggle_light)
         row = Gtk.Box(spacing=4)
@@ -200,6 +200,47 @@ class RevoHome(Gtk.Box):
         if pin:
             on = (self.printer.get_stat(f"output_pin {pin}", "value") or 0) > 0
             self.gcode(f"SET_PIN PIN={pin} VALUE={0 if on else 1}")
+
+    def heater_dialog(self, heater, title, presets, tmax):
+        """Ustawienie temperatury docelowej: presety + korekta ±5°C."""
+        st = self.printer.get_stat(heater) or {}
+        self._ht = {"h": heater, "t": int(st.get("target") or 0), "max": tmax}
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        box.get_style_context().add_class("revo_home")
+        box.pack_start(_lbl(f"{title} – TEMPERATURA", "revo_state", 0.5), False, False, 4)
+        now = st.get("temperature")
+        box.pack_start(_lbl(f"Teraz: {now:.0f}°C" if now is not None else "Teraz: –", "revo_info", 0.5), False, False, 0)
+        self._ht_lbl = _lbl("", "revo_big", 0.5)
+        box.pack_start(self._ht_lbl, False, False, 4)
+        adj = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        for i, d in enumerate((-10, -5, 5, 10)):
+            b = Gtk.Button(label=f"{d:+d}°")
+            b.get_style_context().add_class("revo_preset")
+            b.connect("clicked", lambda w, d=d: self._ht_set(self._ht["t"] + d))
+            adj.attach(b, i, 0, 1, 1)
+        box.pack_start(adj, False, False, 0)
+        box.pack_start(_lbl("PRESETY", "revo_tile_title"), False, False, 4)
+        g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
+        for i, v in enumerate(presets):
+            b = Gtk.Button(label="WYŁ." if v == 0 else f"{v}°")
+            b.get_style_context().add_class("revo_preset")
+            b.set_size_request(-1, 56)
+            b.connect("clicked", lambda w, v=v: self._ht_set(v))
+            g.attach(b, i % 4, i // 4, 1, 1)
+        box.pack_start(g, False, False, 0)
+        self._ht_set(self._ht["t"])
+        buttons = [{"name": "Ustaw", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        self.p._gtk.Dialog(title, buttons, box, self._heater_response)
+
+    def _ht_set(self, v):
+        self._ht["t"] = max(0, min(self._ht["max"], int(v)))
+        self._ht_lbl.set_label("WYŁĄCZONE" if self._ht["t"] == 0 else f"{self._ht['t']}°C")
+
+    def _heater_response(self, dialog, response):
+        self.p._gtk.remove_dialog(dialog)
+        if response == Gtk.ResponseType.OK:
+            self.gcode(f"SET_HEATER_TEMPERATURE HEATER={self._ht['h']} TARGET={self._ht['t']}")
 
     def nozzle_dialog(self):
         """Wybór zamontowanej dyszy: średnica + materiał → REVO_SET_NOZZLE."""
