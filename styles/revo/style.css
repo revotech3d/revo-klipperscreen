@@ -285,3 +285,5 @@ button.revo_nav { background-color: transparent; border: none; border-top: 1px s
 progressbar.revo_progress trough { min-height: 10px; background-color: #23262B; border-radius: 5px; border: none; }
 progressbar.revo_progress progress { min-height: 10px; background-color: #F2F3F5; border-radius: 5px; border: none; }
 .printing-filename { font-size: 1.15em; font-weight: bold; }
+button.revo_preset:checked, radiobutton.revo_preset:checked, .revo_preset:checked { background-color: #F0A04B; border-color: #F0A04B; }
+.revo_preset:checked label { color: #131518; }
