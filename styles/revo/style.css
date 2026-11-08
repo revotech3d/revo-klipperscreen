@@ -3,7 +3,7 @@
 @define-color color_2 #5BA8FF;
 @define-color color_3 #F0A04B;
 @define-color color_4 #9AA0A8;
-@define-color color_5 #0A0B0D;
+@define-color color_5 #050607;
 @define-color background-color_2 #131518;
 @define-color background-color_3 #23262B;
 @define-color background-color_4 #131518;
@@ -28,11 +28,11 @@ junction,
 list row,
 treeview.view,
 window {
-    background-color: #0A0B0D;
+    background-color: #050607;
 }
 
 button {
-    background-color: #0A0B0D;
+    background-color: #050607;
 }
 
 button:active {
@@ -85,7 +85,7 @@ button.invalid:active,
 .active image,
 button.update {
     color: #5BA8FF;
-    background-color: #0A0B0D;
+    background-color: #050607;
     border-color: #5BA8FF;
     border-radius: .5em;
     border-width: .1em;
@@ -93,7 +93,7 @@ button.update {
 
 button.invalid {
     color: #F0A04B;
-    background-color: #0A0B0D;
+    background-color: #050607;
     border-color: #F0A04B;
     border-radius: .5em;
     border-width: .1em;
@@ -104,7 +104,7 @@ menuitem,
 combobox button,
 combobox menuitem {
     background-color: #131518;
-    border-color: #0A0B0D;
+    border-color: #050607;
 }
 
 treeview.view check,
@@ -126,7 +126,7 @@ label {
 }
 
 trough {
-    background-color: #0A0B0D;
+    background-color: #050607;
     color: #F2F3F5;
 }
 
@@ -143,7 +143,7 @@ scale-mark {
 scrollbar,
 scrollbar button,
 scrollbar trough {
-    background-color: #0A0B0D;
+    background-color: #050607;
 }
 
 scrollbar slider {
@@ -160,7 +160,7 @@ textview .time {
 
 .dialog {
     border: 0;
-    background-color: #0A0B0D;
+    background-color: #050607;
 }
 
 .dialog button {
@@ -251,7 +251,7 @@ textview .time {
 
 .message button {
     background-color: #F2F3F5;
-    color: #0A0B0D;
+    color: #050607;
 }
 
 .keyboard_pad {
@@ -260,7 +260,7 @@ textview .time {
 
 /* ---- Revo OS ---- */
 .title_bar { border-bottom: 1px solid #23262B; }
-.action_bar { background-color: #0A0B0D; border-top: 1px solid #23262B; }
+.action_bar { background-color: #050607; border-top: 1px solid #23262B; }
 button { border-radius: 6px; }
 button.color1, button.color2, button.color3, button.color4 { border: 1px solid #23262B; }
 .revo_statusbar { background-color: #060708; }
@@ -281,3 +281,7 @@ button.revo_print label { color: #131518; }
 button.revo_print:active { background-color: #D9822B; }
 button.revo_preset { background-color: #131518; border: 1px solid #2C3036; border-radius: 12px; min-height: 48px; font-weight: bold; }
 button.revo_nav { background-color: transparent; border: none; border-top: 1px solid #1E2125; border-radius: 0; color: #C9CDD2; }
+.revo_big { font-size: 2.6em; font-weight: bold; color: #F2F3F5; }
+progressbar.revo_progress trough { min-height: 10px; background-color: #23262B; border-radius: 5px; border: none; }
+progressbar.revo_progress progress { min-height: 10px; background-color: #F2F3F5; border-radius: 5px; border: none; }
+.printing-filename { font-size: 1.15em; font-weight: bold; }

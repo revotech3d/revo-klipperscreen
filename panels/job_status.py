@@ -167,6 +167,90 @@ class Panel(ScreenPanel):
         self.grid.attach(self.labels["info_grid"], 0, 1, 4, 2)
         self.switch_info(info=self.status_grid)
         self.content.add(self.grid)
+        self.revo = None
+        if self._screen.vertical_mode and self._config.get_main_config().get("theme", "") == "revo":
+            self._revo_layout()
+
+    # ---------- Revo OS: układ ekranu drukowania ----------
+    @staticmethod
+    def _unparent(w):
+        par = w.get_parent()
+        if par is not None:
+            par.remove(w)
+        return w
+
+    def _revo_layout(self):
+        from ks_includes.widgets.revo_home import Tile
+        self.content.remove(self.grid)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.get_style_context().add_class("revo_home")
+
+        head = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        head.add(self._unparent(self.labels["file"]))
+        head.add(self._unparent(self.labels["lcdmessage"]))
+        box.pack_start(head, False, False, 0)
+
+        thumb = self._unparent(self.labels["thumbnail"])
+        thumb.set_halign(Gtk.Align.CENTER)
+        thumb.set_size_request(230, 230)
+        box.pack_start(thumb, True, True, 0)
+
+        prow = Gtk.Box(spacing=12)
+        pt = self._unparent(self.labels["progress_text"])
+        pt.get_style_context().add_class("revo_big")
+        prow.pack_start(pt, False, False, 0)
+        tl = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, valign=Gtk.Align.CENTER)
+        lbl = Gtk.Label(label="POZOSTAŁO", xalign=0)
+        lbl.get_style_context().add_class("revo_tile_title")
+        tl.add(lbl)
+        left = self._unparent(self.labels["time_left"])
+        left.get_style_context().add_class("revo_tile_value")
+        tl.add(left)
+        prow.pack_end(tl, False, False, 0)
+        box.pack_start(prow, False, False, 0)
+
+        self.revo_bar = Gtk.ProgressBar()
+        self.revo_bar.get_style_context().add_class("revo_progress")
+        box.pack_start(self.revo_bar, False, False, 0)
+
+        info = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        for i, (title, key) in enumerate((("UPŁYNĘŁO", "duration"), ("WARSTWA", "layer"), ("WYSOKOŚĆ", "pos_z"))):
+            col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            t = Gtk.Label(label=title, xalign=0)
+            t.get_style_context().add_class("revo_tile_title")
+            v = self._unparent(self.labels[key])
+            v.set_vexpand(False)
+            col.add(t)
+            col.add(v)
+            info.attach(col, i, 0, 1, 1)
+        box.pack_start(info, False, False, 0)
+
+        tiles = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile("TAŚMA"), "chamber": Tile("KOMORA")}
+        for i, t in enumerate(self.revo_tiles.values()):
+            tiles.attach(t, i, 0, 1, 1)
+        box.pack_start(tiles, False, False, 0)
+
+        box.pack_end(self._unparent(self.buttons["button_grid"]), False, False, 0)
+        self.revo = box
+        self.content.add(box)
+        GLib.timeout_add_seconds(1, self._revo_tick)
+
+    def _revo_tick(self):
+        if self.revo is None:
+            return False
+        if not self.content.get_parent():
+            return True
+        from ks_includes import revo_home_logic as lg
+        for dev, tile in self.revo_tiles.items():
+            if dev == "chamber":
+                dev = lg.cfg(self._printer, "chamber", "temperature_sensor chamber")
+            st = self._printer.get_stat(dev) or {}
+            t = st.get("temperature")
+            tile.value.set_label("–" if t is None else f"{t:.0f}°")
+            tg = st.get("target") or 0
+            tile.sub.set_label(f"cel {tg:.0f}°" if tg else "")
+        return True
 
     def create_status_grid(self, widget=None):
         buttons = {
@@ -837,6 +921,8 @@ class Panel(ScreenPanel):
         self.progress = progress
         self.labels["progress_text"].set_label(f"{trunc(progress * 100)}%")
         self.labels["darea"].queue_draw()
+        if getattr(self, "revo", None):
+            self.revo_bar.set_fraction(max(0.0, min(1.0, progress)))
 
     def set_state(self, state, msg=""):
         if state == "printing":
