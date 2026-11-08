@@ -368,12 +368,12 @@ class Panel(ScreenPanel):
         h = da.get_allocated_height()
         r = min(w, h) * 0.42
 
-        ctx.set_source_rgb(0.13, 0.13, 0.13)
+        ctx.set_source_rgb(0.137, 0.149, 0.169)  # Revo: #23262B
         ctx.set_line_width(self._gtk.font_size * 0.75)
         ctx.translate(w / 2, h / 2)
         ctx.arc(0, 0, r, 0, 2 * pi)
         ctx.stroke()
-        ctx.set_source_rgb(0.718, 0.110, 0.110)
+        ctx.set_source_rgb(0.949, 0.953, 0.961)  # Revo: #F2F3F5 (biały w druku)
         ctx.arc(0, 0, r, 3 / 2 * pi, 3 / 2 * pi + (self.progress * 2 * pi))
         ctx.stroke()
 
