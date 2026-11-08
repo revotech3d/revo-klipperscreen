@@ -34,6 +34,11 @@ class Panel(ScreenPanel):
                 vel = [str(i.strip()) for i in vel.split(",")]
                 if 1 < len(vel) < 5:
                     self.speeds = vel
+        # Revo OS: przepływ objętościowy (mm³/s) i czas zamiast mm i mm/s
+        self.revo = self._config.get_main_config().get("theme", "") == "revo"
+        if self.revo:
+            self.distances = ["5", "10", "20"]  # czas [s]
+            self.speeds = ["5", "10", "15", "25", "35", "45", "60"]  # przepływ [mm³/s]
         self.distance = int(self.distances[1])
         self.speed = int(self.speeds[1])
         self.buttons = {
@@ -139,11 +144,11 @@ class Panel(ScreenPanel):
             speedgrid.attach(self.labels[f"speed{i}"], j, 0, 1, 1)
 
         distbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.labels["extrude_dist"] = Gtk.Label(_("Distance (mm)"))
+        self.labels["extrude_dist"] = Gtk.Label("Czas (s)" if self.revo else _("Distance (mm)"))
         distbox.pack_start(self.labels["extrude_dist"], True, True, 0)
         distbox.add(distgrid)
         speedbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.labels["extrude_speed"] = Gtk.Label(_("Speed (mm/s)"))
+        self.labels["extrude_speed"] = Gtk.Label("Przepływ (mm³/s)" if self.revo else _("Speed (mm/s)"))
         speedbox.pack_start(self.labels["extrude_speed"], True, True, 0)
         speedbox.add(speedgrid)
 
@@ -300,8 +305,18 @@ class Panel(ScreenPanel):
             {"script": f"T{self._printer.get_tool_number(extruder)}"},
         )
 
+    def revo_flow_limit(self):
+        from ks_includes.revo_flow import flow_limit
+        v = (self._printer.get_stat("save_variables", "variables") or {}).get("revo_nozzle_diameter")
+        return flow_limit(v)
+
     def change_speed(self, widget, speed):
         logging.info(f"### Speed {speed}")
+        if self.revo and speed > self.revo_flow_limit():
+            self._screen.show_popup_message(
+                f"Przepływ {speed} mm³/s przekracza możliwości zamontowanej dyszy "
+                f"(maks. {self.revo_flow_limit()} mm³/s).", 2)
+            return
         self.labels[f"speed{self.speed}"].get_style_context().remove_class(
             "horizontal_togglebuttons_active"
         )
@@ -328,6 +343,11 @@ class Panel(ScreenPanel):
 
     def extrude(self, widget, direction):
         self._screen._ws.api.gcode_script(KlippyGcodes.EXTRUDE_REL)
+        if self.revo:
+            from ks_includes.revo_flow import extrude_script
+            script = extrude_script(self.speed, self.distance) if direction == "+" else "G1 E-5 F1800"
+            self._screen._send_action(widget, "printer.gcode.script", {"script": script})
+            return
         self._screen._send_action(
             widget,
             "printer.gcode.script",
