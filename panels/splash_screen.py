@@ -12,9 +12,14 @@ from ks_includes.screen_panel import ScreenPanel
 class Panel(ScreenPanel):
     def __init__(self, screen, title):
         super().__init__(screen, title)
-        image = self._gtk.Image(
-            "klipper", self._gtk.content_width * 0.2, self._gtk.content_height * 0.5
-        )
+        self.revo = self._config.get_main_config().get("theme", "") == "revo"
+        if self.revo:
+            # Revo OS: logotyp Revo3D nad komunikatem
+            image = self._gtk.Image("revo-logo", self._gtk.content_width * 0.8, 120)
+        else:
+            image = self._gtk.Image(
+                "klipper", self._gtk.content_width * 0.2, self._gtk.content_height * 0.5
+            )
         self.labels["text"] = Gtk.Label(
             label=_("Initializing printer..."),
             wrap=True,
@@ -44,8 +49,17 @@ class Panel(ScreenPanel):
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.labels["text"])
 
-        info = Gtk.Box()
+        if self.revo:
+            info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
+            image.set_margin_top(40)
+            self.labels["text"].get_style_context().add_class("revo_splash_text")
+        else:
+            info = Gtk.Box()
         info.pack_start(image, False, True, 8)
+        if self.revo:
+            tel = Gtk.Label(label="Serwis Revotech: +48 512 960 411", halign=Gtk.Align.CENTER)
+            tel.get_style_context().add_class("revo_info")
+            info.pack_end(tel, False, False, 8)
         info.pack_end(scroll, True, True, 8)
 
         main = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
