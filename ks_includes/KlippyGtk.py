@@ -91,7 +91,7 @@ class KlippyGtk:
         logging.info(f"Font size: {self.font_size:.1f} ({self.font_size_type})")
 
         # Revo OS: pionowy pasek statusu zabiera szerokość z lewej
-        self.revo_bar_width = 26
+        self.revo_bar_width = 32
         width = width - self.revo_bar_width
         if vertical_mode:
             self.action_bar_width = int(width)

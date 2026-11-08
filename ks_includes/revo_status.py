@@ -5,7 +5,7 @@ import urllib.request
 
 # stan -> (kolor RGB 0..1, miganie)
 COLORS = {
-    "gotowa": ((0.298, 0.765, 0.541), False),      # #4CC38A
+    "gotowa": ((0.243, 0.839, 0.388), False),      # #3ED663 (czystsza zieleń na ekranie DSI)
     "drukowanie": ((0.949, 0.953, 0.961), False),  # #F2F3F5
     "nagrzewanie": ((0.941, 0.627, 0.294), False),  # #F0A04B
     "pauza": ((0.941, 0.627, 0.294), True),

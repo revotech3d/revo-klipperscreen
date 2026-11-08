@@ -11,7 +11,7 @@ from ks_includes import revo_status as rs
 
 
 class RevoStatusBar(Gtk.DrawingArea):
-    WIDTH = 26  # = KlippyGtk.revo_bar_width
+    WIDTH = 32  # = KlippyGtk.revo_bar_width
     GAP = 3
 
     def __init__(self, screen):
@@ -71,8 +71,8 @@ class RevoStatusBar(Gtk.DrawingArea):
         (r, g, b), _ = rs.COLORS[self.state]
         lit = rs.lit_segments(self.state, self.progress, n)
         on = rs.blink_on(self.state)
-        x = 7
-        sw = w - 12
+        x = 6
+        sw = w - 16  # 10 px odstępu od treści po prawej
         for i in range(n):
             # segmenty liczone od dołu
             y = h - self.GAP - (i + 1) * seg_h - i * self.GAP
