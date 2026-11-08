@@ -96,7 +96,15 @@ class Panel(ScreenPanel):
             self.box.pack_start(b, False, False, 0)
         self.msg = self._lbl("Licznik wyzeruje się po zatwierdzeniu przez Revotech.", "revo_info", 0.5, True)
         self.box.pack_start(self.msg, False, False, 8)
+        end = Gtk.Button(label="ZAKOŃCZ TRYB SERWISOWY")
+        end.get_style_context().add_class("revo_print")
+        end.connect("clicked", self.logout)
+        self.box.pack_end(end, False, False, 4)
         self.content.show_all()
+
+    def logout(self, *args):
+        agent.call("/serwis/koniec", {"source": "ekran"})
+        self._screen._menu_go_back(home=True)
 
     def ask_reset(self, w, key, name):
         lb = self._lbl(f"Wysłać do Revotech wniosek o reset licznika: {name}?", "revo_splash_text", 0.5, True)
