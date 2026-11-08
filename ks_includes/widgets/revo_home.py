@@ -93,9 +93,9 @@ class Schematic(Gtk.DrawingArea):
             self._line(ctx, (284, y), (312, y), "#3A3F46", 1.5)
         # światło
         if self.light:
-            self._rgb(ctx, "#F0A04B", 0.18)
+            self._rgb(ctx, "#E6E8EB", 0.10)
             ctx.rectangle(108, 126, 158, 120); ctx.fill()
-        self._line(ctx, (112, 126), (262, 126), "#F0A04B" if self.light else "#3A3F46", 2.5)
+        self._line(ctx, (112, 126), (262, 126), "#E6E8EB" if self.light else "#3A3F46", 2.5)
         # szyba drzwi
         self._rgb(ctx, "#1A1E23", 0.4); ctx.rectangle(108, 120, 158, 178); ctx.fill()
         self._rgb(ctx, "#4A4F57"); ctx.set_line_width(1); ctx.rectangle(108, 120, 158, 178); ctx.stroke()
@@ -110,7 +110,7 @@ class Schematic(Gtk.DrawingArea):
         for x in (116, 254):
             self._rgb(ctx, "#15181C"); ctx.arc(x, 266, 6, 0, 6.2832); ctx.fill_preserve()
             self._rgb(ctx, "#9AA0A8"); ctx.set_line_width(1.5); ctx.stroke()
-        self._poly(ctx, [(268, 258), (262, 255), (262, 261)], "#F0A04B")
+        self._poly(ctx, [(268, 258), (262, 255), (262, 261)], "#9AA0A8")
         for x in (124, 246):
             self._line(ctx, (x, 272), (x, 298), "#3A3F46", 2)
         self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()

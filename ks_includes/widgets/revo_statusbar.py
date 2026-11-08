@@ -87,8 +87,8 @@ class RevoStatusBar(Gtk.DrawingArea):
             ctx.rectangle(x, y, sw, seg_h)
             ctx.fill()
             if i == lit - 1 and lit < n and on:
-                # czoło postępu – akcent bursztynowy
-                ctx.set_source_rgba(0.941, 0.627, 0.294, 1.0)
+                # czoło postępu – jasna kreska
+                ctx.set_source_rgba(0.6, 0.63, 0.66, 1.0)
                 ctx.rectangle(x, y, sw, 2)
                 ctx.fill()
         return False
