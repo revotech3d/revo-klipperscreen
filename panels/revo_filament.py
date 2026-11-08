@@ -21,8 +21,8 @@ class Panel(RevoActions, ScreenPanel):
         box.get_style_context().add_class("revo_home")
 
         top = Gtk.Grid(column_homogeneous=True, column_spacing=10)
-        self.t_temp = Tile("DYSZA – TEMP.", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320))
-        self.t_noz = Tile("ZAMONTOWANA", self.nozzle_dialog)
+        self.t_temp = Tile("TEMPERATURA DYSZY", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320))
+        self.t_noz = Tile("DYSZA", self.nozzle_dialog)
         for t in (self.t_temp, self.t_noz):
             t.sub.set_line_wrap(True)
             t.sub.set_max_width_chars(18)
@@ -31,7 +31,7 @@ class Panel(RevoActions, ScreenPanel):
         box.pack_start(top, False, False, 0)
 
         lu = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        for i, (lab, mac) in enumerate((("ŁADUJ 100 mm", "LOAD_FILAMENT"), ("WYŁADUJ 100 mm", "UNLOAD_FILAMENT"))):
+        for i, (lab, mac) in enumerate((("ZAŁADUJ FILAMENT", "LOAD_FILAMENT"), ("WYŁADUJ FILAMENT", "UNLOAD_FILAMENT"))):
             b = Gtk.Button(label=lab)
             b.get_style_context().add_class("revo_print" if i == 0 else "revo_preset")
             b.set_size_request(-1, 60)
@@ -108,7 +108,7 @@ class Panel(RevoActions, ScreenPanel):
         st = self._printer.get_stat("extruder") or {}
         t, tg = st.get("temperature"), st.get("target") or 0
         self.t_temp.value.set_label("–" if t is None else f"{t:.0f}°")
-        self.t_temp.sub.set_label(f"cel {tg:.0f}°" if tg else "wył. · dotknij")
+        self.t_temp.sub.set_label(f"cel {tg:.0f}°" if tg else "grzanie wyłączone")
         v = str((self._printer.get_stat("save_variables", "variables") or {}).get("revo_nozzle", "")).split()
         self.t_noz.value.set_label(f"Ø{v[0]}" if v else "Ø?")
         self.t_noz.sub.set_label({"mosiadz": "mosiądz", "stal": "stal hart.", "wolfram": "wolfram"}.get(v[1], v[1]) if len(v) > 1 else "dotknij")

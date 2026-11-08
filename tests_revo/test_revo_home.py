@@ -15,7 +15,7 @@ D = {"print_stats": {"state": "standby"}, "extruder": {"temperature": 21.4, "tar
 def test_ready():
     v = lg.view(P("ready", D), 12.4)
     assert v["state"] == "GOTOWA" and v["nozzle_size"] == "Ø0.4" and v["chamber_temp"] == "21°"
-    assert v["light"] == "Wł." and v["info"] == "System OK · 12 h pracy"
+    assert v["light"] == "Włączone" and v["info"] == "System OK · 12 h pracy"
 
 def test_heating_and_error():
     d = dict(D, extruder={"temperature": 100, "target": 210})

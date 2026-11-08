@@ -226,7 +226,7 @@ class Panel(ScreenPanel):
         box.pack_start(info, False, False, 0)
 
         tiles = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile("TAŚMA"), "chamber": Tile("KOMORA")}
+        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile("PAS"), "chamber": Tile("KOMORA")}
         for i, t in enumerate(self.revo_tiles.values()):
             tiles.attach(t, i, 0, 1, 1)
         box.pack_start(tiles, False, False, 0)

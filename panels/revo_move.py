@@ -33,8 +33,8 @@ class Panel(RevoActions, ScreenPanel):
         for i, (lab, g, cls) in enumerate((("BAZUJ", "G28", "revo_print"), ("X", "G28 X", "revo_preset"),
                                            ("Y", "G28 Y", "revo_preset"), ("Z", "G28 Z", "revo_preset"))):
             hg.attach(self._btn(lab, lambda w, g=g: self.gcode(g), cls, 44), i, 0, 1, 1)
-        hg.attach(self._btn("POZIOMUJ BRAMĘ", lambda w: self.gcode("CQGL"), "revo_preset", 40), 0, 1, 2, 1)
-        hg.attach(self._btn("WYŁĄCZ SILNIKI", lambda w: self.gcode("M84"), "revo_preset", 40), 2, 1, 2, 1)
+        hg.attach(self._btn("POZIOMOWANIE BRAMY", lambda w: self.gcode("CQGL"), "revo_preset", 40), 0, 1, 2, 1)
+        hg.attach(self._btn("ZWOLNIJ SILNIKI", lambda w: self.gcode("M84"), "revo_preset", 40), 2, 1, 2, 1)
         box.pack_start(hg, False, False, 0)
 
         box.pack_start(_lbl("KROK (mm)", "revo_tile_title"), False, False, 2)
@@ -57,11 +57,11 @@ class Panel(RevoActions, ScreenPanel):
             jg.attach(self._btn(lab, lambda w, ax=ax, d=d: self.jog(ax, d), "revo_preset", 44), c, r, 1, 1)
         box.pack_start(jg, False, False, 0)
 
-        box.pack_start(_lbl("TAŚMA", "revo_tile_title"), False, False, 2)
+        box.pack_start(_lbl("PAS", "revo_tile_title"), False, False, 2)
         bg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         bg.attach(self._btn("◂ COFNIJ", lambda w: self.belt(-1), "revo_preset", 42), 0, 0, 1, 1)
         bg.attach(self._btn("NAPRZÓD ▸", lambda w: self.belt(1), "revo_preset", 42), 1, 0, 1, 1)
-        bg.attach(self._btn("ZRZUĆ WYDRUK", lambda w: self.gcode("CLEAR_BELT"), "revo_preset", 42), 2, 0, 1, 1)
+        bg.attach(self._btn("WYSUŃ WYDRUK", lambda w: self.gcode("CLEAR_BELT"), "revo_preset", 42), 2, 0, 1, 1)
         box.pack_start(bg, False, False, 0)
 
         self.es = Gtk.Button(label="E-STOP · PRZYTRZYMAJ 1 s")

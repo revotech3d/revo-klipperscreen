@@ -302,3 +302,4 @@ button.revo_estop label { color: #FFFFFF; }
 button.revo_estop:active { background-color: #B3262B; }
 button.revo_file { background-color: #131518; border: 1px solid #23262B; border-radius: 14px; padding: 8px; }
 button.revo_compact { min-height: 36px; padding: 2px 4px; }
+.revo_tile_value.revo_tile_value_small { font-size: 1.0em; }

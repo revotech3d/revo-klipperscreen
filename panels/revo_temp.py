@@ -19,7 +19,7 @@ class Panel(RevoActions, ScreenPanel):
         g = Gtk.Grid(column_homogeneous=True, column_spacing=10)
         self.t = {
             "extruder": Tile("DYSZA", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320)),
-            "heater_bed": Tile("TAŚMA", lambda: self.heater_dialog("heater_bed", "TAŚMA", [0, 60, 70, 80, 90, 100, 110], 130)),
+            "heater_bed": Tile("PAS", lambda: self.heater_dialog("heater_bed", "PAS", [0, 60, 70, 80, 90, 100, 110], 130)),
             "chamber": Tile("KOMORA"),
         }
         for i, t in enumerate(self.t.values()):
@@ -29,8 +29,8 @@ class Panel(RevoActions, ScreenPanel):
         box.pack_start(_lbl("Dotknij kafelka, żeby ustawić temperaturę.", "revo_info", 0.5), False, False, 0)
         box.pack_start(_lbl("PRESETY MATERIAŁÓW", "revo_tile_title"), False, False, 6)
         pg = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
-        for i, (name, e, b) in enumerate(PRESETS + [("Chłodź", 0, 0)]):
-            bt = Gtk.Button(label=name if e else "Chłodź")
+        for i, (name, e, b) in enumerate(PRESETS + [("Wyłącz grzanie", 0, 0)]):
+            bt = Gtk.Button(label=name if e else "Wyłącz grzanie")
             bt.get_style_context().add_class("revo_preset")
             bt.set_size_request(-1, 64)
             bt.connect("clicked", lambda w, e=e, b=b: self.gcode(
@@ -38,7 +38,7 @@ class Panel(RevoActions, ScreenPanel):
             pg.attach(bt, i % 2, i // 2, 1, 1)
         box.pack_start(pg, False, False, 0)
         for name, e, b in PRESETS:
-            box.pack_start(_lbl(f"{name}: dysza {e}°, taśma {b}°", "revo_info"), False, False, 0)
+            box.pack_start(_lbl(f"{name}: dysza {e}°C, pas {b}°C", "revo_info"), False, False, 0)
         self.content.add(box)
 
     def activate(self):
