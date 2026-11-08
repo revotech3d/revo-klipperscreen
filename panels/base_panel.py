@@ -228,7 +228,16 @@ class BasePanel(ScreenPanel):
             return filament_colors_from_dict(None)
         return filament_colors_from_dict(self._printer.active_spool["filament"])
 
+    def revo_layout(self, panel):
+        """Revo OS: ekran główny bez dolnego paska i temperatur w nagłówku (ma własne menu i kafelki)."""
+        if self._config.get_main_config().get("theme", "") != "revo":
+            return
+        self.control["item_box"].hide()
+        self.action_bar.set_visible(panel != "main_menu")
+
     def show_titlebar_items(self):
+        if self._config.get_main_config().get("theme", "") == "revo":
+            return
         if self.titlebar_populated:
             return
         if self._printer is None:

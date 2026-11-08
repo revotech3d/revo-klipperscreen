@@ -461,6 +461,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
         if hasattr(self.panels[panel], "activate"):
             self.panels[panel].activate()
         self.show_all()
+        self.base_panel.revo_layout(panel)
 
     def log_notification(self, message, level=0):
         time = datetime.now().strftime("%H:%M:%S")

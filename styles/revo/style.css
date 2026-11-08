@@ -290,3 +290,10 @@ button.revo_preset:checked, radiobutton.revo_preset:checked, .revo_preset:checke
 .revo_splash_text { font-size: 1.1em; color: #F2F3F5; }
 .revo_doc { color: #E6E8EB; font-size: 0.95em; }
 .revo_tile_value_small { color: #F2F3F5; font-weight: bold; }
+
+/* ---- Revo OS: dolny pasek nawigacji (podstrony) spójny z menu ekranu głównego ---- */
+.action_bar { background-color: #050607; border-top: 1px solid #1E2125; }
+.action_bar button { background-color: transparent; border: none; border-radius: 0; }
+.action_bar button image { opacity: 0.75; }
+.action_bar button:active { background-color: #131518; }
+.title_bar { background-color: #050607; }
