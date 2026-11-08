@@ -140,7 +140,7 @@ class RevoHome(Gtk.Box):
         self.schem.set_size_request(250, 330)
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
-        self.t_nozzle = Tile("DYSZA", lambda: self.p.menu_item_clicked(None, {"panel": "temperature", "name": "Temperatura"}))
+        self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
         self.t_bed = Tile("TAŚMA", lambda: self.p.menu_item_clicked(None, {"panel": "temperature", "name": "Temperatura"}))
         self.t_chamber = Tile("KOMORA")
         self.t_light = Tile("ŚWIATŁO", self.toggle_light)
