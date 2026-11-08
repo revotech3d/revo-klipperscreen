@@ -264,3 +264,20 @@ textview .time {
 button { border-radius: 6px; }
 button.color1, button.color2, button.color3, button.color4 { border: 1px solid #23262B; }
 .revo_statusbar { background-color: #060708; }
+
+/* ---- Revo OS: ekran główny ---- */
+.revo_home { padding: 8px 10px 6px 10px; }
+.revo_state { font-weight: bold; letter-spacing: 3px; font-size: 1.05em; }
+.revo_ok { color: #3ED663; }
+.revo_warn { color: #F0A04B; }
+.revo_err { color: #FF4D52; }
+.revo_info { color: #9AA0A8; font-size: 0.85em; }
+.revo_tile { background-color: #131518; border: 1px solid #2C3036; border-radius: 10px; padding: 6px 8px; min-width: 76px; }
+.revo_tile_title { color: #9AA0A8; font-size: 0.7em; letter-spacing: 2px; }
+.revo_tile_value { color: #F2F3F5; font-size: 1.5em; font-weight: bold; }
+.revo_tile_sub { color: #C9CDD2; font-size: 0.8em; }
+button.revo_print { background-color: #F0A04B; color: #131518; border-radius: 16px; min-height: 64px; font-weight: bold; letter-spacing: 3px; font-size: 1.1em; }
+button.revo_print label { color: #131518; }
+button.revo_print:active { background-color: #D9822B; }
+button.revo_preset { background-color: #131518; border: 1px solid #2C3036; border-radius: 12px; min-height: 48px; font-weight: bold; }
+button.revo_nav { background-color: transparent; border: none; border-top: 1px solid #1E2125; border-radius: 0; color: #C9CDD2; }

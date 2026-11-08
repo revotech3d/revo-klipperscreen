@@ -13,7 +13,7 @@ printing = MODE == "drukowanie"
 CONFIG = {
     "extruder": {"filament_diameter": "1.75", "nozzle_diameter": "0.4"}, "heater_bed": {}, "temperature_sensor komora": {},
     "fan": {}, "heater_fan hotend_fan": {}, "neopixel status": {},
-    "virtual_sdcard": {}, "print_stats": {}, "display_status": {},
+    "virtual_sdcard": {}, "print_stats": {}, "display_status": {}, "output_pin caselight": {}, "save_variables": {},
 }
 STATUS = {
     "configfile": {"config": CONFIG, "settings": {"extruder": {"nozzle_diameter": 0.4, "filament_diameter": 1.75}}},
@@ -35,6 +35,9 @@ STATUS = {
                    "homing_origin": [0, 0, 0, 0]},
     "idle_timeout": {"state": "Printing" if printing else "Idle"},
     "pause_resume": {"is_paused": False},
+    "save_variables": {"variables": {"revo_nozzle_diameter": 0.4, "revo_nozzle": "0.4 mosiadz"}},
+    "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight"},
+    "output_pin caselight": {"value": 1.0},
 }
 
 RESULTS = {

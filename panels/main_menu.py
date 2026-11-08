@@ -9,6 +9,7 @@ from ks_includes.KlippyGtk import find_widget
 from ks_includes.widgets.heatergraph import HeaterGraph
 from ks_includes.widgets.keypad import Keypad
 from panels.menu import Panel as MenuPanel
+from ks_includes.widgets.revo_home import RevoHome
 
 
 class Panel(MenuPanel):
@@ -27,6 +28,13 @@ class Panel(MenuPanel):
         self.numpad_visible = False
 
         logging.info("### Making MainMenu")
+
+        # Revo OS: własny ekran główny w motywie revo (pion)
+        self.revo = None
+        if self._screen.vertical_mode and self._config.get_main_config().get("theme", "") == "revo":
+            self.revo = RevoHome(self)
+            self.content.add(self.revo)
+            return
 
         stats = self._printer.get_printer_status_data()["printer"]
         if stats["temperature_devices"]["count"] > 0 or stats["extruders"]["count"] > 0:
@@ -75,9 +83,15 @@ class Panel(MenuPanel):
         return False
 
     def activate(self):
+        if self.revo:
+            self.revo.start()
+            return
         self.update_graph_visibility()
 
     def deactivate(self):
+        if self.revo:
+            self.revo.stop()
+            return
         if self.graph_update is not None:
             GLib.source_remove(self.graph_update)
             self.graph_update = None
@@ -297,7 +311,7 @@ class Panel(MenuPanel):
         self._screen.base_panel.set_control_sensitive(False, control="back")
 
     def process_update(self, action, data):
-        if action != "notify_status_update":
+        if action != "notify_status_update" or self.revo:
             return
 
         if not self._printer:
