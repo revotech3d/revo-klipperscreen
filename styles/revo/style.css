@@ -1,0 +1,266 @@
+/* Revo OS theme (Revotech) – based on material-darker by Alfredo Monclus 2021, AGPL-3.0 */
+@define-color color_1 #F2F3F5;
+@define-color color_2 #5BA8FF;
+@define-color color_3 #F0A04B;
+@define-color color_4 #9AA0A8;
+@define-color color_5 #0A0B0D;
+@define-color background-color_2 #131518;
+@define-color background-color_3 #23262B;
+@define-color background-color_4 #131518;
+@define-color background-color_5 #1E4D38;
+@define-color background-color_6 #1B3A5C;
+@define-color background-color_7 #2E3238;
+@define-color background-color_8 #4CC38A;
+@define-color background-color_9 #F0A04B;
+@define-color background-color_10 #FF4D52;
+@define-color background-color_12 #F6C38A;
+@define-color background-color_13 #FF4D52;
+@define-color background-color_14 #060708;
+@define-color border-color_6 #9AA0A8;
+@define-color border-color_7 #23262B;
+
+* {
+    color: #F2F3F5;
+    font-family: "D-DIN", RobotoMedium;
+}
+
+junction,
+list row,
+treeview.view,
+window {
+    background-color: #0A0B0D;
+}
+
+button {
+    background-color: #0A0B0D;
+}
+
+button:active {
+    background-color: #23262B;
+}
+
+.button_active {
+    border-color: #23262B;
+    border-style: solid;
+    background-color: #23262B;
+}
+
+button.color1,
+button.color2,
+button.color3,
+button.color4 {
+    background-color: #131518;
+    border-color: #131518;
+    border-radius: .25em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+}
+
+
+button:focus,
+button.color1:focus,
+button.color2:focus,
+button.color3:focus,
+button.color4:focus,
+button.update:focus,
+button.invalid:focus,
+.dialog button:focus
+{
+    background-color: #23262B;
+    border-color: #23262B;
+}
+
+button.color1:active,
+button.color2:active,
+button.color3:active,
+button.color4:active,
+button.update:active,
+button.invalid:active,
+.dialog button:active {
+    border-style: none;
+    background-color: #23262B;
+    margin-top: 0.55em;
+}
+
+.active image,
+button.update {
+    color: #5BA8FF;
+    background-color: #0A0B0D;
+    border-color: #5BA8FF;
+    border-radius: .5em;
+    border-width: .1em;
+}
+
+button.invalid {
+    color: #F0A04B;
+    background-color: #0A0B0D;
+    border-color: #F0A04B;
+    border-radius: .5em;
+    border-width: .1em;
+}
+
+menu,
+menuitem,
+combobox button,
+combobox menuitem {
+    background-color: #131518;
+    border-color: #0A0B0D;
+}
+
+treeview.view check,
+switch {
+    background-color: #131518;
+}
+
+treeview.view check:checked,
+switch:checked {
+    background-color: #1E4D38;
+}
+
+treeview.view check:checked {
+    -gtk-icon-source: url("./styles/revo/images/complete.svg");
+}
+
+label {
+    color: #F2F3F5;
+}
+
+trough {
+    background-color: #0A0B0D;
+    color: #F2F3F5;
+}
+
+trough highlight,
+trough progress {
+    background-color: #1E4D38;
+    color: #F2F3F5;
+}
+
+scale-mark {
+    color: #F2F3F5;
+}
+
+scrollbar,
+scrollbar button,
+scrollbar trough {
+    background-color: #0A0B0D;
+}
+
+scrollbar slider {
+    background-color: #131518;
+}
+
+textview .time {
+    color: #9AA0A8;
+}
+
+.active_device {
+    background-color: #131518;
+}
+
+.dialog {
+    border: 0;
+    background-color: #0A0B0D;
+}
+
+.dialog button {
+    background-color: #131518;
+    border-radius: .25em;
+}
+
+
+.dialog-error {
+    border-bottom-color: #FF4D52;
+}
+
+.dialog-warning {
+    border-bottom-color: #F6C38A;
+}
+
+.dialog-info {
+    border-bottom-color: @color_4;
+}
+
+.dialog-default {
+    border-bottom-color: @color_3;
+}
+
+.dialog-secondary {
+     border-bottom-color: @color_2;
+}
+
+.dialog-primary {
+     border-bottom-color: @color_1;
+}
+
+.horizontal_togglebuttons  {
+    border-color: #2E3238;
+    border-width: .1em;
+    background-color: #131518;
+}
+
+.horizontal_togglebuttons_active {
+    background-color: #2E3238;
+}
+
+.fan_slider {
+    color: #F2F3F5;
+}
+
+.message_popup {
+    border-bottom-color: #F2F3F5;
+}
+
+.message_popup_echo,
+.message_popup_echo button {
+    background-color: #4CC38A;
+}
+
+.message_popup_warning,
+.message_popup_warning button {
+    background-color: #F0A04B;
+}
+
+.message_popup_error,
+.message_popup_error button {
+    background-color: #FF4D52;
+}
+
+.numpad_key {
+    border-color: #2E3238;
+    background-color: #131518;
+}
+
+.printing-status {
+    color: #F2F3F5;
+}
+
+.printing-progress-text {
+    color: #F2F3F5;
+}
+
+.printing-status-label {
+    color: #9AA0A8;
+}
+
+.message {
+    border-color: #FF4D52;
+    color: #F2F3F5;
+    background-color: #FF4D52;
+}
+
+.message button {
+    background-color: #F2F3F5;
+    color: #0A0B0D;
+}
+
+.keyboard_pad {
+    background-color: #060708;
+}
+
+/* ---- Revo OS ---- */
+.title_bar { border-bottom: 1px solid #23262B; }
+.action_bar { background-color: #0A0B0D; border-top: 1px solid #23262B; }
+button { border-radius: 6px; }
+button.color1, button.color2, button.color3, button.color4 { border: 1px solid #23262B; }
+.revo_statusbar { background-color: #060708; }

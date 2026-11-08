@@ -13,6 +13,7 @@ from gi.repository import GdkPixbuf, Gio, GLib, Gtk, Pango
 from jinja2 import Environment
 
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_statusbar import RevoStatusBar
 from ks_includes.svg_gradient import apply_filament_gradient, filament_colors_from_dict
 
 try:
@@ -130,6 +131,7 @@ class BasePanel(ScreenPanel):
 
         # Main layout
         self.main_grid = Gtk.Grid()
+        self.revo_bar = RevoStatusBar(self._screen)
         self._build_main_grid()
 
         self.update_time()
@@ -138,21 +140,25 @@ class BasePanel(ScreenPanel):
         self.main_grid.remove(self.titlebar)
         self.main_grid.remove(self.content)
         self.main_grid.remove(self.action_bar)
+        self.main_grid.remove(self.revo_bar)
         self._build_main_grid()
 
     def _build_main_grid(self):
         self.action_bar.set_size_request(self._gtk.action_bar_width, self._gtk.action_bar_height)
         if self._screen.vertical_mode:
-            self.main_grid.attach(self.titlebar, 0, 0, 1, 1)
-            self.main_grid.attach(self.content, 0, 1, 1, 1)
-            self.main_grid.attach(self.action_bar, 0, 2, 1, 1)
+            # Revo OS: pasek statusu z lewej, przez całą wysokość
+            self.main_grid.attach(self.revo_bar, 0, 0, 1, 3)
+            self.main_grid.attach(self.titlebar, 1, 0, 1, 1)
+            self.main_grid.attach(self.content, 1, 1, 1, 1)
+            self.main_grid.attach(self.action_bar, 1, 2, 1, 1)
             self.action_bar.set_orientation(orientation=Gtk.Orientation.HORIZONTAL)
             self.action_bar.set_hexpand(True)
             self.action_bar.set_vexpand(False)
         else:
-            self.main_grid.attach(self.titlebar, 1, 0, 1, 1)
-            self.main_grid.attach(self.content, 1, 1, 1, 1)
-            self.main_grid.attach(self.action_bar, 0, 0, 1, 2)
+            self.main_grid.attach(self.revo_bar, 0, 0, 1, 2)
+            self.main_grid.attach(self.titlebar, 2, 0, 1, 1)
+            self.main_grid.attach(self.content, 2, 1, 1, 1)
+            self.main_grid.attach(self.action_bar, 1, 0, 1, 2)
             self.action_bar.set_orientation(orientation=Gtk.Orientation.VERTICAL)
             self.action_bar.set_hexpand(False)
             self.action_bar.set_vexpand(True)
