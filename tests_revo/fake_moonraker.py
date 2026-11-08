@@ -11,6 +11,8 @@ MODE = sys.argv[1] if len(sys.argv) > 1 else "drukowanie"
 printing = MODE == "drukowanie"
 
 CONFIG = {
+    "printer": {"kinematics": "corexy", "max_velocity": "500", "max_accel": "10000", "max_z_velocity": "15"},
+    "stepper_x": {"position_max": "351", "position_min": "0"}, "stepper_y": {"position_max": "351", "position_min": "0"}, "stepper_z": {"position_max": "300", "position_min": "-10"},
     "extruder": {"filament_diameter": "1.75", "nozzle_diameter": "0.4"}, "heater_bed": {}, "temperature_sensor komora": {},
     "fan": {}, "heater_fan hotend_fan": {}, "neopixel status": {},
     "virtual_sdcard": {}, "print_stats": {}, "display_status": {}, "output_pin caselight": {}, "save_variables": {},

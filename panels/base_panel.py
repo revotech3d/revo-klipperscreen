@@ -333,7 +333,7 @@ class BasePanel(ScreenPanel):
         return True
 
     def open_temp_panel(self, widget=None, event=None, device=None):
-        self._screen.show_panel("temperature", extra=device)
+        self._screen.show_panel("revo_temp")
         return True
 
     def get_icon(self, device, img_size):

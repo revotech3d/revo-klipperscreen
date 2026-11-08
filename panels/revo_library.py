@@ -21,7 +21,7 @@ def content_dir():
 
 
 class Panel(ScreenPanel):
-    def __init__(self, screen, title):
+    def __init__(self, screen, title, **kwargs):
         super().__init__(screen, title or "Biblioteka Revo")
         self.root = content_dir()
         self.scroll = self._gtk.ScrolledWindow()

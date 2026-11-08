@@ -119,76 +119,9 @@ class Schematic(Gtk.DrawingArea):
         return False
 
 
-class RevoHome(Gtk.Box):
-    def __init__(self, panel):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.p = panel
-        self.screen = panel._screen
-        self.printer = panel._printer
-        self.hours = None
-        self.get_style_context().add_class("revo_home")
+class RevoActions:
+    """Wspólne okna Revo (temperatura, dysza). Wymaga: self.p (panel z _gtk), self.printer, self.screen."""
 
-        top = Gtk.Box(spacing=8)
-        self.state_lbl = _lbl("GOTOWA", "revo_state")
-        self.info_lbl = _lbl("", "revo_info", 1.0)
-        top.pack_start(self.state_lbl, False, False, 0)
-        top.pack_end(self.info_lbl, True, True, 0)
-        self.pack_start(top, False, False, 0)
-
-        # schemat w środku, kafelki w kolumnach po bokach
-        self.schem = Schematic("belt")
-        self.schem.set_size_request(250, 330)
-        self.schem.set_margin_start(8)
-        self.schem.set_margin_end(8)
-        self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
-        self.t_bed = Tile("TAŚMA", lambda: self.heater_dialog("heater_bed", "TAŚMA", [0, 60, 70, 80, 90, 100, 110], 130))
-        self.t_chamber = Tile("KOMORA")
-        self.t_light = Tile("ŚWIATŁO", self.toggle_light)
-        row = Gtk.Box(spacing=4)
-        left = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
-        right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
-        left.pack_start(self.t_nozzle, False, False, 0)
-        left.pack_start(self.t_bed, False, False, 0)
-        right.pack_start(self.t_light, False, False, 0)
-        right.pack_start(self.t_chamber, False, False, 0)
-        row.pack_start(left, False, False, 0)
-        row.pack_start(self.schem, True, True, 0)
-        row.pack_start(right, False, False, 0)
-        self.pack_start(row, True, True, 0)
-
-        druk = Gtk.Button(label="DRUKUJ · WYBIERZ PLIK")
-        druk.get_style_context().add_class("revo_print")
-        druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"}))
-        self.pack_start(druk, False, False, 0)
-
-        pre = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        for i, (name, e, b) in enumerate(PRESETS):
-            bt = Gtk.Button(label=name)
-            bt.get_style_context().add_class("revo_preset")
-            bt.connect("clicked", self.preheat, e, b)
-            pre.attach(bt, i, 0, 1, 1)
-        cool = Gtk.Button(label="Chłodź")
-        cool.get_style_context().add_class("revo_preset")
-        cool.connect("clicked", self.preheat, 0, 0)
-        pre.attach(cool, 3, 0, 1, 1)
-        self.pack_start(pre, False, False, 0)
-
-        nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
-        items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "extrude", "name": "Filament"})),
-                 ("extruder", "Dysza", self.nozzle_dialog),
-                 ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"})),
-                 ("settings", "Menu", self.open_menu)]
-        for i, (icon, name, cb) in enumerate(items):
-            bt = self.p._gtk.Button(icon, name, None, 0.9)
-            bt.get_style_context().add_class("revo_nav")
-            bt.connect("clicked", lambda w, c=cb: c())
-            nav.attach(bt, i, 0, 1, 1)
-        self.pack_start(nav, False, False, 0)
-
-        self._timer = None
-        self._asked = False
-
-    # --- akcje ---
     def gcode(self, script):
         self.screen._ws.api.gcode_script(script)
 
@@ -288,6 +221,80 @@ class RevoHome(Gtk.Box):
             sv["revo_nozzle"] = f"{self._noz['d']} {self._noz['t']}"
             self.refresh()
 
+    def refresh(self):
+        return True
+
+
+class RevoHome(RevoActions, Gtk.Box):
+    def __init__(self, panel):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.p = panel
+        self.screen = panel._screen
+        self.printer = panel._printer
+        self.hours = None
+        self.get_style_context().add_class("revo_home")
+
+        top = Gtk.Box(spacing=8)
+        self.state_lbl = _lbl("GOTOWA", "revo_state")
+        self.info_lbl = _lbl("", "revo_info", 1.0)
+        top.pack_start(self.state_lbl, False, False, 0)
+        top.pack_end(self.info_lbl, True, True, 0)
+        self.pack_start(top, False, False, 0)
+
+        # schemat w środku, kafelki w kolumnach po bokach
+        self.schem = Schematic("belt")
+        self.schem.set_size_request(250, 330)
+        self.schem.set_margin_start(8)
+        self.schem.set_margin_end(8)
+        self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
+        self.t_bed = Tile("TAŚMA", lambda: self.heater_dialog("heater_bed", "TAŚMA", [0, 60, 70, 80, 90, 100, 110], 130))
+        self.t_chamber = Tile("KOMORA")
+        self.t_light = Tile("ŚWIATŁO", self.toggle_light)
+        row = Gtk.Box(spacing=4)
+        left = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
+        right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
+        left.pack_start(self.t_nozzle, False, False, 0)
+        left.pack_start(self.t_bed, False, False, 0)
+        right.pack_start(self.t_light, False, False, 0)
+        right.pack_start(self.t_chamber, False, False, 0)
+        row.pack_start(left, False, False, 0)
+        row.pack_start(self.schem, True, True, 0)
+        row.pack_start(right, False, False, 0)
+        self.pack_start(row, True, True, 0)
+
+        druk = Gtk.Button(label="DRUKUJ · WYBIERZ PLIK")
+        druk.get_style_context().add_class("revo_print")
+        druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"}))
+        self.pack_start(druk, False, False, 0)
+
+        pre = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        for i, (name, e, b) in enumerate(PRESETS):
+            bt = Gtk.Button(label=name)
+            bt.get_style_context().add_class("revo_preset")
+            bt.connect("clicked", self.preheat, e, b)
+            pre.attach(bt, i, 0, 1, 1)
+        cool = Gtk.Button(label="Chłodź")
+        cool.get_style_context().add_class("revo_preset")
+        cool.connect("clicked", self.preheat, 0, 0)
+        pre.attach(cool, 3, 0, 1, 1)
+        self.pack_start(pre, False, False, 0)
+
+        nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
+        items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "revo_filament", "name": "Filament"})),
+                 ("extruder", "Dysza", self.nozzle_dialog),
+                 ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "gcodes", "name": "Pliki"})),
+                 ("settings", "Menu", self.open_menu)]
+        for i, (icon, name, cb) in enumerate(items):
+            bt = self.p._gtk.Button(icon, name, None, 0.9)
+            bt.get_style_context().add_class("revo_nav")
+            bt.connect("clicked", lambda w, c=cb: c())
+            nav.attach(bt, i, 0, 1, 1)
+        self.pack_start(nav, False, False, 0)
+
+        self._timer = None
+        self._asked = False
+
+    # --- akcje ---
     def selftest(self):
         self.gcode("REVO_SELFTEST")
 

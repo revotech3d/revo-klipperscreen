@@ -56,7 +56,7 @@ class Panel(ScreenPanel):
         self.buttons["unload"].connect("clicked", self.check_min_temp, "load_unload", "-")
         self.buttons["retract"].connect("clicked", self.check_min_temp, "extrude", "-")
         self.buttons["temperature"].connect(
-            "clicked", self.menu_item_clicked, {"panel": "temperature"}
+            "clicked", self.menu_item_clicked, {"panel": "revo_temp"}
         )
         self.buttons["spoolman"].connect("clicked", self.menu_item_clicked, {"panel": "spoolman"})
         self.buttons["pressure"].connect(

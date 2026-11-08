@@ -12,7 +12,7 @@ PARTS = [("dysza", "Dysza"), ("can", "Przewód CAN"), ("ekstruder", "Ekstruder")
 
 
 class Panel(ScreenPanel):
-    def __init__(self, screen, title):
+    def __init__(self, screen, title, **kwargs):
         super().__init__(screen, title or "Tryb serwisowy")
         self.pin = ""
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
