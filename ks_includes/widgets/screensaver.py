@@ -53,7 +53,10 @@ class ScreenSaver:
         close = Gtk.Button()
         close.connect("clicked", self.close)
         if self.config.get_main_config().get("theme", "") == "revo":
-            self._revo_status(close)
+            try:
+                self._revo_status(close)
+            except Exception as e:  # wygaszacz nigdy nie może wywrócić ekranu
+                logging.exception(e)
 
         box = Gtk.Box(
             halign=Gtk.Align.CENTER,
@@ -77,35 +80,25 @@ class ScreenSaver:
         )
         return False
 
-    # ---- Revo OS: wygaszacz pokazuje przygaszony stan maszyny ----
+    # ---- Revo OS: wygaszacz – przygaszony szkielet maszyny i logo Revo ----
     def _revo_status(self, button):
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10, valign=Gtk.Align.CENTER)
-        self._rv = {k: Gtk.Label() for k in ("clock", "state", "temps", "hint")}
-        for k, w in self._rv.items():
-            w.get_style_context().add_class(f"revo_saver_{k}")
-            box.pack_start(w, False, False, 0)
-        self._rv["hint"].set_label("Dotknij, aby wybudzić")
+        import os
+        from ks_includes import revo_home_logic as lg
+        from ks_includes.widgets.revo_home import Schematic
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=40, valign=Gtk.Align.CENTER)
+        printer = self.screen.printer
+        sch = Schematic(lg.machine_type(printer) if printer else "belt")
+        sch.wire, sch.light, sch.alpha = True, False, 0.5
+        sch.set_size_request(int(self.screen.width * 0.8), int(self.screen.height * 0.4))
+        box.pack_start(sch, False, False, 0)
+        logo = os.path.join(os.path.dirname(__file__), "..", "..", "styles", "revo", "images", "revo-logo.png")
+        if os.path.isfile(logo):
+            from gi.repository import GdkPixbuf
+            w = int(self.screen.width * 0.5)
+            img = Gtk.Image.new_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(logo, w, -1, True))
+            img.set_opacity(0.5)
+            box.pack_start(img, False, False, 0)
         button.add(box)
-        self._revo_tick()
-        GLib.timeout_add_seconds(5, self._revo_tick)
-
-    def _revo_tick(self):
-        if not self.is_showing and getattr(self, "_rv", None) is None:
-            return False
-        try:
-            import time as _t
-            from ks_includes import revo_home_logic as lg
-            v = lg.view(self.printer)
-            st = v["state"]
-            if st == "DRUKUJE":
-                p = self.printer.get_stat("virtual_sdcard", "progress") or 0
-                st += f"  {p * 100:.0f}%"
-            self._rv["clock"].set_label(_t.strftime("%H:%M"))
-            self._rv["state"].set_label(st)
-            self._rv["temps"].set_label(f"Dysza {v['nozzle_temp']}   ·   {'Pas' if lg.is_belt(self.printer) else 'Stół'} {v['bed_temp']}")
-        except Exception as e:  # wygaszacz nigdy nie może wywrócić ekranu
-            logging.debug(f"revo saver: {e}")
-        return self.is_showing
 
     def close(self, widget=None):
         if not self.is_showing:
