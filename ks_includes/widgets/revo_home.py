@@ -342,7 +342,15 @@ class RevoHome(RevoActions, Gtk.Box):
                                items=self.screen._config.get_menu_items("__main"))
 
     # --- odświeżanie ---
+    def first_run_pending(self):
+        vars_ = self.printer.get_stat("save_variables", "variables") or {}
+        return "revo_first_run_done" not in vars_ and self.printer.get_stat("save_variables") is not None
+
     def start(self):
+        # nowa maszyna: kreator pierwszego uruchomienia (raz na sesję ekranu, do zapisania revo_first_run_done)
+        if self.first_run_pending() and not getattr(self.screen, "_revo_wizard_shown", False):
+            self.screen._revo_wizard_shown = True
+            GLib.idle_add(lambda: self.screen.show_panel("revo_wizard", "Pierwsze uruchomienie") and False)
         if self._timer is None:
             self.refresh()
             self._timer = GLib.timeout_add_seconds(1, self.refresh)
@@ -365,7 +373,7 @@ class RevoHome(RevoActions, Gtk.Box):
 
     def _consent_check(self, st):
         """Powitanie: pierwsze uruchomienie – pytanie o zgody (alerty ON, statystyki OFF)."""
-        if self._asked or st.get("consent", {}).get("asked", True):
+        if self._asked or st.get("consent", {}).get("asked", True) or self.first_run_pending():
             return False
         self._asked = True
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
