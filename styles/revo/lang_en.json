@@ -1,5 +1,14 @@
 {
 "exact": {
+"FILM Z DRUKU (TIMELAPSE)": "PRINT VIDEO (TIMELAPSE)",
+"FILMY Z DRUKU (TIMELAPSE)": "PRINT VIDEOS (TIMELAPSE)",
+"nagrywaj kolejne wydruki": "record next prints",
+"Kamera robi zdjęcie przy każdej warstwie, a po zakończeniu druku maszyna sama skleja je w film.": "The camera takes a photo at every layer, and after the print the machine stitches them into a video.",
+"ODTWÓRZ": "PLAY",
+"POBIERZ": "DOWNLOAD",
+"Brak filmów. Włącz nagrywanie i wydrukuj coś.": "No videos yet. Turn on recording and print something.",
+"Timelapse włączony": "Timelapse on",
+"Timelapse wyłączony": "Timelapse off",
 "Przeglądy": "Maintenance",
 "PRZEGLĄDY OKRESOWE": "SCHEDULED MAINTENANCE",
 "ZROBIONE": "DONE",
