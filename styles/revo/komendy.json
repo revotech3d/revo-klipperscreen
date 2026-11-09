@@ -1,0 +1,222 @@
+{
+ "wersja": 1,
+ "kategorie": [
+  {
+   "nazwa": "Bazowanie i ruch",
+   "komendy": [
+    {
+     "n": "BAZUJ X Y Z",
+     "g": "G28",
+     "opis": "Bazuje wszystkie osie."
+    },
+    {
+     "n": "BAZUJ X",
+     "g": "G28 X",
+     "opis": "Bazuje oś X."
+    },
+    {
+     "n": "BAZUJ Y",
+     "g": "G28 Y",
+     "opis": "Bazuje oś Y."
+    },
+    {
+     "n": "BAZUJ Z",
+     "g": "G28 Z",
+     "opis": "Bazuje oś Z (sonda)."
+    },
+    {
+     "n": "POZIOMOWANIE BRAMY",
+     "g": "CQGL",
+     "opis": "Bazowanie i poziomowanie bramy na 4 silnikach Z."
+    },
+    {
+     "n": "POZYCJA",
+     "g": "GET_POSITION",
+     "opis": "Pokazuje pozycję głowicy i silników."
+    },
+    {
+     "n": "ZWOLNIJ SILNIKI",
+     "g": "M84",
+     "opis": "Wyłącza silniki – osie trzeba potem zbazować."
+    },
+    {
+     "n": "PARKUJ",
+     "g": "PARK",
+     "opis": "Głowica na środek, Z 30 mm."
+    }
+   ]
+  },
+  {
+   "nazwa": "Silniki i krańcówki",
+   "komendy": [
+    {
+     "n": "STEPPER BUZZ",
+     "g": "STEPPER_BUZZ STEPPER={silnik}",
+     "opis": "Wybrany silnik drgnie 10 razy o ±1 mm – sprawdzenie podłączenia i kierunku.",
+     "p": {
+      "silnik": "steppers"
+     }
+    },
+    {
+     "n": "STAN STEROWNIKA",
+     "g": "DUMP_TMC STEPPER={sterownik}",
+     "opis": "Odczyt rejestrów sterownika TMC (prądy, błędy, temperatura).",
+     "p": {
+      "sterownik": "tmc"
+     }
+    },
+    {
+     "n": "KRAŃCÓWKI",
+     "g": "QUERY_ENDSTOPS",
+     "opis": "Stan krańcówek (otwarta / wciśnięta)."
+    },
+    {
+     "n": "CZUJNIK FILAMENTU",
+     "g": "QUERY_FILAMENT_SENSOR SENSOR=encoder_sensor",
+     "opis": "Czy czujnik filamentu widzi nić."
+    }
+   ]
+  },
+  {
+   "nazwa": "Grzanie",
+   "komendy": [
+    {
+     "n": "PID DYSZY",
+     "g": "PID_CALIBRATE HEATER=extruder TARGET={temp}",
+     "opis": "Kalibracja PID dyszy, ok. 5 min.",
+     "p": {
+      "temp": [
+       200,
+       220,
+       240,
+       260
+      ]
+     }
+    },
+    {
+     "n": "PID STOŁU / PASA",
+     "g": "PID_CALIBRATE HEATER=heater_bed TARGET={temp}",
+     "opis": "Kalibracja PID stołu, 5–15 min.",
+     "p": {
+      "temp": [
+       60,
+       70,
+       80,
+       100
+      ]
+     }
+    },
+    {
+     "n": "WYŁĄCZ GRZANIE",
+     "g": "TURN_OFF_HEATERS",
+     "opis": "Wyłącza dyszę i stół."
+    },
+    {
+     "n": "WENTYLATOR 100%",
+     "g": "M106 S255",
+     "opis": "Nadmuch na 100%."
+    },
+    {
+     "n": "WENTYLATOR STOP",
+     "g": "M107",
+     "opis": "Wyłącza nadmuch."
+    }
+   ]
+  },
+  {
+   "nazwa": "Sonda i stół",
+   "komendy": [
+    {
+     "n": "SONDA – POMIAR",
+     "g": "G28\nPROBE",
+     "opis": "Bazuje i mierzy raz wysokość sondą."
+    },
+    {
+     "n": "SONDA – POWTARZALNOŚĆ",
+     "g": "G28\nPROBE_ACCURACY SAMPLES=10",
+     "opis": "10 pomiarów w jednym miejscu – rozrzut sondy."
+    },
+    {
+     "n": "SIATKA STOŁU",
+     "g": "G28\nBED_MESH_CALIBRATE",
+     "opis": "Pomiar całej siatki stołu, 2–3 min."
+    },
+    {
+     "n": "WYCZYŚĆ SIATKĘ",
+     "g": "BED_MESH_CLEAR",
+     "opis": "Wyłącza aktywną siatkę."
+    },
+    {
+     "n": "KALIBRACJA SONDY",
+     "g": "CARTOGRAPHER_CALIBRATE",
+     "opis": "Kalibracja Cartographera (postępuj według okna na ekranie)."
+    }
+   ]
+  },
+  {
+   "nazwa": "Rezonanse i prędkość",
+   "komendy": [
+    {
+     "n": "INPUT SHAPER",
+     "g": "G28\nSHAPER_CALIBRATE",
+     "opis": "Pomiar rezonansów obu osi, ok. 3 min. Głośno."
+    },
+    {
+     "n": "SZUM AKCELEROMETRU",
+     "g": "MEASURE_AXES_NOISE",
+     "opis": "Sprawdza akcelerometr głowicy."
+    },
+    {
+     "n": "TEST PRĘDKOŚCI",
+     "g": "G28\nTEST_SPEED",
+     "opis": "Szybkie ruchy i sprawdzenie, czy nie zgubiły się kroki."
+    }
+   ]
+  },
+  {
+   "nazwa": "Pas",
+   "komendy": [
+    {
+     "n": "PAS 100 MM",
+     "g": "CLEAR_BELT",
+     "opis": "Przesuwa pas o 100 mm."
+    },
+    {
+     "n": "PAS 500 MM",
+     "g": "CLEAR_BELT_200",
+     "opis": "Przesuwa pas o 500 mm."
+    }
+   ]
+  },
+  {
+   "nazwa": "System",
+   "komendy": [
+    {
+     "n": "TEST MASZYNY",
+     "g": "REVO_SELFTEST",
+     "opis": "Pełny test maszyny krok po kroku."
+    },
+    {
+     "n": "ZAPISZ KALIBRACJĘ",
+     "g": "SAVE_CONFIG",
+     "opis": "Zapisuje wyniki kalibracji i restartuje Klippera. Nie w trakcie druku!"
+    },
+    {
+     "n": "RESTART KLIPPERA",
+     "g": "RESTART",
+     "opis": "Wczytuje konfigurację od nowa."
+    },
+    {
+     "n": "RESTART PŁYT",
+     "g": "FIRMWARE_RESTART",
+     "opis": "Restart płyt sterujących – po błędzie maszyny."
+    },
+    {
+     "n": "STATUS",
+     "g": "STATUS",
+     "opis": "Stan Klippera."
+    }
+   ]
+  }
+ ]
+}
