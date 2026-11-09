@@ -2,6 +2,22 @@
 
 Każde wydanie na GitHubie ma ten sam opis w zakładce Releases.
 
+## Revo OS – ekran maszyny 1.4.0 · linia BELT
+
+### Zmiany
+- Ekran rozpoznaje typ maszyny (Belt / sztywny stół) i pokazuje pasujące elementy. Na Belcie wszystko działa jak w 1.3.0.
+- Aktualizacje ekranu z gałęzi `belt`.
+
+## Revo OS – ekran maszyny 1.4.0 · linia STÓŁ (600×600 / 1200×600, Z400 / Z600)
+
+Pierwsze wydanie ekranu dla maszyn ze sztywnym stołem.
+
+### W tej linii
+- Kafelek **STÓŁ** zamiast PAS, rysunek maszyny ze sztywnym stołem na ekranie głównym.
+- Bez sterowania pasem w panelu Ruch, bez wysuwania wydruku i bez serii wydruków.
+- Test maszyny z obrazkami dla sztywnego stołu.
+- Wszystko inne jak w linii Belt: przytrzymanie − / +, ekran po druku, wygaszacz, wersja angielska.
+
 ## Revo OS – ekran maszyny 1.3.0
 
 ### Nowe
