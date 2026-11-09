@@ -9,6 +9,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
+from ks_includes import revo_serwis_logic as serwis
 from ks_includes import revo_agent_client as agent
 
 PRESETS = [("PLA", 210, 60), ("PETG", 240, 80), ("ABS/ASA", 250, 100)]
@@ -277,6 +278,13 @@ class RevoHome(RevoActions, Gtk.Box):
         top.pack_end(self.info_lbl, True, True, 0)
         self.pack_start(top, False, False, 0)
 
+        # przypomnienie serwisowe – widoczne tylko, gdy przegląd jest po terminie
+        self.serwis_btn = Gtk.Button(label="")
+        self.serwis_btn.get_style_context().add_class("revo_serwis_alert")
+        self.serwis_btn.set_no_show_all(True)
+        self.serwis_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_serwis", "Przeglądy"))
+        self.pack_start(self.serwis_btn, False, False, 0)
+
         # schemat w środku, kafelki w kolumnach po bokach
         self.schem = Schematic(logic.machine_type(self.printer))
         self.schem.set_size_request(200, 330)
@@ -425,6 +433,10 @@ class RevoHome(RevoActions, Gtk.Box):
             self.t_bed.value.set_label(v["bed_temp"])
             self.t_chamber.value.set_label(v["chamber_temp"])
             self.t_light.value.set_label(v["light"])
+            vars_ = self.printer.get_stat("save_variables", "variables") or {}
+            txt = serwis.banner(serwis.status(self.hours, vars_, logic.is_belt(self.printer)))
+            self.serwis_btn.set_label(txt + "  ›" if txt else "")
+            self.serwis_btn.set_visible(bool(txt))
             self.schem.light = v["light_on"]
             self.schem.queue_draw()
         except Exception as e:
