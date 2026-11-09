@@ -40,7 +40,7 @@ STATUS = {
     "idle_timeout": {"state": "Printing" if printing else "Idle"},
     "pause_resume": {"is_paused": False},
     "save_variables": {"variables": {"revo_nozzle_diameter": 0.4, "revo_nozzle": "0.4 mosiadz"}},
-    "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight"},
+    "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight", "belt_stepper": "belt_drives" if MODE != "stol" else ""},
     "output_pin caselight": {"value": 1.0},
     "gcode_macro _REVO_TEST": {
         "faza": TEST_FAZA, "step": 5, "last": "nie rusza",
