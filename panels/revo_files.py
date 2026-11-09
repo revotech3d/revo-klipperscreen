@@ -25,6 +25,7 @@ class Panel(ScreenPanel):
         self.scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.content.add(self.scroll)
         self._pending = None
+        self._tl = None
         self._files.add_callback(self._changed)
 
     def deactivate(self):
@@ -120,6 +121,21 @@ class Panel(ScreenPanel):
         from ks_includes import revo_home_logic as lg
         if lg.is_belt(self._printer):   # seria tylko z pasem – sztywny stół wymaga zdjęcia wydruku ręcznie
             box.pack_start(sr, False, False, 0)
+        # timelapse: film z druku (tylko gdy maszyna ma kamerę i moonraker-timelapse)
+        self._tl = None
+        if self._printer.config_section_exists("gcode_macro TIMELAPSE_TAKE_FRAME"):
+            row = Gtk.Box(spacing=12)
+            row.pack_start(_lbl("FILM Z DRUKU (TIMELAPSE)", "revo_tile_title"), True, True, 0)
+            self._tl = Gtk.Switch(valign=Gtk.Align.CENTER)
+            row.pack_end(self._tl, False, False, 0)
+            box.pack_start(row, False, False, 0)
+
+            def got(resp, *a):
+                r = resp.get("result") or {}
+                if self._tl is not None:
+                    self._tl.set_active(bool(r.get("enabled")))
+                return False
+            self._screen._ws.send_method("machine.timelapse.get_settings", {}, got)
         self._ile_info = _lbl("", "revo_info", 0.5)
         box.pack_start(self._ile_info, False, False, 0)
         box.pack_start(_lbl("Maszyna sprawdzi zgodność dyszy przed startem.", "revo_info", 0.5), False, False, 0)
@@ -138,6 +154,8 @@ class Panel(ScreenPanel):
 
     def _resp(self, dialog, resp, path):
         self._gtk.remove_dialog(dialog)
+        if resp == Gtk.ResponseType.OK and self._tl is not None:
+            self._screen._ws.send_method("machine.timelapse.post_settings", {"enabled": self._tl.get_active()})
         if resp == Gtk.ResponseType.OK and getattr(self, "_ile", 1) > 1:
             # kolejka Moonrakera: N razy ten sam plik, przejście między sztukami = REVO_SERIA_PRZERWA
             self._screen._ws.send_method("server.job_queue.post_job", {"filenames": [path] * self._ile, "reset": True},
