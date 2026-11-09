@@ -188,6 +188,10 @@ class Panel(ScreenPanel):
         head = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         head.add(self._unparent(self.labels["file"]))
         head.add(self._unparent(self.labels["lcdmessage"]))
+        self.revo_series = Gtk.Label(xalign=0)
+        self.revo_series.get_style_context().add_class("revo_warn")
+        head.add(self.revo_series)
+        self._revo_n = 0
         box.pack_start(head, False, False, 0)
 
         thumb = self._unparent(self.labels["thumbnail"])
@@ -231,7 +235,38 @@ class Panel(ScreenPanel):
             tiles.attach(t, i, 0, 1, 1)
         box.pack_start(tiles, False, False, 0)
 
-        box.pack_end(self._unparent(self.buttons["button_grid"]), False, False, 0)
+        # po zakończeniu druku: podsumowanie + wysuwanie wydruku pasem (przytrzymaj) + drukuj ponownie
+        from ks_includes.widgets.revo_hold import BeltHold
+        from ks_includes import revo_home_logic as lg
+        self.revo_done = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        self.revo_done_lbl = Gtk.Label(xalign=0.5)
+        self.revo_done_lbl.get_style_context().add_class("revo_state")
+        self.revo_done_info = Gtk.Label(xalign=0.5)
+        self.revo_done_info.get_style_context().add_class("revo_info")
+        self.revo_done.add(self.revo_done_lbl)
+        self.revo_done.add(self.revo_done_info)
+        eject = Gtk.Button(label="WYSUŃ WYDRUK\n(przytrzymaj)")
+        eject.get_child().set_justify(Gtk.Justification.CENTER)
+        eject.get_style_context().add_class("revo_print")
+        eject.set_size_request(-1, 84)
+        self.revo_belt = BeltHold(eject, self._screen._ws.api.gcode_script,
+                                  lambda: lg.cfg(self._printer, "belt_stepper", ""))
+        row = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        again = Gtk.Button(label="DRUKUJ PONOWNIE")
+        again.get_style_context().add_class("revo_preset")
+        again.connect("clicked", self.restart)
+        home = Gtk.Button(label="EKRAN GŁÓWNY")
+        home.get_style_context().add_class("revo_preset")
+        home.connect("clicked", self.close_panel)
+        row.attach(again, 0, 0, 1, 1)
+        row.attach(home, 1, 0, 1, 1)
+        self.revo_done.add(eject)
+        self.revo_done.add(row)
+        self.revo_done.set_no_show_all(True)
+        box.pack_end(self.revo_done, False, False, 0)
+
+        self.revo_btns = self._unparent(self.buttons["button_grid"])
+        box.pack_end(self.revo_btns, False, False, 0)
         self.revo = box
         self.content.add(box)
         GLib.timeout_add_seconds(1, self._revo_tick)
@@ -242,6 +277,9 @@ class Panel(ScreenPanel):
         if not self.content.get_parent():
             return True
         from ks_includes import revo_home_logic as lg
+        self._revo_n += 1
+        if self._revo_n % 5 == 1:   # seria wydruków: ile sztuk zostało w kolejce
+            self._screen._ws.send_method("server.job_queue.status", {}, self._revo_queue)
         for dev, tile in self.revo_tiles.items():
             if dev == "chamber":
                 dev = lg.cfg(self._printer, "chamber", "temperature_sensor chamber")
@@ -962,6 +1000,32 @@ class Panel(ScreenPanel):
         if timeout != 0:
             self.state_timeout = GLib.timeout_add_seconds(timeout, self.close_panel)
 
+    def _revo_queue(self, result, method, params):
+        try:
+            n = len(result["result"]["queued_jobs"])
+        except (KeyError, TypeError):
+            n = 0
+        self.revo_series.set_label(f"SERIA · w kolejce jeszcze {n} szt." if n else "")
+
+    def _revo_state(self):
+        if getattr(self, "revo", None) is None:
+            return
+        done = self.state in ("complete", "cancelled", "error")
+        if done:
+            names = {"complete": "DRUK ZAKOŃCZONY", "cancelled": "DRUK ANULOWANY", "error": "DRUK PRZERWANY – BŁĄD"}
+            self.revo_done_lbl.set_label(names[self.state])
+            ps = self._printer.get_stat("print_stats") or {}
+            secs = int(ps.get("print_duration") or 0)
+            fil = float(ps.get("filament_used") or 0) / 1000
+            self.revo_done_info.set_label(f"Czas druku {secs // 3600} h {secs % 3600 // 60:02d} min · filament {fil:.1f} m")
+            for w in self.revo_done.get_children():
+                w.show_all()
+            self.revo_done.show()
+            self.revo_btns.hide()
+        else:
+            self.revo_done.hide()
+            self.revo_btns.show_all()
+
     def show_buttons_for_state(self):
         self.buttons["button_grid"].remove_row(0)
         self.buttons["button_grid"].insert_row(0)
@@ -1018,6 +1082,7 @@ class Panel(ScreenPanel):
             self.enable_button("menu")
             self.can_close = True
         self.content.show_all()
+        self._revo_state()
 
     def show_file_thumbnail(self):
         if self._screen.vertical_mode:

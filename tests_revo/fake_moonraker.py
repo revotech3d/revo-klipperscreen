@@ -10,6 +10,7 @@ import websockets
 MODE = sys.argv[1] if len(sys.argv) > 1 else "drukowanie"
 TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
 printing = MODE == "drukowanie"
+koniec = MODE == "koniec"
 
 CONFIG = {
     "printer": {"kinematics": "corexy", "max_velocity": "500", "max_accel": "10000", "max_z_velocity": "15"},
@@ -26,8 +27,8 @@ STATUS = {
     "heater_bed": {"temperature": 79.8 if printing else 23.0, "target": 80 if printing else 0, "power": 0.3},
     "temperature_sensor komora": {"temperature": 47.5 if printing else 22.0},
     "fan": {"speed": 0.6 if printing else 0},
-    "print_stats": {"state": "printing" if printing else "standby",
-                    "filename": "kostka-20mm_0.4_PETG.gcode" if printing else "",
+    "print_stats": {"state": "printing" if printing else ("complete" if koniec else "standby"),
+                    "filename": "kostka-20mm_0.4_PETG.gcode" if (printing or koniec) else "",
                     "print_duration": 2860, "total_duration": 2900, "filament_used": 3120,
                     "info": {"current_layer": 84, "total_layer": 180}},
     "virtual_sdcard": {"progress": 0.46 if printing else 0, "is_active": printing, "file_position": 0},

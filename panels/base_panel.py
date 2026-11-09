@@ -658,6 +658,8 @@ class BasePanel(ScreenPanel):
             title = j2_temp.render()
         except Exception as e:
             logging.debug(f"Error parsing jinja for title: {title}\n{e}")
+        from ks_includes.revo_i18n import tr
+        title = tr(title)
 
         self.titlelbl.set_label(f"{printer} {title}")
 

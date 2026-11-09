@@ -322,3 +322,10 @@ button.revo_t_warn label { color: #E0A33A; }
 button.revo_t_danger { background-color: transparent; border: 2px solid #FF4D52; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
 button.revo_t_danger label { color: #FF4D52; }
 button.revo_t_plain { background-color: #131518; border: 1px solid #2C3036; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
+
+/* ---- Wygaszacz ---- */
+.screensaver button, .screensaver { background-color: #000000; border: none; }
+.revo_saver_clock { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 3.2em; font-weight: 600; color: #4A4F56; }
+.revo_saver_state { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 3px; color: #5E646C; }
+.revo_saver_temps { color: #4A4F56; font-size: 1.05em; }
+.revo_saver_hint { color: #2E3236; font-size: 0.8em; margin-top: 30px; }

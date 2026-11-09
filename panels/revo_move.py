@@ -61,7 +61,13 @@ class Panel(RevoActions, ScreenPanel):
         bg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         bg.attach(self._btn("◂ COFNIJ", lambda w: self.belt(-1), "revo_preset", 42), 0, 0, 1, 1)
         bg.attach(self._btn("NAPRZÓD ▸", lambda w: self.belt(1), "revo_preset", 42), 1, 0, 1, 1)
-        bg.attach(self._btn("WYSUŃ WYDRUK", lambda w: self.gcode("CLEAR_BELT"), "revo_preset", 42), 2, 0, 1, 1)
+        ej = Gtk.Button(label="WYSUŃ\n(trzymaj)")
+        ej.get_style_context().add_class("revo_preset")
+        ej.set_size_request(-1, 42)
+        from ks_includes.widgets.revo_hold import BeltHold
+        from ks_includes import revo_home_logic as lg
+        self._belt_hold = BeltHold(ej, self._screen._ws.api.gcode_script, lambda: lg.cfg(self._printer, "belt_stepper", ""))
+        bg.attach(ej, 2, 0, 1, 1)
         box.pack_start(bg, False, False, 0)
 
         self.es = Gtk.Button(label="E-STOP · PRZYTRZYMAJ 1 s")
@@ -84,8 +90,12 @@ class Panel(RevoActions, ScreenPanel):
         f = 600 if ax == "Z" else 6000
         self.gcode(f"G91\nG1 {ax}{self.step * d:g} F{f}\nG90")
 
+    def _belt(self):
+        from ks_includes import revo_home_logic as lg
+        return lg.cfg(self._printer, "belt_stepper", "belt_drives")
+
     def belt(self, d):
-        self.gcode(f"MANUAL_STEPPER STEPPER=belt_drives SET_POSITION=0 MOVE={self.step * d:g} SPEED=50")
+        self.gcode(f"MANUAL_STEPPER STEPPER={self._belt()} SET_POSITION=0 MOVE={self.step * d:g} SPEED=50")
 
     def _es_down(self, w):
         self._estop = time.monotonic()

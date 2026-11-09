@@ -7,6 +7,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk
 
+from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
 from ks_includes import revo_agent_client as agent
 
@@ -146,12 +147,15 @@ class RevoActions:
         self._ht_lbl = _lbl("", "revo_big", 0.5)
         box.pack_start(self._ht_lbl, False, False, 4)
         adj = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        for i, d in enumerate((-10, -5, 5, 10)):
-            b = Gtk.Button(label=f"{d:+d}°")
+        self._holds = []
+        for i, sign in enumerate((-1, 1)):
+            b = Gtk.Button(label="−" if sign < 0 else "+")
             b.get_style_context().add_class("revo_preset")
-            b.connect("clicked", lambda w, d=d: self._ht_set(self._ht["t"] + d))
+            b.set_size_request(-1, 72)
+            self._holds.append(Hold(b, lambda held, sign=sign: self._ht_set(self._ht["t"] + sign * hold_steps(held))))
             adj.attach(b, i, 0, 1, 1)
         box.pack_start(adj, False, False, 0)
+        box.pack_start(_lbl("Przytrzymaj − / +, żeby zmieniać szybciej", "revo_info", 0.5), False, False, 0)
         box.pack_start(_lbl("PRESETY", "revo_tile_title"), False, False, 4)
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
         for i, v in enumerate(presets):

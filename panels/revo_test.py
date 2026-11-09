@@ -102,7 +102,8 @@ class Panel(ScreenPanel):
             self.l_eta.set_text("")
             self.l_left.set_text("")
         self.bar.set_fraction(v["progress"])
-        self.l_name.set_text(v["name"].upper())
+        from ks_includes.revo_i18n import tr
+        self.l_name.set_text(tr(v["name"]).upper())
         self.l_q.set_text(v["title"])
         desc = v["desc"]
         if v["problems"]:

@@ -102,6 +102,24 @@ class Panel(ScreenPanel):
             g.attach(_lbl(k.upper(), "revo_tile_title"), i % 2, (i // 2) * 2, 1, 1)
             g.attach(_lbl(val, "revo_tile_value_small"), i % 2, (i // 2) * 2 + 1, 1, 1)
         box.pack_start(g, False, False, 0)
+        # seria: ile sztuk wydrukować po kolei (pas wysuwa wydruk między sztukami)
+        self._ile = 1
+        sr = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        sr.attach(_lbl("SZTUK", "revo_tile_title"), 0, 0, 1, 1)
+        minus, plus = Gtk.Button(label="−"), Gtk.Button(label="+")
+        self._ile_lbl = _lbl("1", "revo_big", 0.5)
+        for b in (minus, plus):
+            b.get_style_context().add_class("revo_preset")
+            b.set_size_request(-1, 56)
+        from ks_includes.widgets.revo_hold import Hold
+        self._ile_holds = [Hold(minus, lambda h: self._ile_set(self._ile - 1)),
+                           Hold(plus, lambda h: self._ile_set(self._ile + (1 if h < 2 else 5)))]
+        sr.attach(minus, 1, 0, 1, 1)
+        sr.attach(self._ile_lbl, 2, 0, 1, 1)
+        sr.attach(plus, 3, 0, 1, 1)
+        box.pack_start(sr, False, False, 0)
+        self._ile_info = _lbl("", "revo_info", 0.5)
+        box.pack_start(self._ile_info, False, False, 0)
         box.pack_start(_lbl("Maszyna sprawdzi zgodność dyszy przed startem.", "revo_info", 0.5), False, False, 0)
         buttons = [{"name": "Usuń", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
                    {"name": "Drukuj", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
@@ -111,9 +129,18 @@ class Panel(ScreenPanel):
             self.load_image_async(path, self._screen.width * 0.8, self._screen.height * 0.4,
                                   callback=lambda p: p and img.set_from_pixbuf(p))
 
+    def _ile_set(self, n):
+        self._ile = max(1, min(99, n))
+        self._ile_lbl.set_label(str(self._ile))
+        self._ile_info.set_label("" if self._ile == 1 else f"Seria {self._ile} szt. – po każdej pas wysunie wydruk")
+
     def _resp(self, dialog, resp, path):
         self._gtk.remove_dialog(dialog)
-        if resp == Gtk.ResponseType.OK:
+        if resp == Gtk.ResponseType.OK and getattr(self, "_ile", 1) > 1:
+            # kolejka Moonrakera: N razy ten sam plik, przejście między sztukami = REVO_SERIA_PRZERWA
+            self._screen._ws.send_method("server.job_queue.post_job", {"filenames": [path] * self._ile, "reset": True},
+                                         lambda *a: self._screen._ws.send_method("server.job_queue.start") and False)
+        elif resp == Gtk.ResponseType.OK:
             self._screen._ws.api.print_start(path)
         elif resp == Gtk.ResponseType.REJECT:
             self._screen._confirm_send_action(None, f"Usunąć plik?\n\n{path}", "server.files.delete_file", {"path": f"gcodes/{path}"})
