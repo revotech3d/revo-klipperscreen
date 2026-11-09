@@ -45,6 +45,8 @@ class Schematic(Gtk.DrawingArea):
         super().__init__()
         self.model = model
         self.light = True
+        self.wire = False      # sam szkielet (bez wypełnień) – wygaszacz
+        self.alpha = 1.0
         self.set_vexpand(True)
         self.set_hexpand(True)
         self.connect("draw", self._draw)
@@ -55,6 +57,8 @@ class Schematic(Gtk.DrawingArea):
         ctx.set_source_rgba(int(h[0:2], 16) / 255, int(h[2:4], 16) / 255, int(h[4:6], 16) / 255, a)
 
     def _poly(self, ctx, pts, fill=None, stroke=None, lw=1.5):
+        if self.wire:
+            fill, stroke = None, stroke or fill
         ctx.move_to(*pts[0])
         for p in pts[1:]:
             ctx.line_to(*p)
@@ -75,6 +79,15 @@ class Schematic(Gtk.DrawingArea):
         ctx.stroke()
 
     def _draw(self, w, ctx):
+        if self.alpha < 1.0:
+            ctx.push_group()
+            self._draw_inner(w, ctx)
+            ctx.pop_group_to_source()
+            ctx.paint_with_alpha(self.alpha)
+            return False
+        return self._draw_inner(w, ctx)
+
+    def _draw_inner(self, w, ctx):
         W, H = w.get_allocated_width(), w.get_allocated_height()
         # kadr samej maszyny (x 84–356, y 86–336 w układzie makiety)
         s = min(W / 272, H / 250)
