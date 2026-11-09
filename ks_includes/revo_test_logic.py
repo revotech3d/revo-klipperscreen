@@ -39,7 +39,7 @@ def view(t, elapsed=0.0):
         crit = bool(s[6])
         stop = ("PRZERWIJ", "REVO_SELFTEST_ANULUJ", "danger")
         if faza == "run":
-            v["title"] = "Maszyna wykonuje krok…"
+            v["title"] = t.get("info") or "Maszyna wykonuje krok…"
             v["buttons"] = [stop]
         elif faza == "ask":
             a = t.get("ask") or {}
