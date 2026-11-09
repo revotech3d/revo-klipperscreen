@@ -276,6 +276,8 @@
 "Silnik Z w narożniku tylny lewy drgnie 10 razy. Tylko ten narożnik bramy powinien się ruszyć.": "Z motor in the rear left corner twitches 10 times. Only this gantry corner should move.",
 "Silnik Z w narożniku tylny prawy drgnie 10 razy. Tylko ten narożnik bramy powinien się ruszyć.": "Z motor in the rear right corner twitches 10 times. Only this gantry corner should move.",
 "Silnik Z w narożniku przedni prawy drgnie 10 razy. Tylko ten narożnik bramy powinien się ruszyć.": "Z motor in the front right corner twitches 10 times. Only this gantry corner should move.",
+"Drugi silnik A (4WD) drgnie 10 razy. Głowica ma drgnąć w tę samą stronę co przy silniku A.": "Second motor A (4WD) twitches 10 times. The toolhead should move the same way as with motor A.",
+"Drugi silnik B (4WD) drgnie 10 razy. Głowica ma drgnąć w tę samą stronę co przy silniku B.": "Second motor B (4WD) twitches 10 times. The toolhead should move the same way as with motor B.",
 "Pas przesunie się o 20 mm do przodu i wróci. Obserwuj pas.": "The belt moves 20 mm forward and back. Watch the belt.",
 "Głowica pojedzie do krańcówek, a sonda zmierzy wysokość. Trzymaj ręce z dala od maszyny.": "The toolhead homes and the probe measures height. Keep your hands away.",
 "Głowica przesunie się o 50 mm w prawo. Sprawdź kierunek i odległość.": "The toolhead moves 50 mm right. Check direction and distance.",
