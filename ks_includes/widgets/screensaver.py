@@ -102,7 +102,7 @@ class ScreenSaver:
                 st += f"  {p * 100:.0f}%"
             self._rv["clock"].set_label(_t.strftime("%H:%M"))
             self._rv["state"].set_label(st)
-            self._rv["temps"].set_label(f"Dysza {v['nozzle_temp']}   ·   Pas {v['bed_temp']}")
+            self._rv["temps"].set_label(f"Dysza {v['nozzle_temp']}   ·   {'Pas' if lg.is_belt(self.printer) else 'Stół'} {v['bed_temp']}")
         except Exception as e:  # wygaszacz nigdy nie może wywrócić ekranu
             logging.debug(f"revo saver: {e}")
         return self.is_showing

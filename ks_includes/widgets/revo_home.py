@@ -105,6 +105,9 @@ class Schematic(Gtk.DrawingArea):
         self._line(ctx, (108, 152), (266, 152), "#9AA0A8", 2)
         self._poly(ctx, [(220, 142), (246, 142), (246, 162), (220, 162)], "#2A2E34", "#C9CDD2")
         self._poly(ctx, [(227, 162), (239, 162), (233, 170)], "#C9CDD2")
+        if self.model != "belt":
+            self._draw_bed(ctx)
+            return False
         # taśma (stół ruchomy)
         self._poly(ctx, [(112, 262), (258, 262), (266, 254), (120, 254)], "#2A2E34", "#9AA0A8")
         self._poly(ctx, [(112, 262), (258, 262), (258, 270), (112, 270)], "#1A1E23", "#5B616A")
@@ -118,6 +121,22 @@ class Schematic(Gtk.DrawingArea):
         for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
             self._line(ctx, a, b, "#5B616A", 2.5)
         return False
+
+
+def _draw_bed_impl(self, ctx):
+    """Sztywny stół: płyta w perspektywie na 4 śrubach Z."""
+    self._poly(ctx, [(114, 250), (256, 250), (266, 240), (124, 240)], "#2A2E34", "#C9CDD2")
+    self._poly(ctx, [(114, 250), (256, 250), (256, 256), (114, 256)], "#1A1E23", "#5B616A")
+    for x in (120, 250):
+        self._line(ctx, (x, 256), (x, 298), "#5B616A", 2.5)
+    for x in (130, 260):
+        self._line(ctx, (x, 132), (x, 240), "#3A3F46", 1.5)
+    self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()
+    for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
+        self._line(ctx, a, b, "#5B616A", 2.5)
+
+
+Schematic._draw_bed = _draw_bed_impl
 
 
 class RevoActions:
@@ -246,12 +265,13 @@ class RevoHome(RevoActions, Gtk.Box):
         self.pack_start(top, False, False, 0)
 
         # schemat w środku, kafelki w kolumnach po bokach
-        self.schem = Schematic("belt")
+        self.schem = Schematic(logic.machine_type(self.printer))
         self.schem.set_size_request(200, 330)
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
-        self.t_bed = Tile("PAS", lambda: self.heater_dialog("heater_bed", "PAS", [0, 60, 70, 80, 90, 100, 110], 130))
+        bl = logic.bed_label(self.printer)
+        self.t_bed = Tile(bl, lambda: self.heater_dialog("heater_bed", bl, [0, 60, 70, 80, 90, 100, 110], 130))
         self.t_chamber = Tile("KOMORA")
         self.t_light = Tile("OŚWIETLENIE", self.toggle_light)
         self.t_light.value.get_style_context().add_class("revo_tile_value_small")

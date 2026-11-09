@@ -117,7 +117,9 @@ class Panel(ScreenPanel):
         sr.attach(minus, 1, 0, 1, 1)
         sr.attach(self._ile_lbl, 2, 0, 1, 1)
         sr.attach(plus, 3, 0, 1, 1)
-        box.pack_start(sr, False, False, 0)
+        from ks_includes import revo_home_logic as lg
+        if lg.is_belt(self._printer):   # seria tylko z pasem – sztywny stół wymaga zdjęcia wydruku ręcznie
+            box.pack_start(sr, False, False, 0)
         self._ile_info = _lbl("", "revo_info", 0.5)
         box.pack_start(self._ile_info, False, False, 0)
         box.pack_start(_lbl("Maszyna sprawdzi zgodność dyszy przed startem.", "revo_info", 0.5), False, False, 0)

@@ -181,6 +181,7 @@ class Panel(ScreenPanel):
 
     def _revo_layout(self):
         from ks_includes.widgets.revo_home import Tile
+        from ks_includes import revo_home_logic as lg
         self.content.remove(self.grid)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.get_style_context().add_class("revo_home")
@@ -230,7 +231,7 @@ class Panel(ScreenPanel):
         box.pack_start(info, False, False, 0)
 
         tiles = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile("PAS"), "chamber": Tile("KOMORA")}
+        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile(lg.bed_label(self._printer)), "chamber": Tile("KOMORA")}
         for i, t in enumerate(self.revo_tiles.values()):
             tiles.attach(t, i, 0, 1, 1)
         box.pack_start(tiles, False, False, 0)
@@ -260,7 +261,8 @@ class Panel(ScreenPanel):
         home.connect("clicked", self.close_panel)
         row.attach(again, 0, 0, 1, 1)
         row.attach(home, 1, 0, 1, 1)
-        self.revo_done.add(eject)
+        if lg.is_belt(self._printer):
+            self.revo_done.add(eject)
         self.revo_done.add(row)
         self.revo_done.set_no_show_all(True)
         box.pack_end(self.revo_done, False, False, 0)

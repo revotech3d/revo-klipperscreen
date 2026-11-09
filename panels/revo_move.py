@@ -57,7 +57,10 @@ class Panel(RevoActions, ScreenPanel):
             jg.attach(self._btn(lab, lambda w, ax=ax, d=d: self.jog(ax, d), "revo_preset", 44), c, r, 1, 1)
         box.pack_start(jg, False, False, 0)
 
-        box.pack_start(_lbl("PAS", "revo_tile_title"), False, False, 2)
+        from ks_includes import revo_home_logic as lg0
+        belt_on = lg0.is_belt(self._printer)
+        if belt_on:
+            box.pack_start(_lbl("PAS", "revo_tile_title"), False, False, 2)
         bg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         bg.attach(self._btn("◂ COFNIJ", lambda w: self.belt(-1), "revo_preset", 42), 0, 0, 1, 1)
         bg.attach(self._btn("NAPRZÓD ▸", lambda w: self.belt(1), "revo_preset", 42), 1, 0, 1, 1)
@@ -68,7 +71,8 @@ class Panel(RevoActions, ScreenPanel):
         from ks_includes import revo_home_logic as lg
         self._belt_hold = BeltHold(ej, self._screen._ws.api.gcode_script, lambda: lg.cfg(self._printer, "belt_stepper", ""))
         bg.attach(ej, 2, 0, 1, 1)
-        box.pack_start(bg, False, False, 0)
+        if belt_on:
+            box.pack_start(bg, False, False, 0)
 
         self.es = Gtk.Button(label="E-STOP · PRZYTRZYMAJ 1 s")
         self.es.get_style_context().add_class("revo_estop")

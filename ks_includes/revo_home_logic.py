@@ -62,3 +62,20 @@ def view(printer, hours=None):
     return {"state": state, "state_class": cls, "info": info, "nozzle_size": nozzle_size,
             "nozzle_temp": nozzle_temp, "bed_temp": bed_temp, "chamber_temp": chamber_temp,
             "light": light, "light_on": light_on}
+
+
+def machine_type(printer):
+    """'belt' (stół-taśma z silnikiem) albo 'stol' (sztywny stół). Z _REVO_CFG, a gdy brak – po belt_stepper."""
+    t = str(cfg(printer, "machine_type", "") or "").lower()
+    if t in ("belt", "stol"):
+        return t
+    return "belt" if cfg(printer, "belt_stepper", "") else "stol"
+
+
+def is_belt(printer):
+    return machine_type(printer) == "belt"
+
+
+def bed_label(printer, upper=True):
+    s = "PAS" if is_belt(printer) else "STÓŁ"
+    return s if upper else s.capitalize().replace("Stół", "Stół")

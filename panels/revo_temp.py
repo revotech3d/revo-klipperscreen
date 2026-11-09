@@ -19,7 +19,7 @@ class Panel(RevoActions, ScreenPanel):
         g = Gtk.Grid(column_homogeneous=True, column_spacing=10)
         self.t = {
             "extruder": Tile("DYSZA", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320)),
-            "heater_bed": Tile("PAS", lambda: self.heater_dialog("heater_bed", "PAS", [0, 60, 70, 80, 90, 100, 110], 130)),
+            "heater_bed": Tile(logic.bed_label(self._printer), lambda: self.heater_dialog("heater_bed", logic.bed_label(self._printer), [0, 60, 70, 80, 90, 100, 110], 130)),
             "chamber": Tile("KOMORA"),
         }
         for i, t in enumerate(self.t.values()):

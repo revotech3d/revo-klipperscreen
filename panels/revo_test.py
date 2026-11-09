@@ -16,8 +16,8 @@ IMG_DIRS = [os.path.expanduser("~/revo-config/web/test"),
 OBJ = "gcode_macro _REVO_TEST"
 
 
-def img_path(key):
-    for d in IMG_DIRS:
+def img_path(key, sub=""):
+    for d in ([os.path.join(x, sub) for x in IMG_DIRS] if sub else []) + IMG_DIRS:
         p = os.path.join(d, f"{key}.png")
         if os.path.isfile(p):
             return p
@@ -114,7 +114,8 @@ class Panel(ScreenPanel):
         img = v["img"] or ("intro" if v["faza"] == "idle" else "conn")
         if img != self.cur_img:
             self.cur_img = img
-            p = img_path(img)
+            from ks_includes import revo_home_logic as lg
+            p = img_path(img, "" if lg.is_belt(self._printer) else "stol")
             if p:
                 h = int(self.width * 300 / 440)
                 self.img.set_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_size(p, self.width, h))

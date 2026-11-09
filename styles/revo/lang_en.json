@@ -51,6 +51,11 @@
 "PANEL ADMINISTRATORA": "ADMIN PANEL",
 "DYSZA": "NOZZLE",
 "PAS": "BELT",
+"STÓŁ": "BED",
+"Stół": "Bed",
+"Grzanie stołu 60°C": "Bed heating 60°C",
+"Maszyna odczytuje temperatury dyszy i stołu. Obie powinny być bliskie temperaturze pokoju.": "The machine reads nozzle and bed temperatures. Both should be close to room temperature.",
+"Sonda zmierzy stół 5 razy w tym samym miejscu.": "The probe measures the bed 5 times at the same spot.",
 "KOMORA": "CHAMBER",
 "OŚWIETLENIE": "LIGHTS",
 "OŚWIETLENIE: WŁĄCZONE": "LIGHTS: ON",
@@ -449,6 +454,22 @@
 [
 "^Seria: (.*)$",
 "Series: $1"
+],
+[
+"^Pas grzeje się od początku testu\\. Limit: (\\d+) min od startu\\.$",
+"The belt has been heating since the test started. Limit: $1 min from start."
+],
+[
+"^Stół grzeje się od początku testu\\. Limit: (\\d+) min od startu\\.$",
+"The bed has been heating since the test started. Limit: $1 min from start."
+],
+[
+"^Stół (\\d+)° / (\\d+)° · (\\d+) s$",
+"Bed $1° / $2° · $3 s"
+],
+[
+"^Dysza (.+)   ·   Stół (.+)$",
+"Nozzle $1   ·   Bed $2"
 ],
 [
 "^maszyna zatrzymana w kroku: (.*)$",
