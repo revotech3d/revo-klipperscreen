@@ -308,3 +308,17 @@ button.revo_compact { min-height: 36px; padding: 2px 4px; }
 .revo_state, .revo_tile_title, .revo_tile_value, .revo_big, button.revo_print, button.revo_preset,
 button.revo_estop, .printing-filename, .title_bar label { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; }
 .revo_tile_value, .revo_big { font-weight: 600; }
+
+/* ---- Test maszyny ---- */
+.revo_test_head { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; color: #9AA0A8; letter-spacing: 2px; font-weight: 600; }
+.revo_test_name { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.5em; font-weight: 700; color: #F2F3F5; letter-spacing: 1px; }
+.revo_test_q { font-size: 1.15em; font-weight: 600; color: #F2F3F5; }
+.revo_test_desc { color: #9AA0A8; }
+.revo_test_img { background-color: #0E0F11; border: 1px solid #23262B; border-radius: 14px; }
+button.revo_t_ok { background-color: #3ED663; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
+button.revo_t_ok label { color: #0E0F11; }
+button.revo_t_warn { background-color: transparent; border: 2px solid #E0A33A; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
+button.revo_t_warn label { color: #E0A33A; }
+button.revo_t_danger { background-color: transparent; border: 2px solid #FF4D52; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
+button.revo_t_danger label { color: #FF4D52; }
+button.revo_t_plain { background-color: #131518; border: 1px solid #2C3036; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }

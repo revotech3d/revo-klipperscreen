@@ -385,6 +385,9 @@ class KlipperScreen(Gtk.ApplicationWindow):
         for led in self.printer.get_leds():
             requested_updates["objects"][led] = ["color_data"]
 
+        # Revo OS: stan testu maszyny (zmienne makra) – ekran testu odświeża się na żywo
+        if "gcode_macro _REVO_TEST" in self.printer.config:
+            requested_updates["objects"]["gcode_macro _REVO_TEST"] = None
         self._ws.api.object_subscription(requested_updates)
 
     @staticmethod
@@ -1076,12 +1079,23 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
     def process_update(self, *args):
         self.base_panel.process_update(*args)
+        self._revo_test_autoshow(*args)
         if (
             self.printer
             and self._cur_panels
             and hasattr(self.panels[self._cur_panels[-1]], "process_update")
         ):
             self.panels[self._cur_panels[-1]].process_update(*args)
+
+    def _revo_test_autoshow(self, action=None, data=None, *args):
+        # Revo OS: gdy test maszyny ruszy (z ekranu, Panelu Revo lub konsoli), ekran pokazuje panel testu
+        try:
+            faza = (data or {}).get("gcode_macro _REVO_TEST", {}).get("faza")
+        except AttributeError:
+            return
+        if action == "notify_status_update" and faza in ("run", "ask", "reason", "repeat") \
+                and (not self._cur_panels or self._cur_panels[-1] != "revo_test"):
+            self.show_panel("revo_test", "Test maszyny")
 
     def confirm_save(self, widget):
         buttons = [

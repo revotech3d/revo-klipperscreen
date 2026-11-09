@@ -8,6 +8,7 @@ import time
 import websockets
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "drukowanie"
+TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
 printing = MODE == "drukowanie"
 
 CONFIG = {
@@ -15,7 +16,7 @@ CONFIG = {
     "stepper_x": {"position_max": "351", "position_min": "0"}, "stepper_y": {"position_max": "351", "position_min": "0"}, "stepper_z": {"position_max": "300", "position_min": "-10"},
     "extruder": {"filament_diameter": "1.75", "nozzle_diameter": "0.4"}, "heater_bed": {}, "temperature_sensor komora": {},
     "fan": {}, "heater_fan hotend_fan": {}, "neopixel status": {},
-    "virtual_sdcard": {}, "print_stats": {}, "display_status": {}, "output_pin caselight": {}, "save_variables": {},
+    "virtual_sdcard": {}, "print_stats": {}, "display_status": {}, "output_pin caselight": {}, "save_variables": {}, "gcode_macro _REVO_TEST": {},
 }
 STATUS = {
     "configfile": {"config": CONFIG, "settings": {"extruder": {"nozzle_diameter": 0.4, "filament_diameter": 1.75}}},
@@ -40,6 +41,16 @@ STATUS = {
     "save_variables": {"variables": {"revo_nozzle_diameter": 0.4, "revo_nozzle": "0.4 mosiadz"}},
     "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight"},
     "output_pin caselight": {"value": 1.0},
+    "gcode_macro _REVO_TEST": {
+        "faza": TEST_FAZA, "step": 5, "last": "nie rusza",
+        "ask": {"t": "Czy ruszył tylko ten silnik?", "ok": "DZIAŁA", "cmd": "REVO_TEST_ODP WYNIK=ok"},
+        "plan": [["Krok %d" % i, "x", "", "", "conn", 60, 0, "opis"] for i in range(5)]
+        + [["Silnik stepper_z1", "buzz", "stepper_z1", "", "motor_z1", 20, 1,
+            "Silnik Z w narożniku tylny lewy drgnie 10 razy. Tylko ten narożnik bramy powinien się ruszyć."]]
+        + [["Krok %d" % i, "x", "", "", "conn", 60, 0, "opis"] for i in range(25)],
+        "summary": {"ok": 29, "total": 31, "done": 31, "stopped": "",
+                    "results": {"Wentylator hotendu": "problem · hałas / drgania", "Czujnik filamentu": "problem · nie rusza"}},
+    },
 }
 
 RESULTS = {
