@@ -11,6 +11,7 @@ from gi.repository import GLib, Gtk
 from ks_includes import revo_agent_client as agent
 from ks_includes.screen_panel import ScreenPanel
 from ks_includes.widgets.revo_home import RevoActions, _lbl
+from ks_includes.widgets.revo_qr import QR
 
 STEPS = ["witaj", "jezyk", "siec", "zgody", "dysza", "test"]
 STATE = {"step": 0}          # przetrwa przeładowanie paneli po zmianie języka
@@ -111,9 +112,11 @@ class Panel(ScreenPanel, RevoActions):
     def step_siec(self):
         ip = local_ip()
         self._head("SIEĆ",
-                   (f"Maszyna jest w sieci: {ip}. Panel Revo otworzysz w przeglądarce pod adresem http://{ip}"
+                   (f"Maszyna jest w sieci: {ip}. Zeskanuj kod telefonem, żeby otworzyć Panel Revo (http://{ip})"
                     if ip else "Maszyna nie jest połączona z siecią. Podłącz kabel albo ustaw Wi‑Fi.")
                    + " Sieć jest potrzebna do aktualizacji i kontaktu z serwisem Revotech.")
+        if ip:
+            self.box.pack_start(QR(f"http://{ip}", 180), False, False, 8)
         self.box.pack_start(self._btn("USTAW WI‑FI", lambda: self._screen.show_panel("network", "Sieć")), False, False, 12)
         self._nav()
 
