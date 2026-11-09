@@ -280,6 +280,8 @@
 "Narzędzia serwisowe": "Service tools",
 "Wykonaj": "Run",
 "Wynik": "Result",
+"TEST MASZYNY W TOKU": "MACHINE TEST IN PROGRESS",
+"Przejdź do zakładki Serwis, żeby odpowiadać na pytania testu.": "Go to the Service tab to answer the test questions.",
 "WITAJ W REVO OS": "WELCOME TO REVO OS",
 "Alerty o błędach": "Error alerts",
 "Możesz to zmienić później w Menu.": "You can change this later in Menu.",
@@ -519,6 +521,10 @@
 [
 "^Seria: (.*)$",
 "Series: $1"
+],
+[
+"^KROK (\\d+) / (\\d+) · (.*) – dotknij, żeby przejść do testu$",
+"STEP $1 / $2 · $3 – tap to open the test"
 ],
 [
 "^Pas grzeje się od początku testu\\. Limit: (\\d+) min od startu\\.$",
