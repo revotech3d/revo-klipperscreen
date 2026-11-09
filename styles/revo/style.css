@@ -329,3 +329,6 @@ button.revo_t_plain { background-color: #131518; border: 1px solid #2C3036; bord
 .revo_saver_state { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 3px; color: #5E646C; }
 .revo_saver_temps { color: #4A4F56; font-size: 1.05em; }
 .revo_saver_hint { color: #2E3236; font-size: 0.8em; margin-top: 30px; }
+
+/* przypomnienie serwisowe na ekranie głównym */
+.revo_serwis_alert { background: #3A2A0E; color: #E0A33A; border: 1px solid #E0A33A; border-radius: 6px; padding: 8px; font-weight: 700; }
