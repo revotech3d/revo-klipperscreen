@@ -1,5 +1,28 @@
 {
 "exact": {
+"Przeglądy": "Maintenance",
+"PRZEGLĄDY OKRESOWE": "SCHEDULED MAINTENANCE",
+"ZROBIONE": "DONE",
+"Przegląd": "Maintenance",
+"PRZEGLĄD": "MAINTENANCE",
+"Dysza": "Nozzle",
+"DYSZA": "NOZZLE",
+"Taśma, pasy i osie": "Belt, timing belts and axes",
+"TAŚMA, PASY I OSIE": "BELT, TIMING BELTS AND AXES",
+"Pasy i osie": "Belts and axes",
+"PASY I OSIE": "BELTS AND AXES",
+"Pełny serwis": "Full service",
+"PEŁNY SERWIS": "FULL SERVICE",
+"OK": "OK",
+"WKRÓTCE": "SOON",
+"PO TERMINIE": "OVERDUE",
+"Zapisano przegląd": "Maintenance saved",
+"Sprawdź dyszę: zużycie, wycieki, dokręcenie na gorąco. Wymień, jeśli otwór jest rozbity.": "Check the nozzle: wear, leaks, hot-tightening. Replace if the orifice is worn.",
+"Sprawdź naciąg pasów, prowadnice i luzy osi. Wyczyść i nasmaruj prowadnice. Na Belcie sprawdź też taśmę i jej prowadzenie.": "Check belt tension, rails and axis play. Clean and lubricate the rails. On the Belt also check the conveyor belt and its tracking.",
+"Pełny przegląd: elektronika, przewody, wentylatory, grzanie, kalibracja. Najlepiej z serwisem Revotech.": "Full inspection: electronics, wiring, fans, heating, calibration. Best done with Revotech service.",
+"Liczone z godzin pracy maszyny. Po wykonaniu przeglądu kliknij ZROBIONE, licznik zacznie od zera.": "Counted from machine running hours. After the inspection click DONE and the counter restarts.",
+"Czas na przegląd okresowy. Dotknij, żeby zobaczyć szczegóły.": "Scheduled maintenance is due. Tap for details.",
+"Brak licznika godzin (agent Revo nie odpowiada).": "No hour counter (Revo agent not responding).",
 "Pierwsze uruchomienie": "First start",
 "WITAJ W REVO OS": "WELCOME TO REVO OS",
 "ZACZYNAMY": "LET'S START",
@@ -75,7 +98,6 @@
 "Więcej": "More",
 "Panel administratora": "Admin panel",
 "PANEL ADMINISTRATORA": "ADMIN PANEL",
-"DYSZA": "NOZZLE",
 "PAS": "BELT",
 "STÓŁ": "BED",
 "Stół": "Bed",
@@ -145,7 +167,6 @@
 "Nie udało się wczytać plików.": "Could not load files.",
 "Nie udało się otworzyć pliku.": "Could not open the file.",
 "Czas": "Time",
-"Dysza": "Nozzle",
 "Wysokość": "Height",
 "DRUK ZAKOŃCZONY": "PRINT FINISHED",
 "DRUK ANULOWANY": "PRINT CANCELLED",
@@ -388,6 +409,26 @@
 "przerwany przez użytkownika": "aborted by the user"
 },
 "re": [
+[
+"^PRZEGLĄD: (.+?)(  ›)?$",
+"MAINTENANCE: $1$2"
+],
+[
+"^Przepracowane: (\\d+) h$",
+"Running time: $1 h"
+],
+[
+"^(\\d+) h z (\\d+) h · zostało (\\d+) h$",
+"$1 h of $2 h · $3 h left"
+],
+[
+"^(\\d+) h z (\\d+) h · po terminie o (\\d+) h$",
+"$1 h of $2 h · overdue by $3 h"
+],
+[
+"^Potwierdź wykonanie: (.+)\\. Licznik tego przeglądu zacznie się od zera\\.$",
+"Confirm completed: $1. This counter restarts from zero."
+],
 [
 "^KROK (\\d+) / (\\d+)$",
 "STEP $1 / $2"
