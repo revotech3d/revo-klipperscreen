@@ -19,7 +19,7 @@ def sources(config_sections):
     """Listy do wyboru parametrów z sekcji konfiguracji Klippera."""
     secs = list(config_sections)
     steppers = [s for s in secs if re.match(r"^stepper_\w+$", s)] + (["extruder"] if "extruder" in secs else [])
-    tmc = [s.split(" ", 1)[1] for s in secs if re.match(r"^tmc\d+ ", s)]
+    tmc = [s.split(" ", 1)[1] for s in secs if re.match(r"^tmc\d+ \S+$", s)]
     return {"steppers": steppers, "tmc": tmc}
 
 
