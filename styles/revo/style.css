@@ -303,3 +303,8 @@ button.revo_estop:active { background-color: #B3262B; }
 button.revo_file { background-color: #131518; border: 1px solid #23262B; border-radius: 14px; padding: 8px; }
 button.revo_compact { min-height: 36px; padding: 2px 4px; }
 .revo_tile_value.revo_tile_value_small { font-size: 1.0em; }
+
+/* ---- Revo OS: krój nagłówków (Barlow Semi Condensed, OFL – darmowy, z polskimi znakami) ---- */
+.revo_state, .revo_tile_title, .revo_tile_value, .revo_big, button.revo_print, button.revo_preset,
+button.revo_estop, .printing-filename, .title_bar label { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; }
+.revo_tile_value, .revo_big { font-weight: 600; }

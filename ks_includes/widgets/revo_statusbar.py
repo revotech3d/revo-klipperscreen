@@ -36,6 +36,8 @@ class RevoStatusBar(Gtk.DrawingArea):
 
     def _set_service(self, active):
         self.service = active
+        if self._screen.printer is not None:
+            self._screen.printer.revo_service = active  # menu: opcje serwisowe tylko w trybie serwisowym
         return False
 
     def _tick(self):

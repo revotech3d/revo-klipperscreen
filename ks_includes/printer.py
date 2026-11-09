@@ -244,6 +244,7 @@ class Printer:
 
     def get_printer_status_data(self):
         return {
+            "revo": {"service": getattr(self, "revo_service", False)},
             "moonraker": {
                 "power_devices": {"count": len(self.get_power_devices())},
                 "cameras": {"count": len(self.cameras)},
