@@ -343,3 +343,10 @@ button.revo_spool { background: #16181B; color: #C9CDD2; border: 1px solid #2E32
 button.revo_spool_low { color: #E0A33A; border-color: #E0A33A; }
 
 button.revo_live_alert { background: #3A1214; color: #FF4D52; border: 1px solid #FF4D52; border-radius: 6px; padding: 8px; font-weight: 700; }
+
+/* wygaszacz: pasek stanu maszyny */
+.revo_saver_bar { font-size: 1.05em; font-weight: 700; letter-spacing: 1px; padding: 8px 14px; }
+.revo_saver_bar.revo_ok { color: #3ED663; }
+.revo_saver_bar.revo_warn { color: #E0A33A; }
+.revo_saver_bar.revo_err { color: #FF4D52; }
+.revo_saver_sub { color: #9AA0A8; font-size: 0.9em; }

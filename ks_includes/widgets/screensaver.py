@@ -85,25 +85,24 @@ class ScreenSaver:
         import os
         from ks_includes import revo_home_logic as lg
         from ks_includes.widgets.revo_home import Schematic
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=40, valign=Gtk.Align.CENTER)
+        from ks_includes.widgets import revo_saver
         printer = self.screen.printer
-        sch = Schematic(lg.machine_type(printer) if printer else "belt")
-        sch.wire, sch.light, sch.alpha = True, False, 0.5
-        sch.set_size_request(int(self.screen.width * 0.8), int(self.screen.height * 0.4))
-        box.pack_start(sch, False, False, 0)
+
+        def schem():
+            sch = Schematic(lg.machine_type(printer) if printer else "belt")
+            sch.wire, sch.light, sch.alpha = True, False, 0.5
+            return sch
         logo = os.path.join(os.path.dirname(__file__), "..", "..", "styles", "revo", "images", "revo-logo.png")
-        if os.path.isfile(logo):
-            from gi.repository import GdkPixbuf
-            w = int(self.screen.width * 0.5)
-            img = Gtk.Image.new_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(logo, w, -1, True))
-            img.set_opacity(0.5)
-            box.pack_start(img, False, False, 0)
-        button.add(box)
+        widget, self._revo_stop = revo_saver.build(self.screen, schem, logo)
+        button.add(widget)
 
     def close(self, widget=None):
         if not self.is_showing:
             return False
         logging.debug("Closing Screensaver")
+        if getattr(self, "_revo_stop", None):
+            self._revo_stop()
+            self._revo_stop = None
         if self.screen.use_dpms:
             self.screen.wake_screen()
         self.screen.gtk.set_cursor(self.screen.show_cursor, window=self.screen.get_window())

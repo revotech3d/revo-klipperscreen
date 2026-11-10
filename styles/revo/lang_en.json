@@ -1,5 +1,7 @@
 {
 "exact": {
+"DOTKNIJ, ABY ODBLOKOWAĆ": "TOUCH TO UNLOCK",
+"ŁĄCZENIE…": "CONNECTING…",
 "REVOTECH WIDZI KAMERĘ I EKRAN · ZAKOŃCZ": "REVOTECH SEES CAMERA AND SCREEN · END",
 "Zdalny podgląd włączony": "Remote view on",
 "Zdalny podgląd zakończony": "Remote view ended",
@@ -197,7 +199,6 @@
 "BŁĄD": "ERROR",
 "SERWIS": "SERVICE",
 "BRAK POŁĄCZENIA": "OFFLINE",
-"ŁĄCZENIE…": "CONNECTING…",
 "System OK": "System OK",
 "Sprawdź komunikat": "Check message",
 "Włączone": "On",
@@ -578,6 +579,14 @@
 [
 "^Może zabraknąć filamentu: potrzeba ok\\\\. (\\\\d+) g, na szpuli ok\\\\. (\\\\d+) g\\\\.$",
 "Filament may run out: about $1 g needed, about $2 g on the spool."
+],
+[
+"^dysza (.+)  ·  (pas|stół) (.+)$",
+"nozzle $1  ·  bed $3"
+],
+[
+"^jeszcze ok\\\\. (\\\\d+) h (\\\\d+) min$",
+"about $1 h $2 min left"
 ],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
