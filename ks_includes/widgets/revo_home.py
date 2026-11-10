@@ -123,15 +123,18 @@ class Schematic(Gtk.DrawingArea):
         if self.model != "belt":
             self._draw_bed(ctx)
             return False
-        # taśma (stół ruchomy)
-        self._poly(ctx, [(112, 262), (258, 262), (266, 254), (120, 254)], "#2A2E34", "#9AA0A8")
-        self._poly(ctx, [(112, 262), (258, 262), (258, 270), (112, 270)], "#1A1E23", "#5B616A")
-        for x in (116, 254):
-            self._rgb(ctx, "#15181C"); ctx.arc(x, 266, 6, 0, 6.2832); ctx.fill_preserve()
-            self._rgb(ctx, "#9AA0A8"); ctx.set_line_width(1.5); ctx.stroke()
-        self._poly(ctx, [(268, 258), (262, 255), (262, 261)], "#9AA0A8")
-        for x in (124, 246):
-            self._line(ctx, (x, 272), (x, 298), "#3A3F46", 2)
+        # taśma (stół ruchomy) – biegnie od tyłu komory do przodu i wysuwa się przodem
+        self._poly(ctx, [(132, 274), (222, 274), (251, 252), (161, 252)], "#2A2E34", "#9AA0A8")
+        for t in (0.25, 0.5, 0.75):
+            self._line(ctx, (132 + 29 * t, 274 - 22 * t), (222 + 29 * t, 274 - 22 * t), "#3A3F46", 1)
+        self._poly(ctx, [(132, 274), (222, 274), (222, 282), (132, 282)], "#1A1E23", "#5B616A")
+        self._rgb(ctx, "#15181C"); ctx.rectangle(130, 274, 94, 8); ctx.fill()
+        self._rgb(ctx, "#9AA0A8"); ctx.set_line_width(1.5); ctx.rectangle(130, 274, 94, 8); ctx.stroke()
+        # strzałka: wydruk wyjeżdża do przodu (do patrzącego)
+        self._line(ctx, (176, 286), (164, 296), "#9AA0A8", 2)
+        self._poly(ctx, [(158, 301), (161, 291), (168, 298)], "#9AA0A8")
+        for x in (140, 214):
+            self._line(ctx, (x, 282), (x, 298), "#3A3F46", 2)
         self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()
         for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
             self._line(ctx, a, b, "#5B616A", 2.5)
