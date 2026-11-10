@@ -75,6 +75,22 @@ class Panel(ScreenPanel):
 
         def enter(pin, pad):
             code, r = agent.call("/operator/zaloguj", {"login": o["login"], "pin": pin, "zrodlo": "ekran"}, timeout=4)
+            if code == 409:   # PIN zresetowany – ustaw nowy
+                self._clear()
+
+                def nowy(pin2, pad2):
+                    c2, r2 = agent.call("/operator/zaloguj", {"login": o["login"], "pin": pin, "nowy": pin2, "zrodlo": "ekran"}, timeout=6)
+                    if c2 == 200:
+                        self._screen.show_popup_message(f"Nowy PIN ustawiony · {o['imie']}", 1)
+                        self._screen._menu_go_back()
+                    else:
+                        pad2.error("4–8 cyfr, inny niż 0000")
+
+                p2 = PinPad(self._screen, "PIN ZRESETOWANY · USTAW NOWY", nowy, self.render)
+                p2.set_size_request(-1, -1)
+                self.box.pack_start(p2, True, True, 0)
+                self.box.show_all()
+                return
             if code == 200:
                 self._screen.show_popup_message(f"Zalogowano: {o['imie']}", 1)
                 self._screen._menu_go_back()
