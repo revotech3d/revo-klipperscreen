@@ -1,5 +1,15 @@
 {
 "exact": {
+"STATYSTYKI MASZYNY": "MACHINE STATISTICS",
+"GODZINY": "HOURS",
+"FILAMENT": "FILAMENT",
+"UDANE %": "SUCCESS %",
+"TEN MIESIĄC": "THIS MONTH",
+"12 MIESIĘCY": "12 MONTHS",
+"UDANE": "SUCCESSFUL",
+"12 miesięcy": "12 months",
+"Ostatnie 12 miesięcy, z historii wydruków tej maszyny.": "Last 12 months, from this machine's print history.",
+"Nie udało się wczytać statystyk.": "Could not load statistics.",
 "KOLEJKA WYDRUKÓW": "PRINT QUEUE",
 "DRUKUJ KOLEJKĘ": "PRINT QUEUE",
 "WYCZYŚĆ": "CLEAR",
@@ -270,7 +280,6 @@
 "WYTŁOCZ": "EXTRUDE",
 "COFNIJ 5 mm": "RETRACT 5 mm",
 "WYTŁACZANIE": "EXTRUSION",
-"FILAMENT": "FILAMENT",
 "PRZEPŁYW (mm³/s)": "FLOW (mm³/s)",
 "Przepływ objętościowy w mm³/s. Wartości powyżej możliwości zamontowanej dyszy są zablokowane.": "Volumetric flow in mm³/s. Values above the installed nozzle's capability are locked.",
 "Dysza musi być nagrzana (min. 180°C). Wybierz preset na Pulpicie albo wpisz temperaturę.": "The nozzle must be hot (min. 180°C). Pick a preset on the Dashboard or enter a temperature.",
@@ -490,6 +499,14 @@
 [
 "^(\\\\d+) w kolejce$",
 "$1 in queue"
+],
+[
+"^(\\\\d+) wydruków$",
+"$1 prints"
+],
+[
+"^(\\\\d+) z (\\\\d+)$",
+"$1 of $2"
 ],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
