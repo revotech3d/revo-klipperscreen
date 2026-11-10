@@ -38,9 +38,18 @@ class Panel(ScreenPanel):
         cur = self.st.get("operator")
         self.box.pack_start(_lbl("OPERATOR MASZYNY", "revo_test_name"), False, False, 6)
         if not ops:
-            t = _lbl("Brak operatorów. Kierownik dodaje ich w Panelu Revo (przeglądarka) → Serwis → Operatorzy.", "revo_test_desc")
+            code, r = agent.call("/parowanie/kod", timeout=3)
+            t = _lbl("Panel Revo w przeglądarce wymaga logowania. Maszyna nie ma jeszcze operatorów – "
+                     "otwórz Panel Revo, wybierz KOD Z EKRANU i wpisz ten kod, potem załóż konto kierownika. "
+                     "Kod ważny 10 minut.", "revo_test_desc")
             t.set_line_wrap(True)
             self.box.pack_start(t, False, False, 0)
+            self.box.pack_start(_lbl(" ".join((r.get("kod") or "------")), "revo_big", 0.5), False, False, 16)
+            b = Gtk.Button(label="ODŚWIEŻ")
+            b.get_style_context().add_class("revo_t_plain")
+            b.set_size_request(-1, 56)
+            b.connect("clicked", lambda w: threading.Thread(target=self._load, daemon=True).start())
+            self.box.pack_start(b, False, False, 0)
         else:
             if cur:
                 self.box.pack_start(_lbl(f"Zalogowany: {cur.get('imie', '')}", "revo_state"), False, False, 4)
