@@ -50,28 +50,64 @@ class Glow(Gtk.DrawingArea):
             cr.stroke()
 
 
-class UnlockField(Gtk.DrawingArea):
-    """Subtelne pole odblokowania: mała galaktyka spiralna ze świecących heksagonów (migoczą jak gwiazdy)
-    i cichy napis w środku."""
+def _ease(x):
+    x = max(0.0, min(1.0, x))
+    return x * x * (3 - 2 * x)
 
-    def __init__(self, width, height, text="DOTKNIJ, ABY ODBLOKOWAĆ", stars=110, seed=7):
+
+class GalaxyLogo(Gtk.DrawingArea):
+    """Galaktyka ze świecących heksagonów, która co ~22 s zlatuje się w logo [r]evo3d, migocze i rozprasza.
+    Pod spodem cichy napis „Dotknij, aby odblokować”."""
+
+    CYCLE = 22.0      # s: 0–6 galaktyka · 6–9.5 zlot · 9.5–17 logo · 17–20.5 rozproszenie · 20.5–22 galaktyka
+
+    def __init__(self, width, height, logo_path, text="DOTKNIJ, ABY ODBLOKOWAĆ", seed=7):
         super().__init__()
         import random
         self.text = text
+        self.W, self.H = width, height
         self.set_size_request(width, height)
         self.set_halign(Gtk.Align.CENTER)
         rnd = random.Random(seed)
+        targets = self._logo_points(logo_path, width, height - 34, rnd)
+        n = max(len(targets), 120)
+        rnd.shuffle(targets)
         self.stars = []
-        for k in range(stars):
+        for k in range(n):
             arm = k % 2
-            r = rnd.random() ** 0.6                      # gęściej przy środku
+            r = rnd.random() ** 0.6
             ang = arm * math.pi + r * 3.2 + rnd.gauss(0, 0.28)
-            x = 0.5 + 0.47 * r * math.cos(ang)
-            y = 0.5 + 0.46 * r * math.sin(ang) * 0.8     # galaktyka widziana lekko pod kątem
-            size = 1.2 + 3.2 * (1 - r) * rnd.random() + (2.5 if rnd.random() < 0.06 else 0)
+            gx, gy = 0.5 + 0.47 * r * math.cos(ang), 0.5 + 0.46 * r * math.sin(ang) * 0.8
+            tx, ty = targets[k] if k < len(targets) else (gx, gy)
+            in_logo = k < len(targets)
+            size = (1.6 + 1.4 * rnd.random()) if in_logo else (1.0 + 2.2 * (1 - r) * rnd.random())
             tint = rnd.choice(((0.78, 0.86, 1.0), (0.92, 0.90, 1.0), (0.70, 0.95, 0.98), (1.0, 0.93, 0.85)))
-            self.stars.append((x, y, size, tint, rnd.uniform(0.6, 2.4), rnd.uniform(0, 6.28), rnd.uniform(0.35, 0.9)))
+            self.stars.append((gx, gy, tx, ty, in_logo, size, tint, rnd.uniform(0.6, 2.4), rnd.uniform(0, 6.28),
+                               rnd.uniform(0.45, 0.95), r, ang, rnd.uniform(0, 0.25)))
+        self.t0 = time.time()
         self.connect("draw", self._draw)
+
+    @staticmethod
+    def _logo_points(path, W, H, rnd):
+        """Punkty (0–1) na kształcie logo – próbkowanie kanału alfa co kilka pikseli."""
+        try:
+            from gi.repository import GdkPixbuf
+            pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, int(W * 0.86), -1, True)
+            w, h, rs, ch = pb.get_width(), pb.get_height(), pb.get_rowstride(), pb.get_n_channels()
+            px = pb.get_pixels()
+            ox, oy = (W - w) / 2, (H - h) / 2
+            pts, step = [], 4
+            for y in range(0, h, step):
+                for x in range(0, w, step):
+                    o = y * rs + x * ch
+                    a = px[o + 3] if ch == 4 else 255
+                    if a > 120 and px[o] + px[o + 1] + px[o + 2] > 150:
+                        pts.append(((ox + x + rnd.uniform(-0.8, 0.8)) / W, (oy + y + rnd.uniform(-0.8, 0.8)) / H))
+            if len(pts) > 320:
+                pts = rnd.sample(pts, 320)
+            return pts
+        except Exception:
+            return []
 
     @staticmethod
     def _hex(cr, x, y, r):
@@ -80,39 +116,63 @@ class UnlockField(Gtk.DrawingArea):
             (cr.move_to if i == 0 else cr.line_to)(x + r * math.cos(a), y + r * math.sin(a))
         cr.close_path()
 
+    def _phase(self, t):
+        """Ile gwiazdy są „w logo” (0 = galaktyka, 1 = logo)."""
+        c = (t - self.t0) % self.CYCLE
+        if c < 6:
+            return 0.0
+        if c < 9.5:
+            return _ease((c - 6) / 3.5)
+        if c < 17:
+            return 1.0
+        if c < 20.5:
+            return 1 - _ease((c - 17) / 3.5)
+        return 0.0
+
     def _draw(self, w, cr):
-        W, H0 = w.get_allocated_width(), w.get_allocated_height()
-        H = H0 - 30                                         # galaktyka nad napisem
-        t = time.time()
-        # bardzo słaba mgławica w jądrze (gaśnie przed krawędzią pola – bez widocznego prostokąta)
         import cairo
+        W, H0 = w.get_allocated_width(), w.get_allocated_height()
+        H = H0 - 34
+        t = time.time()
+        p = self._phase(t)
+        spin = (t - self.t0) * 0.05                       # powolny obrót galaktyki
+        # mgławica w jądrze – słabnie, gdy powstaje logo
         cr.save()
         cr.translate(W / 2, H / 2)
         cr.scale(1.0, 0.6)
         g = cairo.RadialGradient(0, 0, 0, 0, 0, min(W, H) * 0.42)
-        g.add_color_stop_rgba(0, 0.62, 0.68, 0.92, 0.16 + 0.04 * math.sin(t * 0.7))
-        g.add_color_stop_rgba(0.5, 0.45, 0.50, 0.75, 0.05)
+        g.add_color_stop_rgba(0, 0.62, 0.68, 0.92, (0.16 + 0.04 * math.sin(t * 0.7)) * (1 - 0.7 * p))
+        g.add_color_stop_rgba(0.5, 0.45, 0.50, 0.75, 0.05 * (1 - 0.7 * p))
         g.add_color_stop_rgba(1, 0, 0, 0, 0)
         cr.set_source(g)
         cr.arc(0, 0, min(W, H) * 0.42, 0, 2 * math.pi)
         cr.fill()
         cr.restore()
-        for x, y, size, (r, gg, b), sp, ph, base in self.stars:
-            a = base * (0.35 + 0.65 * (0.5 + 0.5 * math.sin(t * sp + ph)))
-            px, py = x * W, y * H
-            cr.set_source_rgba(r, gg, b, a * 0.18)          # poświata
-            self._hex(cr, px, py, size * 2.6)
+        for gx, gy, tx, ty, in_logo, size, (r, gg, b), sp, ph, base, rr, ang, lag in self.stars:
+            # pozycja w obracającej się galaktyce
+            a2 = ang + spin * (1.2 - rr)
+            gx2, gy2 = 0.5 + 0.47 * rr * math.cos(a2), 0.5 + 0.46 * rr * math.sin(a2) * 0.8
+            q = _ease((p - lag) / (1 - lag)) if in_logo and p > lag else 0.0
+            x, y = (gx2 + (tx - gx2) * q) * W, (gy2 + (ty - gy2) * q) * H
+            tw = 0.35 + 0.65 * (0.5 + 0.5 * math.sin(t * sp + ph))
+            al = base * tw
+            if not in_logo:
+                al *= 1 - 0.75 * p                         # tło przygasa, gdy świeci logo
+            elif q > 0.95:
+                al = max(al, 0.55)                         # logo czytelne
+            cr.set_source_rgba(r, gg, b, al * 0.18)
+            self._hex(cr, x, y, size * 2.6)
             cr.fill()
-            cr.set_source_rgba(r, gg, b, a)                 # gwiazda
-            self._hex(cr, px, py, size)
+            cr.set_source_rgba(r, gg, b, al)
+            self._hex(cr, x, y, size)
             cr.fill()
         lay = PangoCairo.create_layout(cr)
         lay.set_font_description(Pango.FontDescription.from_string("Sans 11"))
         from ks_includes.revo_i18n import tr
         lay.set_text(tr(self.text), -1)
-        tw, th = lay.get_pixel_size()
+        tw_, th = lay.get_pixel_size()
         cr.set_source_rgba(0.88, 0.90, 0.95, 0.32 + 0.12 * math.sin(t * 1.3))
-        cr.move_to((W - tw) / 2, H0 - th - 4)
+        cr.move_to((W - tw_) / 2, H0 - th - 4)
         PangoCairo.show_layout(cr, lay)
 
 
@@ -136,14 +196,9 @@ def build(screen, schematic_factory, logo_path):
     box.pack_start(sub, False, False, 0)
     mid = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=30, valign=Gtk.Align.CENTER)
     sch = schematic_factory()
-    sch.set_size_request(int(W * 0.8), int(H * 0.36))
+    sch.set_size_request(int(W * 0.8), int(H * 0.34))
     mid.pack_start(sch, False, False, 0)
-    if os.path.isfile(logo_path):
-        from gi.repository import GdkPixbuf
-        img = Gtk.Image.new_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(logo_path, int(W * 0.5), -1, True))
-        img.set_opacity(0.55)
-        mid.pack_start(img, False, False, 0)
-    field = UnlockField(int(W * 0.8), 190)
+    field = GalaxyLogo(int(W * 0.9), 230, logo_path)   # galaktyka, która składa się w logo Revo
     mid.pack_start(field, False, False, 0)
     box.pack_start(mid, True, True, 0)
     ov.add_overlay(box)
