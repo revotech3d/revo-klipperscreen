@@ -239,6 +239,13 @@ class Panel(ScreenPanel):
             col.add(t)
             col.add(v)
             info.attach(col, i, 0, 1, 1)
+        sz = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        t = Gtk.Label(label="SZPULA", xalign=0)
+        t.get_style_context().add_class("revo_tile_title")
+        self.revo_sz = Gtk.Label(label="–", xalign=0)
+        sz.add(t)
+        sz.add(self.revo_sz)
+        info.attach(sz, 3, 0, 1, 1)
         box.pack_start(info, False, False, 0)
 
         tiles = Gtk.Grid(column_homogeneous=True, column_spacing=8)
@@ -291,6 +298,14 @@ class Panel(ScreenPanel):
         self.content.add(box)
         GLib.timeout_add_seconds(1, self._revo_tick)
 
+    def _revo_sz_load(self):
+        from ks_includes import revo_agent_client as agent
+        from ks_includes import revo_filament_logic as fl
+        code, st = agent.call("/status", timeout=2)
+        if code == 200 and st.get("szpula"):
+            left = st["szpula"].get("zostalo_g")
+            GLib.idle_add(self.revo_sz.set_label, "?" if left is None else f"{left:.0f} g")
+
     def _revo_cam_check(self):
         from ks_includes.widgets import revo_cam
         if revo_cam.available():
@@ -330,6 +345,8 @@ class Panel(ScreenPanel):
             return True
         from ks_includes import revo_home_logic as lg
         self._revo_n += 1
+        if self._revo_n % 15 == 1:   # szpula: ile filamentu zostało
+            threading.Thread(target=self._revo_sz_load, daemon=True).start()
         if self._revo_n % 5 == 1:   # seria wydruków: ile sztuk zostało w kolejce
             self._screen._ws.send_method("server.job_queue.status", {}, self._revo_queue)
         for dev, tile in self.revo_tiles.items():
