@@ -354,3 +354,6 @@ button.revo_live_alert { background: #3A1214; color: #FF4D52; border: 1px solid 
 /* pasek górny: sieć obok zegara */
 .revo_net { color: #9AA0A8; font-size: 0.8em; letter-spacing: 1px; }
 .revo_net_off { color: #FF4D52; }
+button.revo_t_skip { background-color: rgba(240, 200, 60, 0.12); border: 2px solid #F0C83C; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
+button.revo_t_skip label { color: #F0C83C; }
+.revo_test_skip { color: #F0C83C; font-size: 15px; }
