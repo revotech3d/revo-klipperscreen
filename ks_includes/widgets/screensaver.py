@@ -28,6 +28,9 @@ class ScreenSaver:
             use_screensaver = self.config.get_main_config().get("screen_blanking_printing") != "off"
         else:
             use_screensaver = self.config.get_main_config().get("screen_blanking") != "off"
+        # Revo OS: wygaszacz wyłączony (blokował ekran Belta) – ekran zostaje włączony
+        if self.config.get_main_config().get("theme", "") == "revo":
+            use_screensaver = False
         if use_screensaver:
             self.screensaver_timeout = GLib.timeout_add_seconds(
                 self.screen.blanking_time, self.show
