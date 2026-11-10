@@ -337,6 +337,12 @@ class RevoHome(RevoActions, Gtk.Box):
         self.op_btn.set_no_show_all(True)
         self.op_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_operator", "Operator"))
         self.pack_start(self.op_btn, False, False, 0)
+        # licencja: pasek tylko gdy trzeba działać (okres próbny / blokada)
+        self.lic_btn = Gtk.Button(label="")
+        self.lic_btn.get_style_context().add_class("revo_spool")
+        self.lic_btn.set_no_show_all(True)
+        self.lic_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_licencja", "Licencja"))
+        self.pack_start(self.lic_btn, False, False, 0)
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -412,8 +418,28 @@ class RevoHome(RevoActions, Gtk.Box):
                 GLib.idle_add(self._set_operator, st.get("operatorzy") or [], st.get("operator"))
                 self.system = st.get("system")
                 GLib.idle_add(self._consent_check, st)
+            code, lic = agent.call("/licencja", timeout=1)
+            if code == 200:
+                GLib.idle_add(self._set_lic, lic)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_lic(self, lic):
+        ctx = self.lic_btn.get_style_context()
+        for c in ("revo_lic_proba", "revo_lic_blok"):
+            ctx.remove_class(c)
+        if lic.get("stan") == "proba":
+            d = lic.get("dni") or 0
+            self.lic_btn.set_label(f"AKTYWUJ LICENCJĘ · {d} {'dzień' if d == 1 else 'dni'} do blokady")
+            ctx.add_class("revo_lic_proba")
+        elif lic.get("stan") == "blokada":
+            self.lic_btn.set_label("MASZYNA ZABLOKOWANA · WPISZ NUMER LICENCJI")
+            ctx.add_class("revo_lic_blok")
+        else:
+            self.lic_btn.hide()
+            return False
+        self.lic_btn.show()
+        return False
 
     def _set_operator(self, ops, cur):
         if not ops:
