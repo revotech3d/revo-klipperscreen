@@ -99,6 +99,11 @@ class BasePanel(ScreenPanel):
         self.control["time"] = Gtk.Label(label="00:00 AM")
         self.control["time_box"] = Gtk.Box(halign=Gtk.Align.END)
         self.control["time_box"].pack_end(self.control["time"], True, True, 10)
+        # Revo: przez co maszyna jest w sieci i jaki ma adres (obok zegara)
+        self.control["net"] = Gtk.Label(label="")
+        self.control["net"].get_style_context().add_class("revo_net")
+        self.control["time_box"].pack_end(self.control["net"], False, False, 6)
+        self._net_n = 0
 
         self.battery_icons = self.load_battery_icons()
         self.labels["battery"] = Gtk.Label()
@@ -664,6 +669,16 @@ class BasePanel(ScreenPanel):
         self.titlelbl.set_label(f"{printer} {title}")
 
     def update_time(self):
+        self._net_n = getattr(self, "_net_n", 0) + 1
+        if self._net_n % 10 == 1 and "net" in self.control:   # sieć co ~10 s
+            try:
+                from ks_includes import revo_net
+                txt = revo_net.describe()
+                self.control["net"].set_label(txt)
+                ctx = self.control["net"].get_style_context()
+                (ctx.add_class if txt == "BRAK SIECI" else ctx.remove_class)("revo_net_off")
+            except Exception:
+                pass
         now = datetime.now()
         confopt = self._config.get_main_config().getboolean("24htime", True)
         if now.minute != self.time_min or self.time_format != confopt:
