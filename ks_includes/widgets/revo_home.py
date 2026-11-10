@@ -132,15 +132,15 @@ class Schematic(Gtk.DrawingArea):
             for x in (x0, x1):
                 self._rgb(ctx, "#9AA0A8"); ctx.arc(x, y, r * 0.45, 0, 6.2832); ctx.fill()
         # wąski pas biegnący w głąb (tył → przód), wystaje przez front maszyny
-        self._poly(ctx, [(144, 306), (198, 306), (240, 274), (186, 274)], "#111317", "#3A3F46", 1)
-        roller(186, 240, 269, 5)
-        self._poly(ctx, [(144, 298), (198, 298), (240, 266), (186, 266)], "#2A2E34", "#9AA0A8")
+        self._poly(ctx, [(122, 306), (214, 306), (256, 274), (164, 274)], "#111317", "#3A3F46", 1)
+        roller(164, 256, 269, 5)
+        self._poly(ctx, [(122, 298), (214, 298), (256, 266), (164, 266)], "#2A2E34", "#9AA0A8")
         for t in (0.2, 0.4, 0.6, 0.8):
-            self._line(ctx, (144 + 42 * t, 298 - 32 * t), (198 + 42 * t, 298 - 32 * t), "#3A3F46", 1)
-        roller(144, 198, 303, 5)
+            self._line(ctx, (122 + 42 * t, 298 - 32 * t), (214 + 42 * t, 298 - 32 * t), "#3A3F46", 1)
+        roller(122, 214, 303, 5)
         # strzałka: wydruk wyjeżdża przodem
-        self._line(ctx, (215, 292), (200, 304), "#3ED663", 2)
-        self._poly(ctx, [(194, 309), (197, 299), (204, 306)], "#3ED663")
+        self._line(ctx, (231, 292), (216, 304), "#3ED663", 2)
+        self._poly(ctx, [(210, 309), (213, 299), (220, 306)], "#3ED663")
         self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()
         for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
             self._line(ctx, a, b, "#5B616A", 2.5)
