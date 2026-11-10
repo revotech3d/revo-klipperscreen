@@ -1,5 +1,26 @@
 {
 "exact": {
+"Blokada ekranu": "Screen lock",
+"BLOKADA EKRANU": "SCREEN LOCK",
+"WŁĄCZONA": "ON",
+"WYŁĄCZONA": "OFF",
+"BLOKUJ PO BEZCZYNNOŚCI": "LOCK AFTER IDLE",
+"ZABLOKUJ TERAZ": "LOCK NOW",
+"ZMIEŃ PIN": "CHANGE PIN",
+"WYŁĄCZ BLOKADĘ": "TURN OFF LOCK",
+"WŁĄCZ I USTAW PIN": "TURN ON AND SET PIN",
+"OBECNY PIN": "CURRENT PIN",
+"POWTÓRZ PIN": "REPEAT PIN",
+"NOWY PIN (4–8 CYFR)": "NEW PIN (4–8 DIGITS)",
+"PIN-y się różnią": "PINs don't match",
+"Zły PIN": "Wrong PIN",
+"WPISZ PIN": "ENTER PIN",
+"STOP AWARYJNY": "EMERGENCY STOP",
+"DOTKNIJ PONOWNIE": "TAP AGAIN",
+"ZATRZYMANO": "STOPPED",
+"Zapisano": "Saved",
+"ZABLOKOWANE\n\ndotknij, żeby odblokować": "LOCKED\n\ntap to unlock",
+"Po chwili bezczynności ekran zablokuje się i odblokujesz go PIN-em. Druk trwa dalej, a na ekranie blokady jest przycisk STOP AWARYJNY. PIN serwisowy Revotech też odblokowuje ekran.": "After a short idle time the screen locks and you unlock it with a PIN. Printing continues, and the lock screen has an EMERGENCY STOP button. The Revotech service PIN also unlocks the screen.",
 "KAMERA": "CAMERA",
 "Kamera": "Camera",
 "Zamknij": "Close",
@@ -92,7 +113,6 @@
 "SERWIS": "SERVICE",
 "BRAK POŁĄCZENIA": "OFFLINE",
 "ŁĄCZENIE…": "CONNECTING…",
-"ZATRZYMANO": "STOPPED",
 "System OK": "System OK",
 "Sprawdź komunikat": "Check message",
 "Włączone": "On",
@@ -442,6 +462,14 @@
 "przerwany przez użytkownika": "aborted by the user"
 },
 "re": [
+[
+"^(\\\\d+) min$",
+"$1 min"
+],
+[
+"^PIN ma co najmniej (\\\\d+) cyfry$",
+"PIN needs at least $1 digits"
+],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
 "Report $1 sent"
