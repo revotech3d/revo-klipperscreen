@@ -313,6 +313,13 @@ class RevoHome(RevoActions, Gtk.Box):
         row.pack_start(right, False, False, 0)
         self.pack_start(row, True, True, 0)
 
+        # szpula: ile filamentu zostało (agent odejmuje zużycie); dotknięcie → ustaw / reset
+        self.sz_btn = Gtk.Button(label="FILAMENT · stan szpuli nieznany")
+        self.sz_btn.get_style_context().add_class("revo_spool")
+        self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
+        self.pack_start(self.sz_btn, False, False, 0)
+        self.szpula = None
+
         druk = Gtk.Button(label="ROZPOCZNIJ DRUK")
         druk.get_style_context().add_class("revo_print")
         druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"}))
@@ -380,6 +387,7 @@ class RevoHome(RevoActions, Gtk.Box):
             code, st = agent.call("/status", timeout=1)
             if code == 200:
                 GLib.idle_add(self._set_hours, st.get("hours"))
+                self.szpula = st.get("szpula")
                 GLib.idle_add(self._consent_check, st)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
@@ -438,6 +446,12 @@ class RevoHome(RevoActions, Gtk.Box):
             self.t_bed.value.set_label(v["bed_temp"])
             self.t_chamber.value.set_label(v["chamber_temp"])
             self.t_light.value.set_label(v["light"])
+            if self.szpula is not None:
+                from ks_includes import revo_filament_logic as fl
+                f = fl.fraction(self.szpula)
+                self.sz_btn.set_label("FILAMENT · " + fl.label(self.szpula) + (f"  ({f * 100:.0f}%)" if f is not None else ""))
+                ctx = self.sz_btn.get_style_context()
+                (ctx.add_class if f is not None and f < 0.1 else ctx.remove_class)("revo_spool_low")
             vars_ = self.printer.get_stat("save_variables", "variables") or {}
             lock = rl.settings(vars_)
             want = lock["min"] * 60 if lock["on"] else 0

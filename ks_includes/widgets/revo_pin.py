@@ -6,13 +6,14 @@ from gi.repository import GLib, Gtk
 
 
 class PinPad(Gtk.Box):
-    def __init__(self, screen, title, on_enter, on_cancel=None, emergency=False, length=(4, 8)):
+    def __init__(self, screen, title, on_enter, on_cancel=None, emergency=False, length=(4, 8), secret=True, suffix=""):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=10,
                          width_request=screen.width, height_request=screen.height, valign=Gtk.Align.CENTER)
         self.get_style_context().add_class("revo_home")
         self.get_style_context().add_class("revo_pinpad")
         self.screen, self.on_enter, self.length = screen, on_enter, length
         self.pin = ""
+        self.secret, self.suffix = secret, suffix
         self.title = Gtk.Label(label=title)
         self.title.get_style_context().add_class("revo_test_name")
         self.dots = Gtk.Label(label="")
@@ -53,11 +54,11 @@ class PinPad(Gtk.Box):
             if len(self.pin) >= self.length[0]:
                 self.on_enter(self.pin, self)
             else:
-                self.error(f"PIN ma co najmniej {self.length[0]} cyfry")
+                self.error(f"PIN ma co najmniej {self.length[0]} cyfry" if self.secret else "Wpisz wartość")
             return
         elif len(self.pin) < self.length[1]:
             self.pin += k
-        self.dots.set_label("●" * len(self.pin))
+        self.dots.set_label(("●" * len(self.pin)) if self.secret else (self.pin + (self.suffix if self.pin else "")))
 
     def error(self, text):
         self.pin = ""
