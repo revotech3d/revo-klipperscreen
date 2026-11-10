@@ -1,0 +1,23 @@
+# Wydanie Revotech – uruchamiane zdalnie (gh workflow run wydanie.yml -f tag=... -f galaz=... -f tytul=... -f opis=...).
+# Tworzy tag na wskazanej gałęzi i wydanie z opisem zmian. Maszyny pobierają tylko wydania (kanał stable).
+name: Wydanie
+on:
+  workflow_dispatch:
+    inputs:
+      tag: { description: 'Tag, np. v1.4.8 (belt) albo v1.4.8.1 (stół)', required: true, type: string }
+      galaz: { description: 'Gałąź: belt, stol, main…', required: true, type: string }
+      tytul: { description: 'Tytuł wydania', required: true, type: string }
+      opis: { description: 'Opis zmian (markdown)', required: true, type: string }
+permissions:
+  contents: write
+jobs:
+  wydanie:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wydaj
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OPIS: ${{ inputs.opis }}
+        run: |
+          gh release create "${{ inputs.tag }}" -R "${{ github.repository }}" --target "${{ inputs.galaz }}" \
+            --title "${{ inputs.tytul }}" --notes "$OPIS"
