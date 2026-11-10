@@ -326,6 +326,7 @@ class RevoHome(RevoActions, Gtk.Box):
         self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
         self.pack_start(self.sz_btn, False, False, 0)
         self.szpula = None
+        self.system = None
 
         druk = Gtk.Button(label="ROZPOCZNIJ DRUK")
         druk.get_style_context().add_class("revo_print")
@@ -395,6 +396,7 @@ class RevoHome(RevoActions, Gtk.Box):
             if code == 200:
                 GLib.idle_add(self._set_hours, st.get("hours"))
                 self.szpula = st.get("szpula")
+                self.system = st.get("system")
                 GLib.idle_add(self._consent_check, st)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
@@ -447,7 +449,8 @@ class RevoHome(RevoActions, Gtk.Box):
             for c in ("revo_ok", "revo_warn", "revo_err"):
                 ctx.remove_class(c)
             ctx.add_class(v["state_class"])
-            self.info_lbl.set_label(v["info"])
+            sysv = (self.system or {}).get("revo_os")
+            self.info_lbl.set_label(v["info"] + (f" · Revo OS {sysv}" if sysv and sysv != "?" else ""))
             self.t_nozzle.value.set_label(v["nozzle_size"])
             self.t_nozzle.sub.set_label(v["nozzle_temp"])
             self.t_bed.value.set_label(v["bed_temp"])
