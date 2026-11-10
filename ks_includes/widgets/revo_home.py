@@ -131,20 +131,16 @@ class Schematic(Gtk.DrawingArea):
             ctx.set_line_cap(0)
             for x in (x0, x1):
                 self._rgb(ctx, "#9AA0A8"); ctx.arc(x, y, r * 0.45, 0, 6.2832); ctx.fill()
-        # dolny (powrotny) odcinek taśmy i tylna rolka
-        self._poly(ctx, [(134, 284), (220, 284), (249, 262), (163, 262)], "#111317", "#3A3F46", 1)
-        roller(163, 249, 257, 5)
-        # górna powierzchnia taśmy
-        self._poly(ctx, [(134, 274), (220, 274), (249, 252), (163, 252)], "#2A2E34", "#9AA0A8")
+        # wąski pas biegnący w głąb (tył → przód), wystaje przez front maszyny
+        self._poly(ctx, [(144, 306), (198, 306), (240, 274), (186, 274)], "#111317", "#3A3F46", 1)
+        roller(186, 240, 269, 5)
+        self._poly(ctx, [(144, 298), (198, 298), (240, 266), (186, 266)], "#2A2E34", "#9AA0A8")
         for t in (0.2, 0.4, 0.6, 0.8):
-            self._line(ctx, (134 + 29 * t, 274 - 22 * t), (220 + 29 * t, 274 - 22 * t), "#3A3F46", 1)
-        # przednia rolka (taśma ją owija)
-        roller(134, 220, 279, 5)
-        # strzałka: wydruk wyjeżdża do przodu (do patrzącego)
-        self._line(ctx, (176, 286), (164, 296), "#9AA0A8", 2)
-        self._poly(ctx, [(158, 301), (161, 291), (168, 298)], "#9AA0A8")
-        for x in (140, 214):
-            self._line(ctx, (x, 282), (x, 298), "#3A3F46", 2)
+            self._line(ctx, (144 + 42 * t, 298 - 32 * t), (198 + 42 * t, 298 - 32 * t), "#3A3F46", 1)
+        roller(144, 198, 303, 5)
+        # strzałka: wydruk wyjeżdża przodem
+        self._line(ctx, (215, 292), (200, 304), "#3ED663", 2)
+        self._poly(ctx, [(194, 309), (197, 299), (204, 306)], "#3ED663")
         self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()
         for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
             self._line(ctx, a, b, "#5B616A", 2.5)
