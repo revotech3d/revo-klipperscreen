@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import threading
 import os
 
 import gi
@@ -198,7 +199,17 @@ class Panel(ScreenPanel):
         thumb = self._unparent(self.labels["thumbnail"])
         thumb.set_halign(Gtk.Align.CENTER)
         thumb.set_size_request(230, 230)
-        box.pack_start(thumb, True, True, 0)
+        # podgląd: model z pliku albo kamera na żywo (przełącznik pod obrazem)
+        self.revo_view = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
+        self.revo_view.add_named(thumb, "model")
+        box.pack_start(self.revo_view, True, True, 0)
+        self.revo_view_btn = Gtk.Button(label="KAMERA")
+        self.revo_view_btn.get_style_context().add_class("revo_t_plain")
+        self.revo_view_btn.set_halign(Gtk.Align.CENTER)
+        self.revo_view_btn.set_no_show_all(True)
+        self.revo_view_btn.connect("clicked", lambda w: self._revo_view_toggle())
+        box.pack_start(self.revo_view_btn, False, False, 0)
+        threading.Thread(target=self._revo_cam_check, daemon=True).start()
 
         prow = Gtk.Box(spacing=12)
         pt = self._unparent(self.labels["progress_text"])
@@ -272,6 +283,38 @@ class Panel(ScreenPanel):
         self.revo = box
         self.content.add(box)
         GLib.timeout_add_seconds(1, self._revo_tick)
+
+    def _revo_cam_check(self):
+        from ks_includes.widgets import revo_cam
+        if revo_cam.available():
+            GLib.idle_add(self._revo_cam_add)
+
+    def _revo_cam_add(self):
+        from ks_includes.widgets.revo_cam import Cam
+        w = int(self._screen.width * 0.9)
+        self.revo_cam = Cam(w, int(w * 9 / 16), on_click=self._revo_cam_full)
+        self.revo_view.add_named(self.revo_cam, "kamera")
+        self.revo_cam.show_all()
+        self.revo_view_btn.show()
+        self._revo_view_toggle("kamera")   # z kamerą widać od razu, co się dzieje
+        return False
+
+    def _revo_view_toggle(self, name=None):
+        cur = self.revo_view.get_visible_child_name()
+        name = name or ("model" if cur == "kamera" else "kamera")
+        self.revo_view.set_visible_child_name(name)
+        self.revo_view_btn.set_label("MODEL" if name == "kamera" else "KAMERA")
+
+    def _revo_cam_full(self):
+        from ks_includes.widgets.revo_cam import Cam
+        w, h = int(self._screen.width * 0.95), int(self._screen.height * 0.7)
+        cam = Cam(w, h, every_ms=1000)
+        buttons = [{"name": "Zamknij", "response": Gtk.ResponseType.CANCEL}]
+
+        def close(dialog, r):
+            cam.stop()
+            self._gtk.remove_dialog(dialog)
+        self._gtk.Dialog("Kamera", buttons, cam, close)
 
     def _revo_tick(self):
         if self.revo is None:
