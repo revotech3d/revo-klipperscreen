@@ -80,10 +80,10 @@ class GalaxyLogo(Gtk.DrawingArea):
             gx, gy = 0.5 + 0.47 * r * math.cos(ang), 0.5 + 0.46 * r * math.sin(ang) * 0.8
             tx, ty = targets[k] if k < len(targets) else (gx, gy)
             in_logo = k < len(targets)
-            size = (1.6 + 1.4 * rnd.random()) if in_logo else (1.0 + 2.2 * (1 - r) * rnd.random())
+            size = (1.2 + 0.9 * rnd.random()) if in_logo else (0.8 + 1.8 * (1 - r) * rnd.random())
             tint = rnd.choice(((0.78, 0.86, 1.0), (0.92, 0.90, 1.0), (0.70, 0.95, 0.98), (1.0, 0.93, 0.85)))
             self.stars.append((gx, gy, tx, ty, in_logo, size, tint, rnd.uniform(0.6, 2.4), rnd.uniform(0, 6.28),
-                               rnd.uniform(0.45, 0.95), r, ang, rnd.uniform(0, 0.25)))
+                               rnd.uniform(0.30, 0.75), r, ang, rnd.uniform(0, 0.25)))
         self.t0 = time.time()
         self.connect("draw", self._draw)
 
@@ -96,15 +96,15 @@ class GalaxyLogo(Gtk.DrawingArea):
             w, h, rs, ch = pb.get_width(), pb.get_height(), pb.get_rowstride(), pb.get_n_channels()
             px = pb.get_pixels()
             ox, oy = (W - w) / 2, (H - h) / 2
-            pts, step = [], 4
+            pts, step = [], 5
             for y in range(0, h, step):
                 for x in range(0, w, step):
                     o = y * rs + x * ch
                     a = px[o + 3] if ch == 4 else 255
                     if a > 120 and px[o] + px[o + 1] + px[o + 2] > 150:
                         pts.append(((ox + x + rnd.uniform(-0.8, 0.8)) / W, (oy + y + rnd.uniform(-0.8, 0.8)) / H))
-            if len(pts) > 320:
-                pts = rnd.sample(pts, 320)
+            if len(pts) > 250:
+                pts = rnd.sample(pts, 250)
             return pts
         except Exception:
             return []
@@ -159,9 +159,9 @@ class GalaxyLogo(Gtk.DrawingArea):
             if not in_logo:
                 al *= 1 - 0.75 * p                         # tło przygasa, gdy świeci logo
             elif q > 0.95:
-                al = max(al, 0.55)                         # logo czytelne
-            cr.set_source_rgba(r, gg, b, al * 0.18)
-            self._hex(cr, x, y, size * 2.6)
+                al = max(al, 0.48)                         # logo czytelne, ale delikatne
+            cr.set_source_rgba(r, gg, b, al * 0.10)
+            self._hex(cr, x, y, size * 2.2)
             cr.fill()
             cr.set_source_rgba(r, gg, b, al)
             self._hex(cr, x, y, size)
