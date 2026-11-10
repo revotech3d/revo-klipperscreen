@@ -10,6 +10,7 @@ from gi.repository import GLib, Gtk
 from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
 from ks_includes import revo_serwis_logic as serwis
+from ks_includes import revo_lock_logic as rl
 from ks_includes import revo_agent_client as agent
 
 PRESETS = [("PLA", 210, 60), ("PETG", 240, 80), ("ABS/ASA", 250, 100)]
@@ -434,6 +435,10 @@ class RevoHome(RevoActions, Gtk.Box):
             self.t_chamber.value.set_label(v["chamber_temp"])
             self.t_light.value.set_label(v["light"])
             vars_ = self.printer.get_stat("save_variables", "variables") or {}
+            lock = rl.settings(vars_)
+            want = lock["min"] * 60 if lock["on"] else 0
+            if self.screen.lock_screen.autolock_time != want:   # blokada ekranu z ustawień klienta
+                self.screen.lock_screen.set_autolock_timeout(want)
             txt = serwis.banner(serwis.status(self.hours, vars_, logic.is_belt(self.printer)))
             self.serwis_btn.set_label(txt + "  ›" if txt else "")
             self.serwis_btn.set_visible(bool(txt))

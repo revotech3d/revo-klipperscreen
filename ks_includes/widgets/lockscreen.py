@@ -38,10 +38,17 @@ class LockScreen:
             self.lock(None)
         return False
 
+    def _revo(self):
+        return self.screen._config.get_main_config().get("theme", "") == "revo"
+
     def lock(self, widget):
         self.screen._menu_go_back(None, True)
         logging.info("Locked the screen")
         close = Gtk.Button()
+        if self._revo():
+            close.set_label("ZABLOKOWANE\n\ndotknij, żeby odblokować")
+            close.get_child().set_justify(Gtk.Justification.CENTER)
+            close.get_style_context().add_class("revo_lock")
         close.connect("clicked", self.unlock)
         self.lock_box = Gtk.Box(
             width_request=self.screen.width,
@@ -62,6 +69,9 @@ class LockScreen:
         self.screen.overlay.get_children()[0].hide()
 
     def create_unlock_box(self):
+        if self._revo():
+            from ks_includes.widgets.revo_pin import PinPad
+            return PinPad(self.screen, "WPISZ PIN", self._revo_try, self.relock, emergency=True)
         box = Gtk.Box(
             orientation=Gtk.Orientation.VERTICAL,
             width_request=self.screen.width,
@@ -113,6 +123,19 @@ class LockScreen:
             self.screen.show_popup_message(_("Unlock failed"))
             return
         self.clear_lock()
+
+    def _revo_try(self, pin, pad):
+        """PIN klienta albo PIN serwisowy Revotech (agent) odblokowuje ekran."""
+        from ks_includes import revo_lock_logic as rl
+        vars_ = (self.screen.printer.get_stat("save_variables", "variables") or {}) if self.screen.printer else {}
+        if rl.check(pin, rl.settings(vars_)):
+            return self.clear_lock()
+        from ks_includes import revo_agent_client as agent
+        code, _r = agent.call("/serwis", {"pin": pin, "source": "blokada ekranu"}, timeout=3)
+        if code == 200:
+            return self.clear_lock()
+        logging.info("Failed unlock")
+        pad.error("Zły PIN")
 
     def clear_lock(self):
         if self.lock_box:

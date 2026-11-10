@@ -332,3 +332,8 @@ button.revo_t_plain { background-color: #131518; border: 1px solid #2C3036; bord
 
 /* przypomnienie serwisowe na ekranie głównym */
 .revo_serwis_alert { background: #3A2A0E; color: #E0A33A; border: 1px solid #E0A33A; border-radius: 6px; padding: 8px; font-weight: 700; }
+
+/* blokada ekranu */
+button.revo_lock { background-color: #0E0F11; color: #9AA0A8; font-size: 1.4em; letter-spacing: 3px; }
+button.revo_t_stop { background-color: #3A1214; color: #FF4D52; border: 1px solid #FF4D52; border-radius: 14px; min-height: 64px; font-weight: bold; }
+.revo_pinpad { background-color: #0E0F11; }
