@@ -1,5 +1,9 @@
 {
 "exact": {
+"KAMERA": "CAMERA",
+"Kamera": "Camera",
+"Zamknij": "Close",
+"MODEL": "MODEL",
 "Mam problem": "Report a problem",
 "MAM PROBLEM": "REPORT A PROBLEM",
 "CO SIĘ DZIEJE?": "WHAT'S HAPPENING?",
@@ -285,7 +289,6 @@
 "ZAAWANSOWANE · RESTARTY MODUŁÓW": "ADVANCED · MODULE RESTARTS",
 "Używaj, gdy coś przestało odpowiadać. Restart przerywa trwający druk tylko przy Klipperze i całym systemie.": "Use when something stops responding. Only Klipper and full-system restarts interrupt a print.",
 "EKRAN (KLIPPERSCREEN)": "SCREEN (KLIPPERSCREEN)",
-"KAMERA": "CAMERA",
 "AGENT REVO": "REVO AGENT",
 "RESTART CAŁEGO SYSTEMU": "RESTART WHOLE SYSTEM",
 "Moduł uruchomi się ponownie w kilka sekund.": "The module restarts in a few seconds.",
