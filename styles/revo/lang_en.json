@@ -1,5 +1,35 @@
 {
 "exact": {
+"Wymiana filamentu": "Filament change",
+"WYMIANA FILAMENTU – KROK PO KROKU": "FILAMENT CHANGE – STEP BY STEP",
+"SZPULA": "SPOOL",
+"Szpula": "Spool",
+"SZPULA FILAMENTU": "FILAMENT SPOOL",
+"JAKI FILAMENT ZAKŁADASZ?": "WHICH FILAMENT ARE YOU LOADING?",
+"WYŁADUJ STARY FILAMENT": "UNLOAD OLD FILAMENT",
+"ZAŁÓŻ NOWY FILAMENT": "LOAD NEW FILAMENT",
+"WYŁADUJ": "UNLOAD",
+"ZAŁADUJ": "LOAD",
+"CZYSTY KOLOR – DALEJ": "CLEAN COLOUR – NEXT",
+"ILE FILAMENTU NA SZPULI?": "HOW MUCH FILAMENT IS ON THE SPOOL?",
+"NOWA, PEŁNA SZPULA (NETTO)": "NEW FULL SPOOL (NET)",
+"WPISZ ILE ZOSTAŁO (g)": "ENTER REMAINING (g)",
+"RESET: PEŁNA": "RESET: FULL",
+"NIE WIEM": "DON'T KNOW",
+"ILE GRAMÓW ZOSTAŁO?": "HOW MANY GRAMS LEFT?",
+"Wpisz wartość": "Enter a value",
+"NOWA SZPULA": "NEW SPOOL",
+"USTAW ILE ZOSTAŁO": "SET REMAINING",
+"ILE FILAMENTU ZOSTAŁO?": "HOW MUCH FILAMENT IS LEFT?",
+"Zapisano szpulę": "Spool saved",
+"nieznany": "unknown",
+"materiał nieustawiony": "material not set",
+"Waga filamentu netto:": "Net filament weight:",
+"MATERIAŁ": "MATERIAL",
+"g (zważ szpulę i odejmij wagę pustej)": "g (weigh the spool and subtract the empty spool)",
+"Podczas druku wymiana jest możliwa tylko po pauzie.": "During a print you can change filament only after pausing.",
+"Może zabraknąć filamentu": "Filament may run out",
+"Maszyna odejmuje zużycie przy każdym wydruku i ostrzeże, jeśli może zabraknąć.": "The machine subtracts usage with every print and warns if it may run out.",
 "Wymiana dyszy": "Nozzle change",
 "WYMIANA DYSZY": "NOZZLE CHANGE",
 "Wymieniam\ndyszę": "Changing\nnozzle",
@@ -233,7 +263,6 @@
 "WYŁĄCZONE ": "OFF",
 "ZAMONTOWANA": "INSTALLED",
 "ŚREDNICA": "DIAMETER",
-"MATERIAŁ": "MATERIAL",
 "Materiał": "Material",
 "Mosiądz": "Brass",
 "mosiądz": "brass",
@@ -524,6 +553,18 @@
 [
 "^(\\\\d+) z (\\\\d+)$",
 "$1 of $2"
+],
+[
+"^FILAMENT · (.*)$",
+"FILAMENT · $1"
+],
+[
+"^Zapisano: (.*)$",
+"Saved: $1"
+],
+[
+"^Może zabraknąć filamentu: potrzeba ok\\\\. (\\\\d+) g, na szpuli ok\\\\. (\\\\d+) g\\\\.$",
+"Filament may run out: about $1 g needed, about $2 g on the spool."
 ],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",

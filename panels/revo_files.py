@@ -139,6 +139,16 @@ class Panel(ScreenPanel):
         self._ile_info = _lbl("", "revo_info", 0.5)
         box.pack_start(self._ile_info, False, False, 0)
         box.pack_start(_lbl("Maszyna sprawdzi zgodność dyszy przed startem.", "revo_info", 0.5), False, False, 0)
+        # czy wystarczy filamentu na szpuli (stan z agenta Revo)
+        need = f.get("filament_weight_total")
+        if need:
+            from ks_includes import revo_agent_client as agent
+            code, st = agent.call("/status", timeout=1)
+            left = (st.get("szpula") or {}).get("zostalo_g") if code == 200 else None
+            if left is not None and float(need) * getattr(self, "_ile", 1) > left:
+                w = _lbl(f"Może zabraknąć filamentu: potrzeba ok. {float(need) * getattr(self, '_ile', 1):.0f} g, na szpuli ok. {left:.0f} g.", "revo_err", 0.5)
+                w.set_line_wrap(True)
+                box.pack_start(w, False, False, 0)
         buttons = [{"name": "Usuń", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
                    {"name": "Drukuj", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]

@@ -1,4 +1,6 @@
 # Revo OS – Filament: temperatura dyszy, ładowanie/wyładowanie, wytłaczanie objętościowe, dysza
+import threading
+
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -26,9 +28,18 @@ class Panel(RevoActions, ScreenPanel):
         for t in (self.t_temp, self.t_noz):
             t.sub.set_line_wrap(True)
             t.sub.set_max_width_chars(18)
+        self.t_sz = Tile("SZPULA", lambda: self._screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
+        self.t_sz.sub.set_line_wrap(True)
         top.attach(self.t_temp, 0, 0, 1, 1)
         top.attach(self.t_noz, 1, 0, 1, 1)
+        top.attach(self.t_sz, 2, 0, 1, 1)
         box.pack_start(top, False, False, 0)
+        wiz = Gtk.Button(label="WYMIANA FILAMENTU – KROK PO KROKU")
+        wiz.get_style_context().add_class("revo_print")
+        wiz.set_size_request(-1, 64)
+        wiz.connect("clicked", lambda w: self._screen.show_panel("revo_szpula", "Wymiana filamentu", panel_name="revo_szpula_z", mode="zmiana"))
+        box.pack_start(wiz, False, False, 4)
+        self._sz, self._n = None, 0
 
         lu = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         for i, (lab, mac) in enumerate((("ZAŁADUJ FILAMENT", "LOAD_FILAMENT"), ("WYŁADUJ FILAMENT", "UNLOAD_FILAMENT"))):
@@ -112,7 +123,21 @@ class Panel(RevoActions, ScreenPanel):
         v = str((self._printer.get_stat("save_variables", "variables") or {}).get("revo_nozzle", "")).split()
         self.t_noz.value.set_label(f"Ø{v[0]}" if v else "Ø?")
         self.t_noz.sub.set_label({"mosiadz": "mosiądz", "stal": "stal hart.", "wolfram": "wolfram"}.get(v[1], v[1]) if len(v) > 1 else "dotknij")
+        self._n += 1
+        if self._n % 5 == 1:
+            threading.Thread(target=self._load_sz, daemon=True).start()
+        if self._sz is not None:
+            from ks_includes import revo_filament_logic as fl
+            left = self._sz.get("zostalo_g")
+            self.t_sz.value.set_label("?" if left is None else f"{left:.0f} g")
+            self.t_sz.sub.set_label(self._sz.get("mat") or "dotknij")
         return self._timer is not None
+
+    def _load_sz(self):
+        from ks_includes import revo_agent_client as agent
+        code, st = agent.call("/status", timeout=2)
+        if code == 200:
+            self._sz = st.get("szpula") or {}
 
     def activate(self):
         self.refresh()
