@@ -283,6 +283,13 @@ class RevoHome(RevoActions, Gtk.Box):
         top.pack_end(self.info_lbl, True, True, 0)
         self.pack_start(top, False, False, 0)
 
+        # zdalny podgląd aktywny: widoczny pasek z możliwością zakończenia
+        self.live_btn = Gtk.Button(label="REVOTECH WIDZI KAMERĘ I EKRAN · ZAKOŃCZ")
+        self.live_btn.get_style_context().add_class("revo_live_alert")
+        self.live_btn.set_no_show_all(True)
+        self.live_btn.connect("clicked", lambda *a: threading.Thread(target=agent.call, args=("/podglad/koniec", {}), daemon=True).start() or self.live_btn.hide())
+        self.pack_start(self.live_btn, False, False, 0)
+
         # przypomnienie serwisowe – widoczne tylko, gdy przegląd jest po terminie
         self.serwis_btn = Gtk.Button(label="")
         self.serwis_btn.get_style_context().add_class("revo_serwis_alert")
@@ -446,6 +453,8 @@ class RevoHome(RevoActions, Gtk.Box):
             self.t_bed.value.set_label(v["bed_temp"])
             self.t_chamber.value.set_label(v["chamber_temp"])
             self.t_light.value.set_label(v["light"])
+            from ks_includes import revo_live
+            self.live_btn.set_visible(revo_live.active())
             if self.szpula is not None:
                 from ks_includes import revo_filament_logic as fl
                 f = fl.fraction(self.szpula)

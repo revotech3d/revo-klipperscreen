@@ -154,6 +154,11 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.style_provider = Gtk.CssProvider()
         self.screensaver = ScreenSaver(self)
         self.lock_screen = LockScreen(self)
+        try:  # zdalny podgląd ekranu Revo (tylko po zgodzie klienta)
+            from ks_includes import revo_live
+            revo_live.install(self)
+        except Exception as e:
+            logging.exception(e)
         self.gtk = KlippyGtk(self)
         self.base_css = ""
         self.load_base_styles()
