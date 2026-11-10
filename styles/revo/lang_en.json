@@ -1,5 +1,8 @@
 {
 "exact": {
+"WYCZYŚCIĆ KOMUNIKATY?": "CLEAR MESSAGES?",
+"Wyczyszczono": "Cleared",
+"Lista zniknie z ekranu i z Panelu Revo. Historia maszyny i statystyki zostają bez zmian.": "The list disappears from the screen and the Revo Panel. Machine history and statistics stay unchanged.",
 "STATYSTYKI MASZYNY": "MACHINE STATISTICS",
 "GODZINY": "HOURS",
 "FILAMENT": "FILAMENT",
