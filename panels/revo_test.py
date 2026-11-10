@@ -53,7 +53,8 @@ class Panel(ScreenPanel):
         self.l_q = self._lbl("", "revo_test_q", wrap=True)
         self.l_desc = self._lbl("", "revo_test_desc", wrap=True)
         self.l_note = self._lbl("", "revo_warn", wrap=True)
-        for w in (self.l_name, self.l_q, self.l_desc, self.l_note):
+        self.l_skip = self._lbl("", "revo_test_skip", wrap=True)
+        for w in (self.l_name, self.l_q, self.l_desc, self.l_skip, self.l_note):
             box.pack_start(w, False, False, 0)
         self.btns = Gtk.Grid(row_spacing=8, column_spacing=8, column_homogeneous=True)
         box.pack_end(self.btns, False, False, 0)
@@ -109,6 +110,8 @@ class Panel(ScreenPanel):
         if v["problems"]:
             desc += "\n\nProblemy:\n" + "\n".join("• " + p for p in v["problems"])
         self.l_desc.set_text(desc)
+        self.l_skip.set_text("Pominięte (bez wpływu na wynik):\n" + "\n".join("• " + k for k in v["skipped"]) if v["skipped"] else "")
+        self.l_skip.set_visible(bool(v["skipped"]))
         self.l_note.set_text(v["note"])
         self.l_note.set_visible(bool(v["note"]))
         img = v["img"] or ("intro" if v["faza"] == "idle" else "conn")

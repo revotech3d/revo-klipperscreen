@@ -29,7 +29,7 @@ def view(t, elapsed=0.0):
         step = -1
     v = {"faza": faza, "total": len(plan), "num": step + 1, "progress": 0.0,
          "name": "", "desc": "", "img": "", "title": "", "note": "", "buttons": [],
-         "left": "", "eta": "", "problems": []}
+         "left": "", "eta": "", "problems": [], "skipped": []}
     if faza in ACTIVE and 0 <= step < len(plan):
         s = plan[step]
         v.update(name=s[0], desc=s[7], img=s[4],
@@ -38,9 +38,12 @@ def view(t, elapsed=0.0):
                  eta=fmt_eta(eta(plan, step, elapsed)))
         crit = bool(s[6])
         stop = ("PRZERWIJ", "REVO_SELFTEST_ANULUJ", "danger")
+        skip = ("POMIŃ", "REVO_TEST_POMIN", "skip")
         if faza == "run":
             v["title"] = t.get("info") or "Maszyna wykonuje krok…"
-            v["buttons"] = [stop]
+            v["buttons"] = [stop, skip] if s[1] == "heat" else [stop]
+            if s[1] == "heat":
+                v["note"] = "Możesz pominąć grzanie – krok dostanie żółtą flagę, ale test nie zostanie przez to oblany."
         elif faza == "ask":
             a = t.get("ask") or {}
             v["title"] = a.get("t", "Czy działa?")
@@ -55,17 +58,21 @@ def view(t, elapsed=0.0):
                          else "Problem trafi do raportu, test pójdzie dalej.")
             v["buttons"] = [("POWTÓRZ", "REVO_TEST_POWTORZ", "ok"),
                             ("ZAKOŃCZ TEST" if crit else "DALEJ", "REVO_TEST_DALEJ", "warn" if crit else "plain")]
+            if s[1] == "heat":
+                v["buttons"].insert(1, skip)
     elif faza in ("done", "stop"):
         sm = t.get("summary") or {}
         ok, total = sm.get("ok", 0), sm.get("total", len(plan))
         v["progress"] = 1.0 if faza == "done" else (sm.get("done", 0) / max(1, total))
         v["img"] = "intro"
         v["name"] = "TEST ZAKOŃCZONY" if faza == "done" else "TEST PRZERWANY"
-        v["title"] = f"Wynik: {ok}/{total} OK"
+        sk = sm.get("skipped", 0)
+        v["title"] = f"Wynik: {ok}/{total} OK" + (f" · {sk} pominięte" if sk else "")
         v["desc"] = (("Powód: " + sm["stopped"] + ". ") if sm.get("stopped") else "") + \
             "Wynik został zapisany i trafi do Revotech."
         v["problems"] = [f"{k}: {r.split(' · ', 1)[1] if ' · ' in r else 'problem'}"
-                         for k, r in (sm.get("results") or {}).items() if not str(r).startswith("ok")]
+                         for k, r in (sm.get("results") or {}).items() if not str(r).startswith(("ok", "pominiety"))]
+        v["skipped"] = [k for k, r in (sm.get("results") or {}).items() if str(r).startswith("pominiety")]
         v["buttons"] = [("ZAMKNIJ", "REVO_TEST_ZAMKNIJ", "plain"), ("TESTUJ PONOWNIE", "REVO_SELFTEST", "ok")]
     else:
         v["faza"] = "idle"
