@@ -52,6 +52,9 @@ class ScreenSaver:
 
         close = Gtk.Button()
         close.connect("clicked", self.close)
+        # Revo OS: budź od pierwszego dotyku (wciśnięcie), nie czekaj na puszczenie palca
+        close.connect("button-press-event", lambda *a: self.close() or False)
+        close.connect("touch-event", lambda *a: self.close() or False)
         if self.config.get_main_config().get("theme", "") == "revo":
             try:
                 self._revo_status(close)
