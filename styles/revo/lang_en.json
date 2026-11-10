@@ -1,5 +1,26 @@
 {
 "exact": {
+"Mam problem": "Report a problem",
+"MAM PROBLEM": "REPORT A PROBLEM",
+"CO SIĘ DZIEJE?": "WHAT'S HAPPENING?",
+"Wydruk się nie udał": "Print failed",
+"Dziwny dźwięk lub ruch": "Strange noise or movement",
+"Błąd na ekranie": "Error on screen",
+"Grzanie / temperatura": "Heating / temperature",
+"Inne": "Other",
+"Zgłoszenie zapisane – wyjdzie, gdy wróci internet": "Report saved – it will be sent when the connection is back",
+"OPIS (NIEOBOWIĄZKOWY)": "DESCRIPTION (OPTIONAL)",
+"TELEFON DO KONTAKTU (NIEOBOWIĄZKOWY)": "CONTACT PHONE (OPTIONAL)",
+"WYŚLIJ ZGŁOSZENIE": "SEND REPORT",
+"WYSYŁAM…": "SENDING…",
+"ZGŁOSZENIE WYSŁANE": "REPORT SENT",
+"ZGŁOSZENIE ZAPISANE": "REPORT SAVED",
+"NIE UDAŁO SIĘ": "FAILED",
+"Zgłoszenie wysłane do Revotech": "Report sent to Revotech",
+"Razem ze zgłoszeniem maszyna wyśle do Revotech ostatni błąd, log pracy i zdjęcie z kamery. Odezwiemy się najszybciej, jak to możliwe.": "With the report the machine sends Revotech the last error, the work log and a camera photo. We'll get back to you as soon as possible.",
+"Maszyna nie ma teraz internetu. Zgłoszenie wyjdzie samo, gdy połączenie wróci.": "The machine is offline. The report will be sent automatically when the connection is back.",
+"Agent Revo nie odpowiada. Zadzwoń lub napisz: biuro@revo3d.pl.": "The Revo agent is not responding. Call or write: biuro@revo3d.pl.",
+"Wyślij zgłoszenie do serwisu Revotech prosto z panelu. Maszyna dołączy ostatni błąd, log i zdjęcie z kamery.": "Send a report to Revotech service straight from the panel. The machine attaches the last error, log and a camera photo.",
 "FILM Z DRUKU (TIMELAPSE)": "PRINT VIDEO (TIMELAPSE)",
 "FILMY Z DRUKU (TIMELAPSE)": "PRINT VIDEOS (TIMELAPSE)",
 "nagrywaj kolejne wydruki": "record next prints",
@@ -418,6 +439,14 @@
 "przerwany przez użytkownika": "aborted by the user"
 },
 "re": [
+[
+"^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
+"Report $1 sent"
+],
+[
+"^Numer zgłoszenia: (RV-\\d+-\\d+)\\. Serwis Revotech dostał opis, log i zdjęcie z kamery\\.$",
+"Report number: $1. Revotech service received the description, log and camera photo."
+],
 [
 "^PRZEGLĄD: (.+?)(  ›)?$",
 "MAINTENANCE: $1$2"
