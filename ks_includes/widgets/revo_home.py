@@ -246,11 +246,15 @@ class RevoActions:
         hint.set_line_wrap(True)
         box.pack_start(hint, False, False, 0)
         buttons = [{"name": "Zapisz", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Wymieniam\ndyszę", "response": Gtk.ResponseType.APPLY, "style": "dialog-secondary"},
                    {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self.p._gtk.Dialog("Dysza", buttons, box, self._nozzle_response)
 
     def _nozzle_response(self, dialog, response):
         self.p._gtk.remove_dialog(dialog)
+        if response == Gtk.ResponseType.APPLY:   # prowadzona wymiana dyszy krok po kroku
+            self.screen.show_panel("revo_dysza", "Wymiana dyszy")
+            return
         if response == Gtk.ResponseType.OK:
             self.gcode(f"REVO_SET_NOZZLE DIAMETER={self._noz['d']} TYPE={self._noz['t']}")
             # save_variables nie jest subskrybowane – od razu pokaż nową dyszę
