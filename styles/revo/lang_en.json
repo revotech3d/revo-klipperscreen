@@ -1,5 +1,23 @@
 {
 "exact": {
+"O systemie": "About system",
+"SYSTEM": "SYSTEM",
+"Makra i konfiguracja": "Macros and configuration",
+"Ekran": "Screen",
+"Agent Revo": "Revo agent",
+"Oprogramowanie sterujące": "Control software",
+"Biblioteka": "Library",
+"Adres w sieci": "Network address",
+"Maszyna": "Machine",
+"MASZYNA": "MACHINE",
+"MAKRA I KONFIGURACJA": "MACROS AND CONFIGURATION",
+"EKRAN": "SCREEN",
+"AGENT REVO": "REVO AGENT",
+"OPROGRAMOWANIE STERUJĄCE": "CONTROL SOFTWARE",
+"BIBLIOTEKA": "LIBRARY",
+"ADRES W SIECI": "NETWORK ADDRESS",
+"Aktualizacje wyłącznie z serwerów Revotech.": "Updates only from Revotech servers.",
+"Aktualizacje przychodzą wyłącznie z serwerów Revotech. Pomoc: biuro@revo3d.pl · +48 512 960 411": "Updates come only from Revotech servers. Help: biuro@revo3d.pl · +48 512 960 411",
 "DOTKNIJ, ABY ODBLOKOWAĆ": "TOUCH TO UNLOCK",
 "ŁĄCZENIE…": "CONNECTING…",
 "REVOTECH WIDZI KAMERĘ I EKRAN · ZAKOŃCZ": "REVOTECH SEES CAMERA AND SCREEN · END",
@@ -228,7 +246,6 @@
 "Filament": "Filament",
 "Mapa stołu": "Bed mesh",
 "Konsola": "Console",
-"Biblioteka": "Library",
 "Serwis": "Service",
 "Menu": "Menu",
 "Biblioteka Revo": "Revo Library",
@@ -392,7 +409,6 @@
 "ZAAWANSOWANE · RESTARTY MODUŁÓW": "ADVANCED · MODULE RESTARTS",
 "Używaj, gdy coś przestało odpowiadać. Restart przerywa trwający druk tylko przy Klipperze i całym systemie.": "Use when something stops responding. Only Klipper and full-system restarts interrupt a print.",
 "EKRAN (KLIPPERSCREEN)": "SCREEN (KLIPPERSCREEN)",
-"AGENT REVO": "REVO AGENT",
 "RESTART CAŁEGO SYSTEMU": "RESTART WHOLE SYSTEM",
 "Moduł uruchomi się ponownie w kilka sekund.": "The module restarts in a few seconds.",
 "Trwający druk zostanie przerwany.": "A running print will be stopped.",
@@ -587,6 +603,14 @@
 [
 "^jeszcze ok\\\\. (\\\\d+) h (\\\\d+) min$",
 "about $1 h $2 min left"
+],
+[
+"^linia (.+)$",
+"line $1"
+],
+[
+"^(.*) · Revo OS (.+)$",
+"$1 · Revo OS $2"
 ],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
