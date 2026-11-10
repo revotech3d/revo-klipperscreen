@@ -138,9 +138,6 @@ class Schematic(Gtk.DrawingArea):
         for t in (0.2, 0.4, 0.6, 0.8):
             self._line(ctx, (122 + 42 * t, 298 - 32 * t), (214 + 42 * t, 298 - 32 * t), "#3A3F46", 1)
         roller(122, 214, 303, 5)
-        # strzałka: wydruk wyjeżdża przodem
-        self._line(ctx, (231, 292), (216, 304), "#3ED663", 2)
-        self._poly(ctx, [(210, 309), (213, 299), (220, 306)], "#3ED663")
         self._rgb(ctx, "#C9CDD2"); ctx.rectangle(258, 192, 3, 42); ctx.fill()
         for a, b in (((104, 306), (104, 314)), ((318, 306), (318, 314)), ((344, 286), (344, 294))):
             self._line(ctx, a, b, "#5B616A", 2.5)
