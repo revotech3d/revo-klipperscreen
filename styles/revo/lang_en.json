@@ -1,5 +1,12 @@
 {
 "exact": {
+"KAMERA – OSTATNI WYDRUK": "CAMERA – LAST PRINT",
+"Pierwsza warstwa": "First layer",
+"Nagła zmiana obrazu": "Sudden image change",
+"Zdjęcie pierwszej warstwy": "First layer photo",
+"Sprawdź wydruk": "Check the print",
+"Zdjęcie po pierwszej warstwie i – jeśli wystąpiła – nagła zmiana obrazu (np. oderwany wydruk).": "Photo after the first layer and – if it happened – a sudden image change (e.g. a detached print).",
+"Obraz z kamery nagle się zmienił – wydruk mógł się oderwać albo przesunąć. Sprawdź maszynę.": "The camera image changed suddenly – the print may have detached or shifted. Check the machine.",
 "Wymiana filamentu": "Filament change",
 "WYMIANA FILAMENTU – KROK PO KROKU": "FILAMENT CHANGE – STEP BY STEP",
 "SZPULA": "SPOOL",
