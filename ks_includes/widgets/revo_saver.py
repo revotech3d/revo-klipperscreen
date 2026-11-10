@@ -51,45 +51,68 @@ class Glow(Gtk.DrawingArea):
 
 
 class UnlockField(Gtk.DrawingArea):
-    """Prostokąt z poświatą i napisem – podpowiedź, gdzie dotknąć."""
+    """Subtelne pole odblokowania: mała galaktyka spiralna ze świecących heksagonów (migoczą jak gwiazdy)
+    i cichy napis w środku."""
 
-    def __init__(self, width, height, text="DOTKNIJ, ABY ODBLOKOWAĆ"):
+    def __init__(self, width, height, text="DOTKNIJ, ABY ODBLOKOWAĆ", stars=110, seed=7):
         super().__init__()
+        import random
         self.text = text
         self.set_size_request(width, height)
         self.set_halign(Gtk.Align.CENTER)
+        rnd = random.Random(seed)
+        self.stars = []
+        for k in range(stars):
+            arm = k % 2
+            r = rnd.random() ** 0.6                      # gęściej przy środku
+            ang = arm * math.pi + r * 3.2 + rnd.gauss(0, 0.28)
+            x = 0.5 + 0.47 * r * math.cos(ang)
+            y = 0.5 + 0.46 * r * math.sin(ang) * 0.8     # galaktyka widziana lekko pod kątem
+            size = 1.2 + 3.2 * (1 - r) * rnd.random() + (2.5 if rnd.random() < 0.06 else 0)
+            tint = rnd.choice(((0.78, 0.86, 1.0), (0.92, 0.90, 1.0), (0.70, 0.95, 0.98), (1.0, 0.93, 0.85)))
+            self.stars.append((x, y, size, tint, rnd.uniform(0.6, 2.4), rnd.uniform(0, 6.28), rnd.uniform(0.35, 0.9)))
         self.connect("draw", self._draw)
 
     @staticmethod
-    def _rrect(cr, x, y, w, h, r):
-        cr.new_sub_path()
-        cr.arc(x + w - r, y + r, r, -math.pi / 2, 0)
-        cr.arc(x + w - r, y + h - r, r, 0, math.pi / 2)
-        cr.arc(x + r, y + h - r, r, math.pi / 2, math.pi)
-        cr.arc(x + r, y + r, r, math.pi, 3 * math.pi / 2)
+    def _hex(cr, x, y, r):
+        for i in range(6):
+            a = math.pi / 6 + i * math.pi / 3
+            (cr.move_to if i == 0 else cr.line_to)(x + r * math.cos(a), y + r * math.sin(a))
         cr.close_path()
 
     def _draw(self, w, cr):
-        W, H = w.get_allocated_width(), w.get_allocated_height()
-        p = 0.5 + 0.5 * math.sin(time.time() * 2.2)
-        pad = 14
-        for i in range(pad, 0, -2):              # zewnętrzna poświata
-            cr.set_source_rgba(0.85, 0.86, 0.88, (0.05 + 0.07 * p) * (1 - i / pad))
-            self._rrect(cr, pad - i, pad - i, W - 2 * (pad - i), H - 2 * (pad - i), 16 + i)
+        W, H0 = w.get_allocated_width(), w.get_allocated_height()
+        H = H0 - 30                                         # galaktyka nad napisem
+        t = time.time()
+        # bardzo słaba mgławica w jądrze (gaśnie przed krawędzią pola – bez widocznego prostokąta)
+        import cairo
+        cr.save()
+        cr.translate(W / 2, H / 2)
+        cr.scale(1.0, 0.6)
+        g = cairo.RadialGradient(0, 0, 0, 0, 0, min(W, H) * 0.42)
+        g.add_color_stop_rgba(0, 0.62, 0.68, 0.92, 0.16 + 0.04 * math.sin(t * 0.7))
+        g.add_color_stop_rgba(0.5, 0.45, 0.50, 0.75, 0.05)
+        g.add_color_stop_rgba(1, 0, 0, 0, 0)
+        cr.set_source(g)
+        cr.arc(0, 0, min(W, H) * 0.42, 0, 2 * math.pi)
+        cr.fill()
+        cr.restore()
+        for x, y, size, (r, gg, b), sp, ph, base in self.stars:
+            a = base * (0.35 + 0.65 * (0.5 + 0.5 * math.sin(t * sp + ph)))
+            px, py = x * W, y * H
+            cr.set_source_rgba(r, gg, b, a * 0.18)          # poświata
+            self._hex(cr, px, py, size * 2.6)
             cr.fill()
-        cr.set_source_rgba(0.08, 0.09, 0.10, 0.92)
-        self._rrect(cr, pad, pad, W - 2 * pad, H - 2 * pad, 16)
-        cr.fill_preserve()
-        cr.set_source_rgba(0.85, 0.86, 0.88, 0.35 + 0.35 * p)
-        cr.set_line_width(2)
-        cr.stroke()
+            cr.set_source_rgba(r, gg, b, a)                 # gwiazda
+            self._hex(cr, px, py, size)
+            cr.fill()
         lay = PangoCairo.create_layout(cr)
-        lay.set_font_description(Pango.FontDescription.from_string("Sans Bold 15"))
+        lay.set_font_description(Pango.FontDescription.from_string("Sans 11"))
         from ks_includes.revo_i18n import tr
         lay.set_text(tr(self.text), -1)
         tw, th = lay.get_pixel_size()
-        cr.set_source_rgba(0.90, 0.91, 0.92, 0.55 + 0.4 * p)
-        cr.move_to((W - tw) / 2, (H - th) / 2)
+        cr.set_source_rgba(0.88, 0.90, 0.95, 0.32 + 0.12 * math.sin(t * 1.3))
+        cr.move_to((W - tw) / 2, H0 - th - 4)
         PangoCairo.show_layout(cr, lay)
 
 
@@ -120,7 +143,7 @@ def build(screen, schematic_factory, logo_path):
         img = Gtk.Image.new_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(logo_path, int(W * 0.5), -1, True))
         img.set_opacity(0.55)
         mid.pack_start(img, False, False, 0)
-    field = UnlockField(int(W * 0.78), 96)
+    field = UnlockField(int(W * 0.8), 190)
     mid.pack_start(field, False, False, 0)
     box.pack_start(mid, True, True, 0)
     ov.add_overlay(box)
