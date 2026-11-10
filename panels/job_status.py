@@ -272,6 +272,13 @@ class Panel(ScreenPanel):
         home.connect("clicked", self.close_panel)
         row.attach(again, 0, 0, 1, 1)
         row.attach(home, 1, 0, 1, 1)
+        self._revo_qn = 0
+        self.revo_next = Gtk.Button(label="STÓŁ PUSTY – DRUKUJ NASTĘPNY")
+        self.revo_next.get_style_context().add_class("revo_print")
+        self.revo_next.set_size_request(-1, 84)
+        self.revo_next.set_no_show_all(True)
+        self.revo_next.connect("clicked", lambda w: self._revo_next())
+        self.revo_done.add(self.revo_next)
         if lg.is_belt(self._printer):
             self.revo_done.add(eject)
         self.revo_done.add(row)
@@ -1050,7 +1057,18 @@ class Panel(ScreenPanel):
             n = len(result["result"]["queued_jobs"])
         except (KeyError, TypeError):
             n = 0
-        self.revo_series.set_label(f"SERIA · w kolejce jeszcze {n} szt." if n else "")
+        self.revo_series.set_label(f"KOLEJKA · czeka jeszcze {n} szt." if n else "")
+        self._revo_qn = n
+        from ks_includes import revo_home_logic as lg
+        done = self.state in ("complete", "cancelled", "error")
+        self.revo_next.set_visible(bool(n) and done and not lg.is_belt(self._printer))
+
+    def _revo_next(self):
+        # sztywny stół: kolejka czeka po każdym wydruku, aż klient zdejmie wydruk
+        ws = self._screen._ws
+        ws.send_method("server.job_queue.start")
+        GLib.timeout_add_seconds(4, lambda: ws.send_method("server.job_queue.pause") and False)
+        self.revo_next.hide()
 
     def _revo_state(self):
         if getattr(self, "revo", None) is None:

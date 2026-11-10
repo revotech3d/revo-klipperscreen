@@ -1,5 +1,18 @@
 {
 "exact": {
+"KOLEJKA WYDRUKÓW": "PRINT QUEUE",
+"DRUKUJ KOLEJKĘ": "PRINT QUEUE",
+"WYCZYŚĆ": "CLEAR",
+"+ KOLEJKA": "+ QUEUE",
+"STÓŁ PUSTY – DRUKUJ NASTĘPNY": "BED CLEAR – PRINT NEXT",
+"Dodano do kolejki": "Added to queue",
+"Kolejka – start": "Queue started",
+"WYCZYŚCIĆ KOLEJKĘ?": "CLEAR QUEUE?",
+"Dodaj do kolejki": "Add to queue",
+"Usunie wszystkie pliki z kolejki (same pliki zostają na maszynie).": "Removes all files from the queue (the files stay on the machine).",
+"Między wydrukami pas wysuwa gotowy wydruk.": "Between prints the belt ejects the finished part.",
+"Po tym wydruku kolejka poczeka – zdejmij wydruk ze stołu i kliknij „Stół pusty”.": "After this print the queue waits – remove the part and click “Bed clear”.",
+"Przed następnym wydrukiem stół musi być pusty.": "The bed must be clear before the next print.",
 "Blokada ekranu": "Screen lock",
 "BLOKADA EKRANU": "SCREEN LOCK",
 "WŁĄCZONA": "ON",
@@ -469,6 +482,14 @@
 [
 "^PIN ma co najmniej (\\\\d+) cyfry$",
 "PIN needs at least $1 digits"
+],
+[
+"^KOLEJKA · czeka jeszcze (\\\\d+) szt\\\\.$",
+"QUEUE · $1 more waiting"
+],
+[
+"^(\\\\d+) w kolejce$",
+"$1 in queue"
 ],
 [
 "^Wysłano zgłoszenie (RV-\\d+-\\d+)$",
