@@ -350,3 +350,7 @@ button.revo_live_alert { background: #3A1214; color: #FF4D52; border: 1px solid 
 .revo_saver_bar.revo_warn { color: #E0A33A; }
 .revo_saver_bar.revo_err { color: #FF4D52; }
 .revo_saver_sub { color: #9AA0A8; font-size: 0.9em; }
+
+/* pasek górny: sieć obok zegara */
+.revo_net { color: #9AA0A8; font-size: 0.8em; letter-spacing: 1px; }
+.revo_net_off { color: #FF4D52; }
