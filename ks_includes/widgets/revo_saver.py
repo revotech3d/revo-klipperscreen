@@ -9,7 +9,9 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk, Pango, PangoCairo
 
 COLORS = {"revo_ok": (0.24, 0.84, 0.39), "revo_warn": (0.88, 0.64, 0.23), "revo_err": (1.0, 0.30, 0.32)}
-FPS = 12   # wystarczy do płynnej poświaty, nie obciąża Raspberry Pi
+FPS = 8          # animacja tylko przez pierwsze minuty
+ANIM_S = 120     # potem spokój: logo stoi, odświeżenie raz na 5 s (Raspberry Pi i Xorg prawie bez obciążenia)
+SPOKOJ_CO = 5
 
 
 def status(printer):
@@ -41,7 +43,7 @@ class Glow(Gtk.DrawingArea):
 
     def _draw(self, w, cr):
         W, H = w.get_allocated_width(), w.get_allocated_height()
-        a = 0.14 + 0.14 * (0.5 + 0.5 * math.sin(time.time() * 1.6))
+        a = 0.21 if getattr(self, "spokoj", False) else 0.14 + 0.14 * (0.5 + 0.5 * math.sin(time.time() * 1.6))
         r, g, b = self.rgb
         for i in range(14):                       # miękka krawędź z kilku warstw
             cr.set_source_rgba(r, g, b, a * (1 - i / 14) ** 2)
@@ -118,6 +120,8 @@ class GalaxyLogo(Gtk.DrawingArea):
 
     def _phase(self, t):
         """Ile gwiazdy są „w logo” (0 = galaktyka, 1 = logo)."""
+        if getattr(self, "spokoj", False):
+            return 1.0
         c = (t - self.t0) % self.CYCLE
         if c < 6:
             return 0.0
@@ -203,13 +207,19 @@ def build(screen, schematic_factory, logo_path):
     box.pack_start(mid, True, True, 0)
     ov.add_overlay(box)
 
-    state = {"on": True, "n": 0}
+    state = {"on": True, "n": 0, "start": time.time(), "spokoj": False}
 
     def tick():
         if not state["on"]:
             return False
         state["n"] += 1
-        if state["n"] % FPS == 1:          # pasek stanu raz na sekundę
+        if not state["spokoj"] and time.time() - state["start"] > ANIM_S:
+            # koniec animacji: logo zostaje, odświeżamy rzadko (inaczej Xorg mieli procesor godzinami)
+            state["spokoj"] = glow.spokoj = field.spokoj = True
+            GLib.timeout_add_seconds(SPOKOJ_CO, tick)
+            state["n"] = 0
+            return False
+        if state["spokoj"] or state["n"] % FPS == 1:          # pasek stanu raz na sekundę
             try:
                 text, cls, temps = status(screen.printer)
                 bar.set_label(text)
