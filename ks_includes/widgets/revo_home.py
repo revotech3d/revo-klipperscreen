@@ -331,6 +331,13 @@ class RevoHome(RevoActions, Gtk.Box):
         self.sz_btn.get_style_context().add_class("revo_spool")
         self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
         self.pack_start(self.sz_btn, False, False, 0)
+        # operator (gdy kierownik założył operatorów): kto pracuje na maszynie
+        self.op_btn = Gtk.Button(label="")
+        self.op_btn.get_style_context().add_class("revo_spool")
+        self.op_btn.set_no_show_all(True)
+        self.op_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_operator", "Operator"))
+        self.pack_start(self.op_btn, False, False, 0)
+        self._op_asked = False
         self.szpula = None
         self.system = None
 
@@ -402,10 +409,26 @@ class RevoHome(RevoActions, Gtk.Box):
             if code == 200:
                 GLib.idle_add(self._set_hours, st.get("hours"))
                 self.szpula = st.get("szpula")
+                GLib.idle_add(self._set_operator, st.get("operatorzy") or [], st.get("operator"))
                 self.system = st.get("system")
                 GLib.idle_add(self._consent_check, st)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_operator(self, ops, cur):
+        if not ops:
+            self.op_btn.hide()
+            return False
+        self.op_btn.set_label(f"OPERATOR · {cur['imie']}" if cur else "ZALOGUJ OPERATORA")
+        self.op_btn.show()
+        # nikt nie zalogowany: raz zaproponuj logowanie (bez blokowania – druk i STOP działają zawsze)
+        cp = getattr(self.screen, "_cur_panels", [])
+        if not cur and not self._op_asked and cp and cp[-1] == "main_menu":
+            self._op_asked = True
+            self.screen.show_panel("revo_operator", "Operator")
+        if cur:
+            self._op_asked = False
+        return False
 
     def _consent_check(self, st):
         """Powitanie: pierwsze uruchomienie – pytanie o zgody (alerty ON, statystyki OFF)."""
