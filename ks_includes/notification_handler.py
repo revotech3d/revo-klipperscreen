@@ -117,7 +117,8 @@ class NotificationHandler:
         if data.startswith("echo: "):
             self._screen.show_popup_message(data[6:], 1, from_ws=True)
         elif "!! Extrude below minimum temp" in data:
-            if self._screen._cur_panels[-1] != "temperature":
+            # Revo OS: tylko komunikat – nie przełączaj ekranu na standardowy panel temperatur KlipperScreena
+            if self._screen._config.get_main_config().get("theme", "") != "revo" and self._screen._cur_panels[-1] != "temperature":
                 self._screen.show_panel(
                     "temperature",
                     extra=self._screen.printer.get_stat("toolhead", "extruder"),

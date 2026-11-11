@@ -73,7 +73,9 @@ class ScreenSaver:
         box.pack_start(close, True, True, 0)
         box.get_style_context().add_class("screensaver")
         self.blackbox = box
-        for child in self.screen.overlay.get_children():
+        # Revo OS: zapamiętaj, co było widoczne – po wybudzeniu pokaż tylko to (nie odsłaniaj ukrytego pulpitu KlipperScreena)
+        self._widoczne = [c for c in self.screen.overlay.get_children() if c.get_visible()]
+        for child in self._widoczne:
             child.hide()
         self.screen.overlay.add(self.blackbox)
 
@@ -137,8 +139,9 @@ class ScreenSaver:
         self.screen.overlay.remove(self.blackbox)
         self.blackbox = None
         logging.debug("Closed Screensaver")
-        for child in self.screen.overlay.get_children():
+        for child in getattr(self, "_widoczne", None) or self.screen.overlay.get_children():
             child.show()
+        self._widoczne = []
         for dialog in self.screen.dialogs:
             logging.info(f"Restoring Dialog {dialog}")
             dialog.show()
