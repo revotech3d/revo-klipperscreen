@@ -2,7 +2,7 @@
 import math
 
 FIL_AREA = math.pi * (1.75 / 2) ** 2          # mm² dla filamentu 1,75 mm
-NOZZLE_MAX = {0.25: 8, 0.4: 25, 0.6: 45, 0.8: 60}  # mm³/s, mosiądz – wartości startowe
+NOZZLE_MAX = {0.25: 8, 0.4: 25, 0.6: 35, 0.8: 45, 1.0: 45, 1.2: 45}  # mm³/s, hotend neXtG UHF (maks. 45 mm³/s wg producenta)
 MAX_MOVE = 45.0                                 # Klipper: max_extrude_only_distance 50 mm
 
 
