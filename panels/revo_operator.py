@@ -37,7 +37,7 @@ class Panel(ScreenPanel):
         ops = self.st.get("operatorzy") or []
         cur = self.st.get("operator")
         self.box.pack_start(_lbl("OPERATOR MASZYNY", "revo_test_name"), False, False, 6)
-        if not ops:
+        if not [o for o in ops if not o.get("bez_pinu")]:
             code, r = agent.call("/parowanie/kod", timeout=3)
             t = _lbl("Panel Revo w przeglądarce wymaga logowania. Maszyna nie ma jeszcze operatorów – "
                      "otwórz Panel Revo, wybierz KOD Z EKRANU i wpisz ten kod, potem załóż konto kierownika. "
@@ -50,7 +50,7 @@ class Panel(ScreenPanel):
             b.set_size_request(-1, 56)
             b.connect("clicked", lambda w: threading.Thread(target=self._load, daemon=True).start())
             self.box.pack_start(b, False, False, 0)
-        else:
+        if ops:
             if cur:
                 self.box.pack_start(_lbl(f"Zalogowany: {cur.get('imie', '')}", "revo_state"), False, False, 4)
                 b = Gtk.Button(label="WYLOGUJ")
@@ -71,6 +71,14 @@ class Panel(ScreenPanel):
         return False
 
     def _pin(self, o):
+        if o.get("bez_pinu"):   # wspólne konto „Operator” – bez PIN-u
+            code, r = agent.call("/operator/zaloguj", {"login": o["login"], "pin": "", "zrodlo": "ekran"}, timeout=4)
+            if code == 200:
+                self._screen.show_popup_message(f"Zalogowano: {o['imie']}", 1)
+                self._screen._menu_go_back()
+            else:
+                self._screen.show_popup_message(r.get("message", "Nie udało się zalogować"), 2)
+            return
         self._clear()
 
         def enter(pin, pad):
