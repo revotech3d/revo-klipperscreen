@@ -10,19 +10,19 @@ from ks_includes import revo_agent_client as agent
 from ks_includes import revo_home_logic as hl
 from ks_includes import revo_serwis_logic as logic
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, window
 
 
 class Panel(ScreenPanel):
     def __init__(self, screen, title, **kwargs):
-        super().__init__(screen, title or "Przeglądy")
+        super().__init__(screen, title or "Maintenance")
         self.hours = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.box.get_style_context().add_class("revo_home")
         sc = self._gtk.ScrolledWindow()
         sc.add(self.box)
         self.content.add(sc)
-        self.box.pack_start(_lbl("Wczytywanie…", "revo_info"), False, False, 0)
+        self.box.pack_start(_lbl("Loading…", "revo_info"), False, False, 0)
         self.load()
 
     def load(self):
@@ -36,21 +36,17 @@ class Panel(ScreenPanel):
         for c in self.box.get_children():
             self.box.remove(c)
         if hours is None:
-            self.box.pack_start(_lbl("Brak licznika godzin (agent Revo nie odpowiada).", "revo_info"), False, False, 20)
+            self.box.pack_start(_lbl("No hour counter (Revo agent not responding).", "revo_info"), False, False, 20)
             self.box.show_all()
             return False
         vars_ = self._printer.get_stat("save_variables", "variables") or {}
-        self.box.pack_start(_lbl(f"Przepracowane: {round(hours)} h", "revo_test_head"), False, False, 4)
+        self.box.pack_start(_lbl(f"RUNNING TIME: {round(hours)} h", "revo_test_head"), False, False, 4)
         for it in logic.status(hours, vars_, hl.is_belt(self._printer)):
             card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-            card.get_style_context().add_class("revo_tile")
-            head = Gtk.Box(spacing=8)
-            head.pack_start(_lbl(it["name"].upper(), "revo_test_name"), True, True, 0)
             cls = {"ok": "revo_ok", "wkrótce": "revo_warn", "po terminie": "revo_err"}[it["state"]]
-            st = _lbl(it["state"].upper(), "revo_state", 1.0)
-            st.get_style_context().add_class(cls)
-            head.pack_end(st, False, False, 0)
-            card.pack_start(head, False, False, 0)
+            st_txt = {"ok": "OK", "wkrótce": "SOON", "po terminie": "OVERDUE"}[it["state"]]
+            for m in (card.set_margin_start, card.set_margin_end, card.set_margin_top, card.set_margin_bottom):
+                m(6)
             bar = Gtk.ProgressBar(fraction=it["fraction"])
             bar.get_style_context().add_class("revo_progress")
             card.pack_start(bar, False, False, 0)
@@ -59,11 +55,13 @@ class Panel(ScreenPanel):
             d = _lbl(it["desc"], "revo_test_desc")
             d.set_line_wrap(True)
             card.pack_start(d, False, False, 0)
-            b = Gtk.Button(label="ZROBIONE")
+            b = Gtk.Button(label="DONE")
             b.get_style_context().add_class("revo_preset")
             b.connect("clicked", lambda w, i=it: self.confirm(i))
             card.pack_start(b, False, False, 4)
-            self.box.pack_start(card, False, False, 4)
+            win = window(it["name"].upper(), card, f"EVERY {it['every']} h · {st_txt}")
+            win.get_children()[0].get_children()[-1].get_style_context().add_class(cls)
+            self.box.pack_start(win, False, False, 4)
         self.box.show_all()
         return False
 

@@ -7,7 +7,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk, Pango
 
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, window
 
 
 def fmt_time(s):
@@ -20,7 +20,7 @@ def fmt_time(s):
 
 class Panel(ScreenPanel):
     def __init__(self, screen, title, **kwargs):
-        super().__init__(screen, title or "Pliki")
+        super().__init__(screen, title or "Files")
         self.scroll = self._gtk.ScrolledWindow()
         self.scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         self.content.add(self.scroll)
@@ -59,7 +59,9 @@ class Panel(ScreenPanel):
         grid = Gtk.Grid(column_homogeneous=True, column_spacing=10, row_spacing=10)
         for i, f in enumerate(files[:60]):
             grid.attach(self.card(f), i % 2, i // 2, 1, 1)
-        box.pack_start(grid, False, False, 0)
+        for m in (grid.set_margin_start, grid.set_margin_end, grid.set_margin_top, grid.set_margin_bottom):
+            m(6)
+        box.pack_start(window("PRINT FILES", grid, f"{len(files)} FILES") if files else grid, False, False, 0)
         self.scroll.add(box)
         self.scroll.show_all()
 
