@@ -9,7 +9,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_net
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, orionize
 
 
 def _btn(text, cb, cls="revo_t_plain", h=64):
@@ -77,6 +77,8 @@ class Panel(ScreenPanel):
         self._lista()
 
     # ---------- widok ----------
+        orionize(self.box)
+
     def activate(self):
         if self.nm and self.nm.wifi:
             self._skanuj()

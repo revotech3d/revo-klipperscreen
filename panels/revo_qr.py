@@ -5,7 +5,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, orionize
 from ks_includes.widgets.revo_qr import QR
 from panels.revo_wizard import local_ip
 
@@ -29,3 +29,4 @@ class Panel(ScreenPanel):
             box.pack_start(_lbl("Maszyna nie jest w sieci. Podłącz kabel albo ustaw Wi‑Fi.", "revo_test_desc", 0.5),
                            False, False, 40)
         self.content.add(box)
+        orionize(box)
