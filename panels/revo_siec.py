@@ -71,7 +71,7 @@ class Panel(ScreenPanel):
         self.box.pack_start(scroll, True, True, 0)
         self.dol = Gtk.Box(spacing=8, homogeneous=True)
         self.dol.pack_start(_btn("ODŚWIEŻ LISTĘ", self._skanuj), True, True, 0)
-        self.zapomnij = _btn("ROZŁĄCZ I ZAPOMNIJ", self._zapomnij)
+        self.zapomnij = _btn("ZAPOMNIJ SIEĆ", self._zapomnij)
         self.dol.pack_start(self.zapomnij, True, True, 0)
         self.box.pack_start(self.dol, False, False, 0)
         self._lista()

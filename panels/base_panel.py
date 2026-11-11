@@ -55,7 +55,7 @@ class BasePanel(ScreenPanel):
         self.control["estop"].connect("clicked", self.emergency_stop)
         self.control["estop"].set_no_show_all(True)
         self.shutdown = {
-            "panel": "shutdown",
+            "panel": "revo_wylacz" if self._config.get_main_config().get("theme", "") == "revo" else "shutdown",
         }
         self.control["shutdown"] = self._gtk.Button("shutdown", scale=self.abscale)
         self.control["shutdown"].connect("clicked", self.menu_item_clicked, self.shutdown)
@@ -388,6 +388,9 @@ class BasePanel(ScreenPanel):
         self.control["estop"].set_visible(printing)
         self.control["shutdown"].set_visible(not printing)
         self.show_shortcut(self.shortcut["panel"])
+        # Revo OS: dzwonek (standardowe powiadomienia KlipperScreena) tylko w trybie serwisowym
+        if self._config.get_main_config().get("theme", "") == "revo" and self.shortcut["panel"] == "notifications":
+            self.control["shortcut"].set_visible(bool(getattr(self._printer, "revo_service", False)))
         self.show_printer_select(len(self._config.get_printers()) > 1)
         for control in ("back", "home"):
             self.set_control_sensitive(len(self._screen._cur_panels) > 1, control=control)
