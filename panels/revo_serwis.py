@@ -70,7 +70,7 @@ class Panel(ScreenPanel):
     def confirm(self, it):
         t = _lbl(f"Potwierdź wykonanie: {it['name']}. Licznik tego przeglądu zacznie się od zera.", "revo_test_desc")
         t.set_line_wrap(True)
-        buttons = [{"name": "Anuluj", "response": Gtk.ResponseType.CANCEL},
+        buttons = [{"name": "Cancel", "response": Gtk.ResponseType.CANCEL},
                    {"name": "ZROBIONE", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
 
         def resp(dialog, r):

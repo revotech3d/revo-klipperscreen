@@ -64,7 +64,7 @@ class Panel(ScreenPanel):
             b.connect("clicked", lambda bw, o=o: (self._gtk.remove_dialog(dlg["d"]), self.confirm(c, T.fill(c["g"], name, o))))
             g.attach(b, i % 2, i // 2, 1, 1)
         box.pack_start(g, False, False, 0)
-        dlg["d"] = self._gtk.Dialog(c["n"], [{"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}],
+        dlg["d"] = self._gtk.Dialog(c["n"], [{"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}],
                                     box, lambda d, r: self._gtk.remove_dialog(d))
 
     # 2) potwierdzenie (pomijane dla odczytów)
@@ -76,8 +76,8 @@ class Panel(ScreenPanel):
         box.pack_start(_lbl(c["n"], "revo_state", 0.5), False, False, 4)
         box.pack_start(_lbl(c["opis"], "revo_info", 0.5), False, False, 0)
         box.pack_start(_lbl(gcode.replace("\n", "  ·  "), "revo_tile_value_small", 0.5), False, False, 6)
-        buttons = [{"name": "Wykonaj", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
-                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        buttons = [{"name": "Run", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self._gtk.Dialog(c["n"], buttons, box, self._resp, gcode)
 
     def _resp(self, dialog, resp, gcode):

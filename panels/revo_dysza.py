@@ -14,7 +14,7 @@ from ks_includes.widgets.revo_home import _lbl
 
 HOT = 250          # wymiana na gorąco – ta sama temperatura dla mosiądzu, stali i wolframu
 D_OPTS = ["0.25", "0.4", "0.6", "0.8"]
-T_OPTS = [("mosiadz", "Mosiądz"), ("stal", "Stal hart."), ("wolfram", "Wolfram")]
+T_OPTS = [("mosiadz", "Brass"), ("stal", "Hardened steel"), ("wolfram", "Tungsten")]
 STEPS = ["wybor", "filament", "grzanie", "odkrec", "wkrec", "koniec"]
 
 

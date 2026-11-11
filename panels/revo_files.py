@@ -149,9 +149,9 @@ class Panel(ScreenPanel):
                 w = _lbl(f"Może zabraknąć filamentu: potrzeba ok. {float(need) * getattr(self, '_ile', 1):.0f} g, na szpuli ok. {left:.0f} g.", "revo_err", 0.5)
                 w.set_line_wrap(True)
                 box.pack_start(w, False, False, 0)
-        buttons = [{"name": "Usuń", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
-                   {"name": "Drukuj", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
-                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        buttons = [{"name": "Delete", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
+                   {"name": "Print", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self._gtk.Dialog("Drukuj", buttons, box, self._resp, path)
         if f.get("thumbnails"):
             self.load_image_async(path, self._screen.width * 0.8, self._screen.height * 0.4,
