@@ -181,9 +181,14 @@ class Panel(ScreenPanel):
         return w
 
     def _revo_layout(self):
-        from ks_includes.widgets.revo_home import Tile
+        from ks_includes.widgets.revo_home import HexGauge, window
         from ks_includes import revo_home_logic as lg
         self.content.remove(self.grid)
+
+        def pad(w, m=6):
+            for f in (w.set_margin_start, w.set_margin_end, w.set_margin_top, w.set_margin_bottom):
+                f(m)
+            return w
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.get_style_context().add_class("revo_home")
 
@@ -194,21 +199,23 @@ class Panel(ScreenPanel):
         self.revo_series.get_style_context().add_class("revo_warn")
         head.add(self.revo_series)
         self._revo_n = 0
-        box.pack_start(head, False, False, 0)
+        live = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        live.pack_start(head, False, False, 0)
 
         thumb = self._unparent(self.labels["thumbnail"])
         thumb.set_halign(Gtk.Align.CENTER)
-        thumb.set_size_request(230, 230)
+        thumb.set_size_request(200, 160)
         # podgląd: model z pliku albo kamera na żywo (przełącznik pod obrazem)
         self.revo_view = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
         self.revo_view.add_named(thumb, "model")
-        box.pack_start(self.revo_view, True, True, 0)
-        self.revo_view_btn = Gtk.Button(label="KAMERA")
+        live.pack_start(self.revo_view, True, True, 0)
+        self.revo_view_btn = Gtk.Button(label="CAMERA")
         self.revo_view_btn.get_style_context().add_class("revo_t_plain")
         self.revo_view_btn.set_halign(Gtk.Align.CENTER)
         self.revo_view_btn.set_no_show_all(True)
         self.revo_view_btn.connect("clicked", lambda w: self._revo_view_toggle())
-        box.pack_start(self.revo_view_btn, False, False, 0)
+        live.pack_start(self.revo_view_btn, False, False, 0)
+        box.pack_start(window("LIVE VIEW", pad(live), "MODEL · CAMERA"), True, True, 0)
         threading.Thread(target=self._revo_cam_check, daemon=True).start()
 
         prow = Gtk.Box(spacing=12)
@@ -216,21 +223,22 @@ class Panel(ScreenPanel):
         pt.get_style_context().add_class("revo_big")
         prow.pack_start(pt, False, False, 0)
         tl = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, valign=Gtk.Align.CENTER)
-        lbl = Gtk.Label(label="POZOSTAŁO", xalign=0)
+        lbl = Gtk.Label(label="REMAINING", xalign=0)
         lbl.get_style_context().add_class("revo_tile_title")
         tl.add(lbl)
         left = self._unparent(self.labels["time_left"])
         left.get_style_context().add_class("revo_tile_value")
         tl.add(left)
         prow.pack_end(tl, False, False, 0)
-        box.pack_start(prow, False, False, 0)
+        prog = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        prog.pack_start(prow, False, False, 0)
 
         self.revo_bar = Gtk.ProgressBar()
         self.revo_bar.get_style_context().add_class("revo_progress")
-        box.pack_start(self.revo_bar, False, False, 0)
+        prog.pack_start(self.revo_bar, False, False, 0)
 
         info = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        for i, (title, key) in enumerate((("UPŁYNĘŁO", "duration"), ("WARSTWA", "layer"), ("WYSOKOŚĆ", "pos_z"))):
+        for i, (title, key) in enumerate((("ELAPSED", "duration"), ("LAYER", "layer"), ("HEIGHT", "pos_z"))):
             col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
             t = Gtk.Label(label=title, xalign=0)
             t.get_style_context().add_class("revo_tile_title")
@@ -240,19 +248,22 @@ class Panel(ScreenPanel):
             col.add(v)
             info.attach(col, i, 0, 1, 1)
         sz = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        t = Gtk.Label(label="SZPULA", xalign=0)
+        t = Gtk.Label(label="SPOOL", xalign=0)
         t.get_style_context().add_class("revo_tile_title")
         self.revo_sz = Gtk.Label(label="–", xalign=0)
         sz.add(t)
         sz.add(self.revo_sz)
         info.attach(sz, 3, 0, 1, 1)
-        box.pack_start(info, False, False, 0)
+        prog.pack_start(info, False, False, 0)
+        box.pack_start(window("PROGRESS", pad(prog), "JOB"), False, False, 0)
 
-        tiles = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        self.revo_tiles = {"extruder": Tile("DYSZA"), "heater_bed": Tile(lg.bed_label(self._printer)), "chamber": Tile("KOMORA")}
-        for i, t in enumerate(self.revo_tiles.values()):
-            tiles.attach(t, i, 0, 1, 1)
-        box.pack_start(tiles, False, False, 0)
+        tiles = Gtk.Box(spacing=4, homogeneous=True)
+        self.revo_tiles = {"extruder": HexGauge("NOZZLE", 300), "heater_bed": HexGauge("BELT" if lg.is_belt(self._printer) else "BED", 120),
+                           "chamber": HexGauge("CHAMBER", 60)}
+        for t in self.revo_tiles.values():
+            t.set_size_request(130, 78)
+            tiles.pack_start(t, True, True, 0)
+        box.pack_start(window("THERMAL", pad(tiles, 4), "LIVE"), False, False, 0)
 
         # po zakończeniu druku: podsumowanie + wysuwanie wydruku pasem (przytrzymaj) + drukuj ponownie
         from ks_includes.widgets.revo_hold import BeltHold
@@ -264,23 +275,23 @@ class Panel(ScreenPanel):
         self.revo_done_info.get_style_context().add_class("revo_info")
         self.revo_done.add(self.revo_done_lbl)
         self.revo_done.add(self.revo_done_info)
-        eject = Gtk.Button(label="WYSUŃ WYDRUK\n(przytrzymaj)")
+        eject = Gtk.Button(label="EJECT PART\n(hold)")
         eject.get_child().set_justify(Gtk.Justification.CENTER)
         eject.get_style_context().add_class("revo_print")
         eject.set_size_request(-1, 84)
         self.revo_belt = BeltHold(eject, self._screen._ws.api.gcode_script,
                                   lambda: lg.cfg(self._printer, "belt_stepper", ""))
         row = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        again = Gtk.Button(label="DRUKUJ PONOWNIE")
+        again = Gtk.Button(label="PRINT AGAIN")
         again.get_style_context().add_class("revo_preset")
         again.connect("clicked", self.restart)
-        home = Gtk.Button(label="EKRAN GŁÓWNY")
+        home = Gtk.Button(label="HOME SCREEN")
         home.get_style_context().add_class("revo_preset")
         home.connect("clicked", self.close_panel)
         row.attach(again, 0, 0, 1, 1)
         row.attach(home, 1, 0, 1, 1)
         self._revo_qn = 0
-        self.revo_next = Gtk.Button(label="STÓŁ PUSTY – DRUKUJ NASTĘPNY")
+        self.revo_next = Gtk.Button(label="BED CLEAR – PRINT NEXT")
         self.revo_next.get_style_context().add_class("revo_print")
         self.revo_next.set_size_request(-1, 84)
         self.revo_next.set_no_show_all(True)
@@ -325,7 +336,7 @@ class Panel(ScreenPanel):
         cur = self.revo_view.get_visible_child_name()
         name = name or ("model" if cur == "kamera" else "kamera")
         self.revo_view.set_visible_child_name(name)
-        self.revo_view_btn.set_label("MODEL" if name == "kamera" else "KAMERA")
+        self.revo_view_btn.set_label("MODEL" if name == "kamera" else "CAMERA")
 
     def _revo_cam_full(self):
         from ks_includes.widgets.revo_cam import Cam
@@ -353,10 +364,8 @@ class Panel(ScreenPanel):
             if dev == "chamber":
                 dev = lg.cfg(self._printer, "chamber", "temperature_sensor chamber")
             st = self._printer.get_stat(dev) or {}
-            t = st.get("temperature")
-            tile.value.set_label("–" if t is None else f"{t:.0f}°")
-            tg = st.get("target") or 0
-            tile.sub.set_label(f"cel {tg:.0f}°" if tg else "")
+            t, tg = st.get("temperature"), st.get("target")
+            tile.set(float(t) if isinstance(t, (int, float)) else None, float(tg) if isinstance(tg, (int, float)) else None)
         return True
 
     def create_status_grid(self, widget=None):

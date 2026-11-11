@@ -85,7 +85,7 @@ class HexGauge(Gtk.DrawingArea):
             ctx.show_text(s)
         text(self.title, 11, H * .27, (0.353, 0.663, 0.902))
         text("–" if self.temp is None else f"{self.temp:.0f}°", 28, H * .62, (0.867, 0.902, 0.933), "Share Tech Mono")
-        sub = f"→ {self.target:.0f}°" if self.target else ("PASSIVE" if self.tmax <= 80 and self.title == "CHAMBER" else "OFF")
+        sub = f"SET {self.target:.0f}°" if self.target else ("PASSIVE" if self.tmax <= 80 and self.title == "CHAMBER" else "OFF")
         text(sub, 10, H * .83, (0.369, 0.459, 0.525), "Share Tech Mono")
 
 
