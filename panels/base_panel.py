@@ -71,6 +71,8 @@ class BasePanel(ScreenPanel):
         self.shortcut["icon"] = self._get_shortcut_icon(self.shortcut["panel"])
         self.control["shortcut"] = self._gtk.Button(self.shortcut["icon"], scale=self.abscale)
         self.control["shortcut"].connect("clicked", self._shortcut_clicked, self.shortcut)
+        if self._config.get_main_config().get("theme", "") == "revo" and self.shortcut["panel"] == "notifications":
+            self.control["shortcut"].set_no_show_all(True)   # Revo OS: dzwonek tylko w trybie serwisowym
 
         # Any action bar button should close the keyboard
         for item in self.control:
