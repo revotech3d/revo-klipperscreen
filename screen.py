@@ -396,6 +396,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         # Revo OS: stan testu maszyny (zmienne makra) – ekran testu odświeża się na żywo
         if "gcode_macro _REVO_TEST" in self.printer.config:
             requested_updates["objects"]["gcode_macro _REVO_TEST"] = None
+        if "gcode_macro _REVO_KALIB" in self.printer.config:
+            requested_updates["objects"]["gcode_macro _REVO_KALIB"] = None
         self._ws.api.object_subscription(requested_updates)
 
     @staticmethod
