@@ -67,9 +67,9 @@ def view(printer, hours=None):
     light_on = bool(pin) and (_num(printer.get_stat(f"output_pin {pin}", "value")) or 0) > 0
     light = ("Włączone" if light_on else "Wyłączone") if pin else "brak"
 
-    info = "System OK" if cls != "revo_err" else "Sprawdź komunikat"
+    info = "System OK" if cls != "revo_err" else "Check message"
     if hours is not None:
-        info += f" · {hours:.0f} h pracy"
+        info += f" · {hours:.0f} h"
     return {"state": state, "state_class": cls, "info": info, "nozzle_size": nozzle_size,
             "nozzle_temp": nozzle_temp, "bed_temp": bed_temp, "chamber_temp": chamber_temp,
             "light": light, "light_on": light_on}
