@@ -289,8 +289,8 @@ class RevoActions:
             g.attach(b, i % 4, i // 4, 1, 1)
         box.pack_start(g, False, False, 0)
         self._ht_set(self._ht["t"])
-        buttons = [{"name": "Ustaw", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
-                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        buttons = [{"name": "Set", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self.p._gtk.Dialog(title, buttons, box, self._heater_response)
 
     def _ht_set(self, v):
@@ -313,7 +313,7 @@ class RevoActions:
         cur = str(vars_.get("revo_nozzle", "")).split()
         rows = (("ŚREDNICA", "d", ["0.25", "0.4", "0.6", "0.8"]),
                 ("MATERIAŁ", "t", ["mosiadz", "stal", "wolfram"]))
-        names = {"mosiadz": "Mosiądz", "stal": "Stal hart.", "wolfram": "Wolfram"}
+        names = {"mosiadz": "Brass", "stal": "Hardened steel", "wolfram": "Tungsten"}
         for head, key, opts in rows:
             box.pack_start(_lbl(head, "revo_tile_title"), False, False, 0)
             g = Gtk.Grid(column_homogeneous=True, column_spacing=8)
@@ -334,9 +334,9 @@ class RevoActions:
         hint = _lbl("Maszyna porówna ją z dyszą zapisaną w pliku przy każdym starcie druku.", "revo_info", 0.0)
         hint.set_line_wrap(True)
         box.pack_start(hint, False, False, 0)
-        buttons = [{"name": "Zapisz", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
-                   {"name": "Wymieniam\ndyszę", "response": Gtk.ResponseType.APPLY, "style": "dialog-secondary"},
-                   {"name": "Anuluj", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        buttons = [{"name": "Save", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Replace\nnozzle", "response": Gtk.ResponseType.APPLY, "style": "dialog-secondary"},
+                   {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self.p._gtk.Dialog("Dysza", buttons, box, self._nozzle_response)
 
     def _nozzle_response(self, dialog, response):
@@ -576,7 +576,7 @@ class RevoHome(RevoActions, Gtk.Box):
             row.pack_start(col, True, True, 0)
             row.pack_end(sw, False, False, 0)
             box.pack_start(row, False, False, 6)
-        buttons = [{"name": "Zapisz", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+        buttons = [{"name": "Save", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
         self.p._gtk.Dialog("Powitanie", buttons, box, self._consent_resp)
         return False
 
