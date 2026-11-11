@@ -149,7 +149,7 @@ class KlipperScreenConfig:
                 "KlipperScreen", localedir=lang_path, languages=[lng], fallback=True
             )
 
-        lang = self.get_main_config().get("language", "system_lang")
+        lang = "en"   # Revo OS: interfejs tylko po angielsku
         logging.debug(f"Selected lang: {lang} OS lang: {locale.getlocale()[0]}")
         self.install_language(lang)
 

@@ -2,13 +2,13 @@
 # Ostatnie wykonanie przeglądu: save_variables revo_serwis_<klucz> = godziny maszyny w chwili ZROBIONE.
 
 ITEMS = [  # klucz, nazwa (belt / standard), co ile h, co zrobić
-    ("dysza", "Dysza", "Dysza", 200,
-     "Sprawdź dyszę: zużycie, wycieki, dokręcenie na gorąco. Wymień, jeśli otwór jest rozbity."),
-    ("osie", "Taśma, pasy i osie", "Pasy i osie", 500,
-     "Sprawdź naciąg pasów, prowadnice i luzy osi. Wyczyść i nasmaruj prowadnice."
-     " Na Belcie sprawdź też taśmę i jej prowadzenie."),
-    ("pelny", "Pełny serwis", "Pełny serwis", 1000,
-     "Pełny przegląd: elektronika, przewody, wentylatory, grzanie, kalibracja. Najlepiej z serwisem Revotech."),
+    ("dysza", "Nozzle", "Nozzle", 200,
+     "Check the nozzle: wear, leaks, hot tightening. Replace it if the bore is worn out."),
+    ("osie", "Belt, belts and axes", "Belts and axes", 500,
+     "Check belt tension, guides and axis play. Clean and lubricate the guides."
+     " On the Belt also check the conveyor belt and its tracking."),
+    ("pelny", "Full service", "Full service", 1000,
+     "Full inspection: electronics, wiring, fans, heating, calibration. Best done with Revotech service."),
 ]
 WARN_BEFORE = 0.1   # ostrzeżenie „wkrótce” na ostatnie 10% interwału
 
@@ -35,7 +35,7 @@ def banner(items):
     d = due(items)
     if not d:
         return ""
-    return "PRZEGLĄD: " + ", ".join(i["name"] for i in d)
+    return "SERVICE DUE: " + ", ".join(i["name"] for i in d)
 
 
 def done_gcode(key, hours):

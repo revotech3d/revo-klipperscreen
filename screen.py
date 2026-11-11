@@ -34,6 +34,27 @@ from ks_includes.printer import Printer
 from ks_includes.spoolman_api import SpoolmanAPI
 from ks_includes.widgets.keyboard import Keyboard
 from ks_includes.widgets.lockscreen import LockScreen
+
+
+def revo_fonts():
+    """Hermes: czcionki Rajdhani i Share Tech Mono z repozytorium do ~/.local/share/fonts (przed startem GTK)."""
+    src = pathlib.Path(__file__).parent / "styles" / "revo" / "fonts"
+    dst = pathlib.Path.home() / ".local" / "share" / "fonts"
+    try:
+        new = False
+        for f in src.glob("*.ttf"):
+            d = dst / f.name
+            if not d.exists() or d.stat().st_size != f.stat().st_size:
+                dst.mkdir(parents=True, exist_ok=True)
+                d.write_bytes(f.read_bytes())
+                new = True
+        if new:
+            subprocess.run(["fc-cache", "-f", str(dst)], timeout=60, check=False)
+    except Exception as e:  # noqa: BLE001 – brak czcionek to tylko inny krój
+        logging.warning(f"revo_fonts: {e}")
+
+
+revo_fonts()
 from ks_includes.widgets.prompts import Prompt
 from ks_includes.widgets.screensaver import ScreenSaver
 from panels.base_panel import BasePanel
@@ -98,7 +119,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self._config = KlipperScreenConfig(configfile, self)
         # Revo OS: angielskie napisy ekranu Revo, gdy language: en
         from ks_includes import revo_i18n
-        revo_i18n.install(self._config.get_main_config().get("language", "pl"))
+        revo_i18n.install("en")   # Revo OS: tylko angielski
         self.env = Environment(extensions=["jinja2.ext.i18n"], autoescape=True)
         self.env.install_gettext_translations(self._config.get_lang())
 
