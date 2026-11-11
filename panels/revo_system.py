@@ -42,7 +42,7 @@ class Panel(ScreenPanel):
         s = st.get("system") or {}
         self.box.pack_start(_lbl("REVO OS", "revo_tile_title", 0.5), False, False, 10)
         self.box.pack_start(_lbl(s.get("revo_os", "?"), "revo_big", 0.5), False, False, 0)
-        self.box.pack_start(_lbl(f"linia {s.get('linia', '?')}", "revo_info", 0.5), False, False, 0)
+        self.box.pack_start(_lbl(f"line {s.get('linia', '?')}", "revo_info", 0.5), False, False, 0)
         g = Gtk.Grid(column_spacing=16, row_spacing=10)
         rows = [("Maszyna", st.get("machine_id", "?")), ("Makra i konfiguracja", s.get("makra", "?")), ("Ekran", s.get("ekran", "?")),
                 ("Agent Revo", s.get("agent", "?")), ("Oprogramowanie sterujące", s.get("firmware", "?")),
@@ -54,10 +54,10 @@ class Panel(ScreenPanel):
         self.box.pack_start(g, False, False, 20)
         d = st.get("diagnostyka") or {}
         if d.get("kontrole"):
-            lab = {"ok": "OK", "uwaga": "UWAGA", "blad": "WYMAGA SERWISU"}.get(d.get("wynik"), "")
-            self.box.pack_start(_lbl(f"AUTODIAGNOSTYKA · {lab}", "revo_tile_title", 0.5), False, False, 4)
+            lab = {"ok": "OK", "uwaga": "ATTENTION", "blad": "NEEDS SERVICE"}.get(d.get("wynik"), "")
+            self.box.pack_start(_lbl(f"SELF-DIAGNOSTICS · {lab}", "revo_tile_title", 0.5), False, False, 4)
             bad = [c for c in d["kontrole"] if c.get("stan") != "ok"]
-            txt = "\n".join(f"• {c['nazwa']}: {c.get('wartosc') or c['stan']}" for c in bad) or f"Wszystkie {len(d['kontrole'])} checks OK."
+            txt = "\n".join(f"• {c['nazwa']}: {c.get('wartosc') or c['stan']}" for c in bad) or f"All {len(d['kontrole'])} checks OK."
             w = _lbl(txt, "revo_warn" if bad else "revo_info", 0.5)
             w.set_line_wrap(True)
             self.box.pack_start(w, False, False, 8)
