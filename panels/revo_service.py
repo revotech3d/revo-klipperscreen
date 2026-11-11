@@ -6,14 +6,15 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_agent_client as agent
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_home import orionize, window
 
-PARTS = [("dysza", "Dysza"), ("can", "Przewód CAN"), ("ekstruder", "Ekstruder"),
-         ("pasy", "Pasy"), ("lozyska", "Przegląd łożysk")]
+PARTS = [("dysza", "Nozzle"), ("can", "CAN cable"), ("ekstruder", "Extruder"),
+         ("pasy", "Belts"), ("lozyska", "Bearing check")]
 
 
 class Panel(ScreenPanel):
     def __init__(self, screen, title, **kwargs):
-        super().__init__(screen, title or "Tryb serwisowy")
+        super().__init__(screen, title or "Service mode")
         self.pin = ""
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         self.box.get_style_context().add_class("revo_home")
@@ -40,7 +41,7 @@ class Panel(ScreenPanel):
     def show_pin(self):
         self._clear()
         self.pin = ""
-        self.box.pack_start(self._lbl("TRYB SERWISOWY", "revo_state", 0.5), False, False, 4)
+        self.box.pack_start(self._lbl("SERVICE MODE", "revo_state", 0.5), False, False, 4)
         self.box.pack_start(self._lbl("Enter the 6-digit PIN from Revotech service.", "revo_info", 0.5), False, False, 0)
         self.dots = self._lbl("○ ○ ○ ○ ○ ○", "revo_big", 0.5)
         self.box.pack_start(self.dots, False, False, 6)
@@ -54,8 +55,8 @@ class Panel(ScreenPanel):
             b.set_size_request(-1, 70)
             b.connect("clicked", self.key, k)
             grid.attach(b, i % 3, i // 3, 1, 1)
-        self.box.pack_start(grid, True, True, 0)
-        warn = self._lbl("Wejście w tryb serwisowy jest zgłaszane do Revotech i wysyła dane maszyny.", "revo_info", 0.5, True)
+        self.box.pack_start(window("PIN PAD", grid, "6 DIGITS"), True, True, 0)
+        warn = self._lbl("Entering service mode notifies Revotech and sends machine data.", "revo_info", 0.5, True)
         self.box.pack_end(warn, False, False, 4)
         self.content.show_all()
 
@@ -77,29 +78,30 @@ class Panel(ScreenPanel):
         if code == 200:
             self.show_service(r.get("minutes"))
         else:
-            self.msg.set_label(r.get("message", "Nie udało się."))
+            self.msg.set_label(r.get("message", "Failed."))
 
     # ---------- po wejściu ----------
     def show_service(self, minutes=None):
         self._clear()
-        self.box.pack_start(self._lbl("TRYB SERWISOWY AKTYWNY", "revo_state", 0.5), False, False, 4)
-        info = "Dane maszyny są wysyłane do Revotech co minutę."
+        self.box.pack_start(self._lbl("SERVICE MODE ACTIVE", "revo_state", 0.5), False, False, 4)
+        info = "Machine data is sent to Revotech every minute."
         if minutes:
             info += f" The mode ends by itself after {minutes} min."
         self.box.pack_start(self._lbl(info, "revo_info", 0.5, True), False, False, 0)
-        self.box.pack_start(self._lbl("WYMIENIONO CZĘŚĆ – WNIOSEK O RESET LICZNIKA", "revo_tile_title"), False, False, 8)
+        self.box.pack_start(self._lbl("PART REPLACED – REQUEST COUNTER RESET", "revo_tile_title"), False, False, 8)
         for key, name in PARTS:
             b = Gtk.Button(label=name)
             b.get_style_context().add_class("revo_preset")
             b.set_size_request(-1, 56)
             b.connect("clicked", self.ask_reset, key, name)
             self.box.pack_start(b, False, False, 0)
-        self.msg = self._lbl("Licznik wyzeruje się po zatwierdzeniu przez Revotech.", "revo_info", 0.5, True)
+        self.msg = self._lbl("The counter resets after Revotech approves.", "revo_info", 0.5, True)
         self.box.pack_start(self.msg, False, False, 8)
-        end = Gtk.Button(label="ZAKOŃCZ TRYB SERWISOWY")
+        end = Gtk.Button(label="END SERVICE MODE")
         end.get_style_context().add_class("revo_print")
         end.connect("clicked", self.logout)
         self.box.pack_end(end, False, False, 4)
+        orionize(self.box, "SERVICE SESSION", "ACTIVE", skip=(end,))
         self.content.show_all()
 
     def logout(self, *args):
@@ -117,6 +119,6 @@ class Panel(ScreenPanel):
         if resp != Gtk.ResponseType.OK:
             return
         code, r = agent.call("/reset", {"part": key, "note": "zgłoszone z ekranu maszyny", "requested_by": "ekran"})
-        self.msg.set_label(f"Wysłano wniosek: {name}." if code == 200 else r.get("message", "Nie udało się."))
+        self.msg.set_label(f"Request sent: {name}." if code == 200 else r.get("message", "Failed."))
         if code == 403:
             GLib.timeout_add_seconds(2, lambda: self.show_pin() and False)
