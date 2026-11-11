@@ -16,7 +16,7 @@ class Panel(ScreenPanel):
     }
 
     def __init__(self, screen, title, **kwargs):
-        super().__init__(screen, title or "Wyłącz")
+        super().__init__(screen, "Power")
         self.uzbrojony = None
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         box.get_style_context().add_class("revo_home")
