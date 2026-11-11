@@ -57,6 +57,7 @@ class NotificationHandler:
             "manual_probe" in data
             and data["manual_probe"]["is_active"]
             and "zcalibrate" not in self._screen._cur_panels
+            and not self._revo()
         ):
             self._screen.show_panel("zcalibrate")
             return
@@ -66,6 +67,7 @@ class NotificationHandler:
             and "max_deviation" in data["screws_tilt_adjust"]
             and not data["screws_tilt_adjust"]["max_deviation"]
             and "bed_level" not in self._screen._cur_panels
+            and not self._revo()
         ):
             self._screen.show_panel("bed_level")
             return
@@ -118,7 +120,7 @@ class NotificationHandler:
             self._screen.show_popup_message(data[6:], 1, from_ws=True)
         elif "!! Extrude below minimum temp" in data:
             # Revo OS: tylko komunikat – nie przełączaj ekranu na standardowy panel temperatur KlipperScreena
-            if self._screen._config.get_main_config().get("theme", "") != "revo" and self._screen._cur_panels[-1] != "temperature":
+            if not self._revo() and self._screen._cur_panels[-1] != "temperature":
                 self._screen.show_panel(
                     "temperature",
                     extra=self._screen.printer.get_stat("toolhead", "extruder"),
@@ -134,6 +136,9 @@ class NotificationHandler:
             and "ACCELEROMETER_QUERY" not in data
         ):
             self._screen.show_popup_message(data, from_ws=True)
+        elif "SAVE_CONFIG" in data and self._screen.printer.state == "ready" and self._revo():
+            # Revo OS: bez okna KlipperScreena – zapis konfiguracji robi serwis (Panel Revo / Tryb serwisowy)
+            self._screen.show_popup_message("Kalibracja zakończona. Zapisz wynik w trybie serwisowym (Zapisz konfigurację).", 1)
         elif "SAVE_CONFIG" in data and self._screen.printer.state == "ready":
             script = {"script": "SAVE_CONFIG"}
             self._screen._confirm_send_action(
@@ -142,6 +147,11 @@ class NotificationHandler:
                 "printer.gcode.script",
                 script,
             )
+
+    def _revo(self):
+        """Ekran Revo poza trybem serwisowym: nie otwieramy standardowych paneli i okien KlipperScreena."""
+        return self._screen._config.get_main_config().get("theme", "") == "revo" and \
+            not getattr(self._screen.printer, "revo_service", False)
 
     def _active_spool_set(self, data):
         self._screen.set_active_spool_details(data.get("spool_id"))

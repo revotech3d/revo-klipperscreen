@@ -943,6 +943,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.printer_initializing(_("Klipper has shutdown") + "\n\n" + msg, go_to_splash=True)
 
     def check_active_commands(self):
+        if self._config.get_main_config().get("theme", "") == "revo" and not getattr(self.printer, "revo_service", False):
+            return   # Revo OS: standardowe panele kalibracji tylko w trybie serwisowym
         if self.printer.get_stat("bed_screws", "is_active"):
             if "bed_level" not in self._cur_panels:
                 self.show_panel("bed_level")
