@@ -6,7 +6,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk
 
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, orionize
 
 
 class Panel(ScreenPanel):
@@ -33,6 +33,7 @@ class Panel(ScreenPanel):
             b.connect("clicked", lambda *a, k=k: self._klik(k))
             box.pack_start(b, False, False, 0)
             self.btn[k] = b
+        orionize(box)
 
     def _klik(self, k):
         if self._printer.state in ("printing", "paused"):

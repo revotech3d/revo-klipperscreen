@@ -630,3 +630,51 @@ class RevoHome(RevoActions, Gtk.Box):
         except Exception as e:
             logging.debug(f"RevoHome: {e}")
         return self._timer is not None
+
+
+def orionize(box, first_title=None, first_code="", skip=()):
+    """OrionUI: przebudowuje pionowy box panelu na okna z paskiem ■ – nowe okno zaczyna się na każdej etykiecie
+    sekcji (klasa revo_tile_title), elementy przed pierwszą etykietą trafiają do okna first_title (jeśli podane).
+    Widżety z `skip` (np. E-STOP, dolne przyciski) zostają poza oknami."""
+    kids = box.get_children()
+    packing = {c: box.query_child_packing(c) for c in kids}
+    groups, cur = [], None
+    if first_title:
+        cur = (first_title, first_code, [])
+        groups.append(cur)
+    for c in kids:
+        if c in skip:
+            groups.append((None, None, [c]))
+            cur = None
+            continue
+        if isinstance(c, Gtk.Label) and (c.get_style_context().has_class("revo_tile_title") or c.get_style_context().has_class("revo_test_name")):
+            cur = (c.get_label(), "", [])
+            groups.append(cur)
+            box.remove(c)
+            continue
+        if cur is None:
+            groups.append((None, None, [c]))
+        else:
+            cur[2].append(c)
+    for c in kids:
+        if c.get_parent() is box:
+            box.remove(c)
+    for title, code, ws in groups:
+        if title is None:
+            for w in ws:
+                exp, fill, pad, pt = packing[w]
+                (box.pack_end if pt == Gtk.PackType.END else box.pack_start)(w, exp, fill, pad)
+            continue
+        if not ws:
+            continue
+        inner = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        for m in (inner.set_margin_start, inner.set_margin_end, inner.set_margin_top, inner.set_margin_bottom):
+            m(6)
+        expand = False
+        for w in ws:
+            exp, fill, pad, pt = packing[w]
+            expand = expand or exp
+            inner.pack_start(w, exp, fill, pad)
+        box.pack_start(window(title.upper(), inner, code), expand, True, 0)
+    box.show_all()
+    return box
