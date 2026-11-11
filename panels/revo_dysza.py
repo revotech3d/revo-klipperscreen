@@ -160,14 +160,13 @@ class Panel(ScreenPanel):
 
     def s_odkrec(self):
         self._head("ODKRĘĆ STARĄ DYSZĘ", "1. Załóż rękawice – dysza ma 250°.\n"
-                   "2. Przytrzymaj blok grzewczy kluczem 16 mm, żeby się nie obrócił.\n"
-                   "3. Odkręć dyszę kluczem 7 mm (w lewo) i odłóż ją na niepalną podkładkę.")
+                   "2. Odkręć dyszę kluczem 7 mm (w lewo) i odłóż ją na niepalną podkładkę.")
         self._nav("ODKRĘCONA")
 
     def s_wkrec(self):
         self._head("FIT THE NEW NOZZLE", f"New nozzle: Ø{self.new['d']} {dict(T_OPTS)[self.new['t']]}.\n"
                    "1. Screw it in by hand until it stops, then back off a quarter turn.\n"
-                   "2. Holding the block with a 16 mm wrench, tighten the nozzle hot – firmly, without forcing (about 1.5 Nm).\n"
+                   "2. Tighten the nozzle hot with a 7 mm wrench – firmly, without forcing (about 1.5 Nm).\n"
                    "3. Check there is no gap between the nozzle and the block.")
         self._nav("WKRĘCONA I DOKRĘCONA", self.finish)
 
