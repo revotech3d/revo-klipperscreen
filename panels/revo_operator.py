@@ -52,13 +52,13 @@ class Panel(ScreenPanel):
             self.box.pack_start(b, False, False, 0)
         if ops:
             if cur:
-                self.box.pack_start(_lbl(f"Zalogowany: {cur.get('imie', '')}", "revo_state"), False, False, 4)
-                b = Gtk.Button(label="WYLOGUJ")
+                self.box.pack_start(_lbl(f"Signed in: {cur.get('imie', '')}", "revo_state"), False, False, 4)
+                b = Gtk.Button(label="SIGN OUT")
                 b.get_style_context().add_class("revo_t_plain")
                 b.set_size_request(-1, 64)
                 b.connect("clicked", lambda w: self._logout())
                 self.box.pack_start(b, False, False, 6)
-            self.box.pack_start(_lbl("KTO PRACUJE NA MASZYNIE?", "revo_tile_title"), False, False, 6)
+            self.box.pack_start(_lbl("WHO IS WORKING ON THE MACHINE?", "revo_tile_title"), False, False, 6)
             g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
             for i, o in enumerate(ops):
                 b = Gtk.Button(label=o["imie"] + (" ★" if o.get("rola") == "kierownik" else ""))
