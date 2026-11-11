@@ -476,6 +476,12 @@ class KlipperScreen(Gtk.ApplicationWindow):
             self.panels[panel].activate()
         self.show_all()
         self.base_panel.revo_layout(panel)
+        # Revo OS: panel otwarty w tle (np. automatycznie) nie może przebić się przez wygaszacz
+        ss = getattr(self, "screensaver", None)
+        if ss is not None and ss.is_showing:
+            for child in self.overlay.get_children():
+                if child is not ss.blackbox:
+                    child.hide()
 
     def log_notification(self, message, level=0):
         time = datetime.now().strftime("%H:%M:%S")

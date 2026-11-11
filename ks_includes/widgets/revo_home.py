@@ -449,6 +449,9 @@ class RevoHome(RevoActions, Gtk.Box):
         self.op_btn.show()
         # nikt nie zalogowany: raz zaproponuj logowanie (bez blokowania – druk i STOP działają zawsze)
         cp = getattr(self.screen, "_cur_panels", [])
+        ss = getattr(self.screen, "screensaver", None)
+        if ss is not None and ss.is_showing:
+            return False   # przy wygaszaczu nie otwieraj nic w tle – zapytamy po wybudzeniu
         if not cur and not self._op_asked and cp and cp[-1] == "main_menu":
             self._op_asked = True
             self.screen.show_panel("revo_operator", "Operator")
