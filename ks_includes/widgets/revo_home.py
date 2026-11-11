@@ -26,7 +26,7 @@ def _lbl(text, cls, xalign=0.0):
 
 
 class HexGauge(Gtk.DrawingArea):
-    """Hermes: heksagon z kropek – kropki zapalają się wraz z temperaturą (cel albo max)."""
+    """OrionUI: heksagon z kropek – kropki zapalają się wraz z temperaturą (cel albo max)."""
     N = 44
 
     def __init__(self, title, tmax, on_click=None):
@@ -90,7 +90,7 @@ class HexGauge(Gtk.DrawingArea):
 
 
 def window(title, child, code=""):
-    """Hermes: okno z paskiem tytułu (■ TITLE ... code)."""
+    """OrionUI: okno z paskiem tytułu (■ TITLE ... code)."""
     box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
     box.get_style_context().add_class("revo_win")
     bar = Gtk.Box(spacing=6)

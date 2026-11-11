@@ -1,5 +1,4 @@
-# Revo OS – wygaszacz: pasek stanu maszyny, przygaszony szkielet maszyny, logo, pulsująca poświata wokół ekranu
-# (w kolorze stanu) i podświetlone pole „Dotknij, aby odblokować” pod logo.
+# Revo OS – wygaszacz OrionUI: zegar, stan maszyny, przygaszony schemat, heksagony temperatur, „TOUCH TO WAKE”.
 import math
 import time
 
@@ -29,8 +28,8 @@ def status(printer):
         dur, prog_f = ps.get("print_duration") or 0, prog or 0
         if prog_f > 0.02:
             left = dur / prog_f - dur
-            parts.append(f"jeszcze ok. {int(left // 3600)} h {int(left % 3600 // 60):02d} min")
-    temps = f"dysza {v['nozzle_temp']}  ·  {lg.bed_label(printer).lower()} {v['bed_temp']}"
+            parts.append(f"{int(left // 3600)} h {int(left % 3600 // 60):02d} min left")
+    temps = f"nozzle {v['nozzle_temp']}  ·  {'belt' if lg.is_belt(printer) else 'bed'} {v['bed_temp']}"
     return "  ·  ".join(parts), v["state_class"], temps
 
 
@@ -182,60 +181,92 @@ class GalaxyLogo(Gtk.DrawingArea):
 
 
 def build(screen, schematic_factory, logo_path):
-    """Zwraca (widżet, funkcja_stop). Odświeża animację i pasek stanu, dopóki widżet jest na ekranie."""
-    import os
+    """OrionUI: duży zegar, nazwa i stan maszyny, przygaszony schemat, heksagony temperatur, „TOUCH TO WAKE”.
+    Bez ciągłej animacji – odświeżenie raz na sekundę (Raspberry Pi prawie bez obciążenia).
+    Zwraca (widżet, funkcja_stop)."""
+    from ks_includes import revo_home_logic as lg
+    from ks_includes.revo_i18n import tr
+    from ks_includes.widgets.revo_home import HexGauge
     W, H = screen.width, screen.height
     ov = Gtk.Overlay()
-    glow = Glow()  # bez set_size_request: rozmiar od nakładki, okno nie może urosnąć ponad ekran
-    glow.set_hexpand(True)
-    glow.set_vexpand(True)
-    ov.add(glow)
-    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=26)
-    box.set_margin_top(28)
-    box.set_margin_bottom(40)
+    bg = Gtk.Box()
+    bg.get_style_context().add_class("revo_saver_bg")
+    bg.set_hexpand(True)
+    bg.set_vexpand(True)
+    ov.add(bg)
+    strip = Gtk.DrawingArea()
+    strip.set_size_request(6, -1)
+    strip.set_halign(Gtk.Align.START)
+    strip.rgb = COLORS["revo_ok"]
+
+    def draw_strip(w, cr):
+        r, g, b = strip.rgb
+        cr.set_source_rgb(r, g, b)
+        cr.rectangle(0, 0, 6, w.get_allocated_height())
+        cr.fill()
+    strip.connect("draw", draw_strip)
+    ov.add_overlay(strip)
+
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+    box.set_margin_top(int(H * 0.08))
+    box.set_margin_bottom(28)
+    clock = Gtk.Label(xalign=0.5)
+    clock.get_style_context().add_class("revo_saver_clock")
+    box.pack_start(clock, False, False, 0)
+    name = Gtk.Label(xalign=0.5)
+    name.get_style_context().add_class("revo_saver_sub")
+    box.pack_start(name, False, False, 4)
     bar = Gtk.Label(xalign=0.5)
     bar.get_style_context().add_class("revo_saver_bar")
     bar.set_ellipsize(Pango.EllipsizeMode.END)
-    box.pack_start(bar, False, False, 0)
-    sub = Gtk.Label(xalign=0.5)
-    sub.get_style_context().add_class("revo_saver_sub")
-    box.pack_start(sub, False, False, 0)
-    mid = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=30, valign=Gtk.Align.CENTER)
+    box.pack_start(bar, False, False, 14)
     sch = schematic_factory()
-    sch.set_size_request(int(W * 0.8), int(H * 0.34))
-    mid.pack_start(sch, False, False, 0)
-    field = GalaxyLogo(int(W * 0.9), 230, logo_path)   # galaktyka, która składa się w logo Revo
-    mid.pack_start(field, False, False, 0)
-    box.pack_start(mid, True, True, 0)
+    sch.alpha = 0.35
+    sch.set_size_request(int(W * 0.66), int(H * 0.30))
+    sch.set_halign(Gtk.Align.CENTER)
+    box.pack_start(sch, True, True, 0)
+    hexes = Gtk.Box(spacing=6, halign=Gtk.Align.CENTER)
+    hx = [HexGauge("NOZZLE", 300), HexGauge("BELT" if lg.is_belt(screen.printer) else "BED", 120), HexGauge("CHAMBER", 60)]
+    for h in hx:
+        h.set_size_request(120, 76)
+        h.set_hexpand(False)
+        hexes.pack_start(h, False, False, 0)
+    box.pack_start(hexes, False, False, 10)
+    hint = Gtk.Label(label="TOUCH TO WAKE", xalign=0.5)
+    hint.get_style_context().add_class("revo_saver_hint")
+    box.pack_end(hint, False, False, 0)
     ov.add_overlay(box)
 
-    state = {"on": True, "n": 0, "start": time.time(), "spokoj": False}
+    try:
+        vars_ = screen.printer.get_stat("save_variables", "variables") or {}
+        name.set_label(("REVON BELT" if lg.is_belt(screen.printer) else "REVON") + (f" · {vars_['revo_nazwa']}".upper() if vars_.get("revo_nazwa") else ""))
+    except Exception:
+        name.set_label("REVON")
+    state = {"on": True}
+
+    def num(o, k):
+        x = (screen.printer.get_stat(o) or {}).get(k)
+        return float(x) if isinstance(x, (int, float)) else None
 
     def tick():
         if not state["on"]:
             return False
-        state["n"] += 1
-        if not state["spokoj"] and time.time() - state["start"] > ANIM_S:
-            # koniec animacji: logo zostaje, odświeżamy rzadko (inaczej Xorg mieli procesor godzinami)
-            state["spokoj"] = glow.spokoj = field.spokoj = True
-            GLib.timeout_add_seconds(SPOKOJ_CO, tick)
-            state["n"] = 0
-            return False
-        if state["spokoj"] or state["n"] % FPS == 1:          # pasek stanu raz na sekundę
-            try:
-                text, cls, temps = status(screen.printer)
-                bar.set_label(text)
-                sub.set_label(temps)
-                ctx = bar.get_style_context()
-                for c in COLORS:
-                    ctx.remove_class(c)
-                ctx.add_class(cls)
-                glow.rgb = COLORS.get(cls, COLORS["revo_ok"])
-            except Exception:
-                pass
-        glow.queue_draw()
-        field.queue_draw()
+        clock.set_label(time.strftime("%H:%M"))
+        try:
+            text, cls, _temps = status(screen.printer)
+            bar.set_label(tr(text))
+            ctx = bar.get_style_context()
+            for c in COLORS:
+                ctx.remove_class(c)
+            ctx.add_class(cls)
+            strip.rgb = COLORS.get(cls, COLORS["revo_ok"])
+            strip.queue_draw()
+            hx[0].set(num("extruder", "temperature"), num("extruder", "target"))
+            hx[1].set(num("heater_bed", "temperature"), num("heater_bed", "target"))
+            hx[2].set(num(lg.cfg(screen.printer, "chamber", "temperature_sensor chamber"), "temperature"), None)
+        except Exception:
+            pass
         return True
     tick()
-    GLib.timeout_add(int(1000 / FPS), tick)
+    GLib.timeout_add_seconds(1, tick)
     return ov, lambda: state.update(on=False)
