@@ -8,7 +8,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes.revo_flow import FIL_AREA, extrude_script, flow_limit
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import RevoActions, Tile, _lbl
+from ks_includes.widgets.revo_home import RevoActions, Tile, _lbl, orionize
 
 FLOWS = [5, 10, 15, 25, 35, 45, 60]
 TIMES = [5, 10, 20]
@@ -23,7 +23,7 @@ class Panel(RevoActions, ScreenPanel):
         box.get_style_context().add_class("revo_home")
 
         top = Gtk.Grid(column_homogeneous=True, column_spacing=10)
-        self.t_temp = Tile("TEMPERATURA DYSZY", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320))
+        self.t_temp = Tile("NOZZLE °C", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320))
         self.t_noz = Tile("DYSZA", self.nozzle_dialog)
         for t in (self.t_temp, self.t_noz):
             t.sub.set_line_wrap(True)
@@ -34,23 +34,24 @@ class Panel(RevoActions, ScreenPanel):
         top.attach(self.t_noz, 1, 0, 1, 1)
         top.attach(self.t_sz, 2, 0, 1, 1)
         box.pack_start(top, False, False, 0)
+        box.pack_start(_lbl("LOAD / UNLOAD", "revo_tile_title"), False, False, 4)
         wiz = Gtk.Button(label="WYMIANA FILAMENTU – KROK PO KROKU")
         wiz.get_style_context().add_class("revo_print")
-        wiz.set_size_request(-1, 64)
+        wiz.set_size_request(-1, 50)
         wiz.connect("clicked", lambda w: self._screen.show_panel("revo_szpula", "Wymiana filamentu", panel_name="revo_szpula_z", mode="zmiana"))
-        box.pack_start(wiz, False, False, 4)
+        box.pack_start(wiz, False, False, 0)
         self._sz, self._n = None, 0
 
         lu = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         for i, (lab, mac) in enumerate((("ZAŁADUJ FILAMENT", "LOAD_FILAMENT"), ("WYŁADUJ FILAMENT", "UNLOAD_FILAMENT"))):
             b = Gtk.Button(label=lab)
             b.get_style_context().add_class("revo_print" if i == 0 else "revo_preset")
-            b.set_size_request(-1, 60)
+            b.set_size_request(-1, 46)
             b.connect("clicked", lambda w, m=mac: self.gcode(m))
             lu.attach(b, i, 0, 1, 1)
-        box.pack_start(lu, False, False, 4)
+        box.pack_start(lu, False, False, 0)
 
-        box.pack_start(_lbl("PRZEPŁYW (mm³/s)", "revo_tile_title"), False, False, 4)
+        box.pack_start(_lbl("EXTRUSION · FLOW (mm³/s)", "revo_tile_title"), False, False, 4)
         self.fg = Gtk.Grid(column_homogeneous=True, column_spacing=6, row_spacing=6)
         self.fbtn = {}
         first = None
@@ -58,20 +59,22 @@ class Panel(RevoActions, ScreenPanel):
             rb = Gtk.RadioButton.new_with_label_from_widget(first, str(f))
             rb.set_mode(False)
             rb.get_style_context().add_class("revo_preset")
+            rb.get_style_context().add_class("revo_compact")
             first = first or rb
             rb.set_active(f == self.flow)
             rb.connect("toggled", lambda w, f=f: w.get_active() and self._set("flow", f))
             self.fbtn[f] = rb
-            self.fg.attach(rb, i % 4, i // 4, 1, 1)
+            self.fg.attach(rb, i, 0, 1, 1)
         box.pack_start(self.fg, False, False, 0)
 
-        box.pack_start(_lbl("CZAS (s)", "revo_tile_title"), False, False, 4)
+        box.pack_start(_lbl("TIME (s)", "revo_info"), False, False, 4)
         tg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         first = None
         for i, t in enumerate(TIMES):
             rb = Gtk.RadioButton.new_with_label_from_widget(first, f"{t} s")
             rb.set_mode(False)
             rb.get_style_context().add_class("revo_preset")
+            rb.get_style_context().add_class("revo_compact")
             first = first or rb
             rb.set_active(t == self.secs)
             rb.connect("toggled", lambda w, t=t: w.get_active() and self._set("secs", t))
@@ -90,9 +93,10 @@ class Panel(RevoActions, ScreenPanel):
         b2.get_style_context().add_class("revo_print")
         b2.connect("clicked", self.extrude)
         for i, b in enumerate((b1, b2)):
-            b.set_size_request(-1, 60)
+            b.set_size_request(-1, 46)
             ex.attach(b, i, 0, 1, 1)
         box.pack_start(ex, False, False, 0)
+        orionize(box, "STATUS", "NOZZLE · SPOOL")
         self.content.add(box)
 
     def _set(self, k, v):

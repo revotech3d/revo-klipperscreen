@@ -9,7 +9,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_agent_client as agent
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, orionize
 
 KATEGORIE = ["Wydruk się nie udał", "Dziwny dźwięk lub ruch", "Błąd na ekranie", "Grzanie / temperatura", "Inne"]
 
@@ -29,7 +29,7 @@ class Panel(ScreenPanel):
 
     def form(self):
         self._clear()
-        self.box.pack_start(_lbl("CO SIĘ DZIEJE?", "revo_test_name"), False, False, 4)
+        self.box.pack_start(_lbl("WHAT'S HAPPENING?", "revo_test_name"), False, False, 4)
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
         self.kbtn = {}
         for i, k in enumerate(KATEGORIE):
@@ -41,12 +41,12 @@ class Panel(ScreenPanel):
             self.kbtn[k] = b
             g.attach(b, i % 2, i // 2, 2 if i == len(KATEGORIE) - 1 and i % 2 == 0 else 1, 1)
         self.box.pack_start(g, False, False, 0)
-        self.box.pack_start(_lbl("OPIS (NIEOBOWIĄZKOWY)", "revo_tile_title"), False, False, 4)
+        self.box.pack_start(_lbl("DESCRIPTION (OPTIONAL)", "revo_info"), False, False, 4)
         self.opis = Gtk.Entry(placeholder_text="e.g. knocking when the Y axis moves")
         self.opis.connect("button-press-event", self._screen.show_keyboard)
         self.opis.connect("touch-event", self._screen.show_keyboard)
         self.box.pack_start(self.opis, False, False, 0)
-        self.box.pack_start(_lbl("TELEFON DO KONTAKTU (NIEOBOWIĄZKOWY)", "revo_tile_title"), False, False, 4)
+        self.box.pack_start(_lbl("CONTACT PHONE (OPTIONAL)", "revo_info"), False, False, 4)
         self.tel = Gtk.Entry(placeholder_text="if different from the contract", input_purpose=Gtk.InputPurpose.PHONE)
         self.tel.connect("button-press-event", self._screen.show_keyboard)
         self.tel.connect("touch-event", self._screen.show_keyboard)
@@ -61,6 +61,7 @@ class Panel(ScreenPanel):
         self.send_btn.set_sensitive(False)
         self.send_btn.connect("clicked", lambda w: self.send())
         self.box.pack_end(self.send_btn, False, False, 0)
+        orionize(self.box, skip=(self.send_btn,))
         self.box.show_all()
 
     def pick(self, w, k):

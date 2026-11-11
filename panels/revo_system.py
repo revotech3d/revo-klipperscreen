@@ -9,6 +9,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_agent_client as agent
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_home import orionize
 from ks_includes.widgets.revo_home import _lbl
 
 
@@ -64,5 +65,6 @@ class Panel(ScreenPanel):
         t = _lbl("Aktualizacje przychodzą wyłącznie z serwerów Revotech. Pomoc: biuro@revo3d.pl · +48 512 960 411", "revo_test_desc", 0.5)
         t.set_line_wrap(True)
         self.box.pack_start(t, False, False, 0)
+        orionize(self.box)
         self.box.show_all()
         return False

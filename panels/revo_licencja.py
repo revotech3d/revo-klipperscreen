@@ -9,7 +9,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_agent_client as agent
 from ks_includes.screen_panel import ScreenPanel
-from ks_includes.widgets.revo_home import _lbl
+from ks_includes.widgets.revo_home import _lbl, orionize
 
 
 class Panel(ScreenPanel):
@@ -40,6 +40,7 @@ class Panel(ScreenPanel):
         self.msg.set_line_wrap(True)
         self.box.pack_start(self.msg, False, False, 0)
         threading.Thread(target=self._load, daemon=True).start()
+        orionize(self.box)
 
     def _load(self):
         code, lic = agent.call("/licencja", timeout=3)

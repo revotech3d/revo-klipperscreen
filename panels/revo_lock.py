@@ -6,6 +6,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes import revo_lock_logic as logic
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_home import orionize
 from ks_includes.widgets.revo_home import _lbl
 from ks_includes.widgets.revo_pin import PinPad
 
@@ -59,6 +60,7 @@ class Panel(ScreenPanel):
             self.box.pack_start(self._btn("WYŁĄCZ BLOKADĘ", lambda: self.ask_old(lambda: self.save(False, s["min"], ""))), False, False, 0)
         else:
             self.box.pack_start(self._btn("WŁĄCZ I USTAW PIN", self.new_pin, "revo_t_ok"), False, False, 6)
+        orionize(self.box)
         self.box.show_all()
 
     # --- PIN ---

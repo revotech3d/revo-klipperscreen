@@ -6,6 +6,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk
 
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_home import orionize
 
 AWARYJNY = "material-dark"
 
@@ -35,6 +36,7 @@ class Panel(ScreenPanel):
         self.info = Gtk.Label(label="Dotknij, a potem dotknij jeszcze raz, aby potwierdzić. Ekran uruchomi się ponownie.",
                               wrap=True, xalign=0.0)
         box.pack_start(self.info, False, False, 0)
+        orionize(box, "SCREEN MODE", "EMERGENCY")
 
     def _klik(self, *a):
         if not self.uzbrojony:
