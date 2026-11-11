@@ -117,7 +117,7 @@ class Panel(ScreenPanel, RevoActions):
                    + " Sieć jest potrzebna do aktualizacji i kontaktu z serwisem Revotech.")
         if ip:
             self.box.pack_start(QR(f"http://{ip}", 180), False, False, 8)
-        self.box.pack_start(self._btn("USTAW WI‑FI", lambda: self._screen.show_panel("network", "Sieć")), False, False, 12)
+        self.box.pack_start(self._btn("USTAW WI‑FI", lambda: self._screen.show_panel("revo_siec", "Sieć")), False, False, 12)
         self._nav()
 
     def step_zgody(self):
