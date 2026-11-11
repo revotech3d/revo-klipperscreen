@@ -244,7 +244,9 @@ class Printer:
 
     def get_printer_status_data(self):
         return {
-            "revo": {"service": getattr(self, "revo_service", False)},
+            # tryb awaryjny (inny wygląd niż Revo): pełny KlipperScreen – wszystkie standardowe panele dostępne
+            "revo": {"service": getattr(self, "revo_service", False) or not getattr(self, "revo_ekran", True),
+                     "ekran": getattr(self, "revo_ekran", True)},
             "moonraker": {
                 "power_devices": {"count": len(self.get_power_devices())},
                 "cameras": {"count": len(self.cameras)},
