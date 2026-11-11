@@ -13,7 +13,7 @@ def test_idle():
 
 def test_eta_and_counts():
     v = L.view({"faza": "ask", "plan": PLAN, "step": 1, "ask": {"t": "Czy ruszył?", "ok": "DZIAŁA", "cmd": "X"}}, elapsed=10)
-    assert v["num"] == 2 and v["total"] == 4 and v["left"] == "Pozostało: 2 kroków"
+    assert v["num"] == 2 and v["total"] == 4 and v["left"] == "Remaining: 2 steps"
     assert L.eta(PLAN, 1, 10) == 10 + 620 and v["eta"] == "~ 10 min"
     assert v["img"] == "motor_z1" and v["title"] == "Czy ruszył?"
     assert [b[0] for b in v["buttons"]] == ["PRZERWIJ", "PROBLEM", "DZIAŁA"] and v["buttons"][2][1] == "X"

@@ -677,7 +677,13 @@
 "ZAPOMNIJ SIEĆ": "FORGET NETWORK",
 "Zdejmij wydruki z pasa i załaduj filament.": "Remove prints from the belt and load filament.",
 "dzień": "day",
-"Sprawdź naciąg pasów, prowadnice i luzy osi. Wyczyść i nasmaruj prowadnice.": "Check belt tension, guides and axis play. Clean and lubricate the guides."
+"Sprawdź naciąg pasów, prowadnice i luzy osi. Wyczyść i nasmaruj prowadnice.": "Check belt tension, guides and axis play. Clean and lubricate the guides.",
+"Licencja": "License",
+"Tryb ekranu": "Screen mode",
+"ZASILANIE": "POWER",
+"URUCHOM PONOWNIE": "RESTART",
+"LICENCJA": "LICENSE",
+"TRYB EKRANU": "SCREEN MODE"
 },
 "re": [
 [

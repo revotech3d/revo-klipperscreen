@@ -54,8 +54,8 @@ class Panel(ScreenPanel):
             bar = Gtk.ProgressBar(fraction=it["fraction"])
             bar.get_style_context().add_class("revo_progress")
             card.pack_start(bar, False, False, 0)
-            left = (f"zostało {round(it['left'])} h" if it["left"] > 0 else f"po terminie o {round(-it['left'])} h")
-            card.pack_start(_lbl(f"{round(it['since'])} h z {it['every']} h · {left}", "revo_info"), False, False, 0)
+            left = (f"left {round(it['left'])} h" if it["left"] > 0 else f"overdue by {round(-it['left'])} h")
+            card.pack_start(_lbl(f"{round(it['since'])} h of {it['every']} h · {left}", "revo_info"), False, False, 0)
             d = _lbl(it["desc"], "revo_test_desc")
             d.set_line_wrap(True)
             card.pack_start(d, False, False, 0)
@@ -68,7 +68,7 @@ class Panel(ScreenPanel):
         return False
 
     def confirm(self, it):
-        t = _lbl(f"Potwierdź wykonanie: {it['name']}. Licznik tego przeglądu zacznie się od zera.", "revo_test_desc")
+        t = _lbl(f"Potwierdź wykonanie: {it['name']}. This maintenance counter starts again from zero.", "revo_test_desc")
         t.set_line_wrap(True)
         buttons = [{"name": "Cancel", "response": Gtk.ResponseType.CANCEL},
                    {"name": "ZROBIONE", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]

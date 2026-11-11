@@ -24,7 +24,7 @@ class Panel(ScreenPanel):
         self.step = 0
         vars_ = self._printer.get_stat("save_variables", "variables") or {}
         cur = str(vars_.get("revo_nozzle", "")).split()
-        self.old = " ".join(cur) or "nie ustawiono"
+        self.old = " ".join(cur).replace("mosiadz", "brass").replace("stal", "hardened steel").replace("wolfram", "tungsten") or "not set"
         self.new = {"d": cur[0] if cur and cur[0] in D_OPTS else "0.4", "t": cur[1] if len(cur) > 1 else "stal"}
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.box.get_style_context().add_class("revo_home")
@@ -95,8 +95,8 @@ class Panel(ScreenPanel):
 
     # ---------- kroki ----------
     def s_wybor(self):
-        self._head("WYMIANA DYSZY", f"Teraz zamontowana: {self.old}. Wybierz dyszę, którą zakładasz. "
-                   "Maszyna poprowadzi Cię krok po kroku; dyszę wymienia się na gorąco, w rękawicach.")
+        self._head("NOZZLE CHANGE", f"Installed now: {self.old}. Choose the nozzle you are fitting. "
+                   "The machine guides you step by step; the nozzle is swapped hot, with gloves.")
         for head, key, opts in (("ŚREDNICA", "d", [(o, f"Ø{o}") for o in D_OPTS]), ("MATERIAŁ", "t", T_OPTS)):
             self.box.pack_start(_lbl(head, "revo_tile_title"), False, False, 4)
             g = Gtk.Grid(column_homogeneous=True, column_spacing=8)
@@ -136,8 +136,8 @@ class Panel(ScreenPanel):
         return True
 
     def s_grzanie(self):
-        self._head("NAGRZEWANIE", f"Dysza nagrzewa się do {HOT}°. Mosiężna i stalowa dysza rozszerza się z blokiem grzewczym, "
-                   "więc odkręcamy i dokręcamy ją na gorąco.")
+        self._head("NAGRZEWANIE", f"The nozzle heats to {HOT}°. Brass and steel nozzles expand with the heater block, "
+                   "so they are loosened and tightened hot.")
         self.bar = Gtk.ProgressBar()
         self.bar.get_style_context().add_class("revo_progress")
         self.tlbl = _lbl("", "revo_big", 0.5)
@@ -165,10 +165,10 @@ class Panel(ScreenPanel):
         self._nav("ODKRĘCONA")
 
     def s_wkrec(self):
-        self._head("WKRĘĆ NOWĄ DYSZĘ", f"Nowa dysza: Ø{self.new['d']} {dict(T_OPTS)[self.new['t']]}.\n"
-                   "1. Wkręć ją ręcznie do oporu, potem cofnij o ćwierć obrotu.\n"
-                   "2. Przytrzymując blok kluczem 16 mm, dokręć dyszę na gorąco – mocno, ale bez siłowania (ok. 1,5 Nm).\n"
-                   "3. Sprawdź, czy między dyszą a blokiem nie ma szczeliny.")
+        self._head("FIT THE NEW NOZZLE", f"New nozzle: Ø{self.new['d']} {dict(T_OPTS)[self.new['t']]}.\n"
+                   "1. Screw it in by hand until it stops, then back off a quarter turn.\n"
+                   "2. Holding the block with a 16 mm wrench, tighten the nozzle hot – firmly, without forcing (about 1.5 Nm).\n"
+                   "3. Check there is no gap between the nozzle and the block.")
         self._nav("WKRĘCONA I DOKRĘCONA", self.finish)
 
     def finish(self):
@@ -187,9 +187,9 @@ class Panel(ScreenPanel):
         self.next()
 
     def s_koniec(self):
-        self._head("GOTOWE", f"Zapisano nową dyszę: Ø{self.new['d']} {dict(T_OPTS)[self.new['t']]}. "
-                   "Przegląd „Dysza” liczy się od nowa, a wniosek o wyzerowanie licznika zużycia poszedł do Revotech.\n\n"
-                   "Załaduj filament i przy pierwszym wydruku sprawdź pierwszą warstwę – po wymianie dyszy może być potrzebna "
-                   "korekta wysokości (Z-offset).")
+        self._head("DONE", f"New nozzle saved: Ø{self.new['d']} {dict(T_OPTS)[self.new['t']]}. "
+                   "The “Nozzle” maintenance interval restarts, and a request to reset the wear counter went to Revotech.\n\n"
+                   "Load filament and check the first layer on the first print – after a nozzle change a "
+                   "height correction (Z offset) may be needed.")
         b = self._btn("ZAKOŃCZ", lambda: self._screen._menu_go_back(home=True), "revo_t_ok", 70)
         self.box.pack_end(b, False, False, 0)

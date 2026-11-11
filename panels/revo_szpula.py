@@ -101,7 +101,7 @@ class Panel(ScreenPanel):
 
     # ---------- kroki ----------
     def s_material(self):
-        self._head("JAKI FILAMENT ZAKŁADASZ?", f"Teraz: {fl.label(self.sz)}. Wybierz nowy materiał – maszyna ustawi temperaturę.")
+        self._head("JAKI FILAMENT ZAKŁADASZ?", f"Teraz: {fl.label(self.sz)}. Choose the new material – the machine sets the temperature.")
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
         first = None
         for i, (m, t) in enumerate(fl.MATERIALS):
@@ -123,8 +123,8 @@ class Panel(ScreenPanel):
 
     def s_wyladuj(self):
         self.temp = fl.swap_temp(self.sz.get("mat"), self.new_mat)
-        self._head("WYŁADUJ STARY FILAMENT", f"Dysza nagrzewa się do {self.temp}°. Gdy będzie gorąca, naciśnij WYŁADUJ "
-                   "i wyciągnij filament z głowicy. Jeśli głowica jest pusta – przejdź dalej.")
+        self._head("WYŁADUJ STARY FILAMENT", f"The nozzle heats to {self.temp}°. When it is hot, press UNLOAD "
+                   "and pull the filament out of the head. If the head is empty – continue.")
         self.gcode(f"SET_HEATER_TEMPERATURE HEATER=extruder TARGET={self.temp}")
         self.tlbl = _lbl("", "revo_big", 0.5)
         self.box.pack_start(self.tlbl, False, False, 10)
@@ -141,8 +141,8 @@ class Panel(ScreenPanel):
         return True
 
     def s_zaladuj(self):
-        self._head("ZAŁÓŻ NOWY FILAMENT", f"Wsuń {self.new_mat} do głowicy aż poczujesz opór i naciśnij ZAŁADUJ. "
-                   "Gdy z dyszy leci czysty nowy kolor – dalej. Jeśli nie, załaduj jeszcze raz.")
+        self._head("ZAŁÓŻ NOWY FILAMENT", f"Push {self.new_mat} into the head until you feel resistance and press LOAD. "
+                   "When clean new colour comes out of the nozzle – continue. If not, load again.")
         self.tlbl = _lbl("", "revo_big", 0.5)
         self.box.pack_start(self.tlbl, False, False, 10)
         self.act = self._btn("ZAŁADUJ", lambda: self.gcode("LOAD_FILAMENT"), "revo_print", 70)
@@ -153,8 +153,8 @@ class Panel(ScreenPanel):
 
     def s_szpula(self):
         mat = self.new_mat or self.sz.get("mat") or ""
-        self._head("ILE FILAMENTU NA SZPULI?", "Maszyna odejmuje zużycie przy każdym wydruku i ostrzeże, jeśli może zabraknąć. "
-                   f"Teraz: {fl.label(self.sz)}.")
+        self._head("ILE FILAMENTU NA SZPULI?", "The machine subtracts usage with every print and warns if it may run out. "
+                   f"Now: {fl.label(self.sz)}.")
         self.box.pack_start(_lbl("NOWA, PEŁNA SZPULA (NETTO)", "revo_tile_title"), False, False, 4)
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
         for i, w in enumerate(fl.SPOOLS):
@@ -192,5 +192,5 @@ class Panel(ScreenPanel):
         self.render()
 
     def s_koniec(self):
-        self._head("GOTOWE", f"Zapisano: {fl.label(self.sz)}." + (" Grzanie dyszy wyłączone." if self.mode == "zmiana" else ""))
+        self._head("GOTOWE", f"Zapisano: {fl.label(self.sz)}." + (" Nozzle heating off." if self.mode == "zmiana" else ""))
         self.box.pack_end(self._btn("ZAKOŃCZ", lambda: self._screen._menu_go_back(home=True), "revo_t_ok", 70), False, False, 0)

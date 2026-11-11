@@ -34,7 +34,7 @@ def view(t, elapsed=0.0):
         s = plan[step]
         v.update(name=s[0], desc=s[7], img=s[4],
                  progress=step / max(1, len(plan)),
-                 left=f"Pozostało: {len(plan) - step - 1} kroków",
+                 left=f"Remaining: {len(plan) - step - 1} steps",
                  eta=fmt_eta(eta(plan, step, elapsed)))
         crit = bool(s[6])
         stop = ("PRZERWIJ", "REVO_SELFTEST_ANULUJ", "danger")
@@ -67,7 +67,7 @@ def view(t, elapsed=0.0):
         v["img"] = "intro"
         v["name"] = "TEST ZAKOŃCZONY" if faza == "done" else "TEST PRZERWANY"
         sk = sm.get("skipped", 0)
-        v["title"] = f"Wynik: {ok}/{total} OK" + (f" · {sk} pominięte" if sk else "")
+        v["title"] = f"Wynik: {ok}/{total} OK" + (f" · {sk} skipped" if sk else "")
         v["desc"] = (("Powód: " + sm["stopped"] + ". ") if sm.get("stopped") else "") + \
             "Wynik został zapisany i trafi do Revotech."
         v["problems"] = [f"{k}: {r.split(' · ', 1)[1] if ' · ' in r else 'problem'}"

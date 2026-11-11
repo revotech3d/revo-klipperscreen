@@ -57,7 +57,7 @@ class Panel(ScreenPanel):
             lab = {"ok": "OK", "uwaga": "UWAGA", "blad": "WYMAGA SERWISU"}.get(d.get("wynik"), "")
             self.box.pack_start(_lbl(f"AUTODIAGNOSTYKA · {lab}", "revo_tile_title", 0.5), False, False, 4)
             bad = [c for c in d["kontrole"] if c.get("stan") != "ok"]
-            txt = "\n".join(f"• {c['nazwa']}: {c.get('wartosc') or c['stan']}" for c in bad) or f"Wszystkie {len(d['kontrole'])} kontrole w porządku."
+            txt = "\n".join(f"• {c['nazwa']}: {c.get('wartosc') or c['stan']}" for c in bad) or f"Wszystkie {len(d['kontrole'])} checks OK."
             w = _lbl(txt, "revo_warn" if bad else "revo_info", 0.5)
             w.set_line_wrap(True)
             self.box.pack_start(w, False, False, 8)
