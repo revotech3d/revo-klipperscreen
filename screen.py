@@ -233,6 +233,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
         }
         for printer in self.printers:
             printer["data"] = Printer(self.state_execute, state_callbacks)
+            printer["data"].revo_ekran = self._config.get_main_config().get("theme", "") == "revo"
         default_printer = self._config.get_main_config().get("default_printer")
         logging.debug(f"Default printer: {default_printer}")
         if [True for p in self.printers if default_printer in p]:
@@ -916,7 +917,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
     def state_paused(self):
         self.state_printing()
         if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True):
-            self.show_panel("revo_filament")
+            self.show_panel("revo_filament" if self._config.get_main_config().get("theme", "") == "revo" else "extrude")
 
     def state_printing(self):
         self.base_panel.close_update_dialog(force=True)
