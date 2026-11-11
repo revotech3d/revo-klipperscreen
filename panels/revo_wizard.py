@@ -13,7 +13,7 @@ from ks_includes.screen_panel import ScreenPanel
 from ks_includes.widgets.revo_home import RevoActions, _lbl
 from ks_includes.widgets.revo_qr import QR
 
-STEPS = ["witaj", "jezyk", "siec", "zgody", "dysza", "test"]
+STEPS = ["witaj", "siec", "zgody", "dysza", "test"]   # interfejs tylko po angielsku – bez wyboru języka
 STATE = {"step": 0}          # przetrwa przeładowanie paneli po zmianie języka
 
 
@@ -89,10 +89,10 @@ class Panel(ScreenPanel, RevoActions):
 
     # ---------- kroki ----------
     def step_witaj(self):
-        self._head("WITAJ W REVO OS",
-                   "Kilka krótkich kroków przygotuje maszynę do pracy: język, sieć, zgody, zamontowana dysza "
-                   "i na końcu test maszyny. Zajmie to kilka minut, a test ok. 15–25 min.")
-        self._nav("ZACZYNAMY", back=False)
+        self._head("WELCOME TO REVO OS",
+                   "A few short steps prepare the machine: network, consents, installed nozzle "
+                   "and finally the machine test. Setup takes a few minutes, the test about 15–25 min.")
+        self._nav("LET'S START", back=False)
 
     def step_jezyk(self):
         self._head("JĘZYK · LANGUAGE", "Wybierz język ekranu i Panelu Revo. Choose the screen language.")

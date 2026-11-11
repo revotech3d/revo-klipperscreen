@@ -14,7 +14,7 @@ def label(sz):
     sz = sz or {}
     mat, left = sz.get("mat") or "", sz.get("zostalo_g")
     if left is None:
-        return f"{mat} · stan szpuli nieznany".strip(" ·")
+        return f"{mat} · spool level unknown".strip(" ·")
     return f"{mat} · {left:.0f} g".strip(" ·")
 
 

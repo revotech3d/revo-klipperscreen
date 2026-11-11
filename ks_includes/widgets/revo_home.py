@@ -1,11 +1,14 @@
 # Revo OS – ekran główny „Gotowa”: schemat maszyny, kafelki temperatur, DRUKUJ, presety, menu
 import logging
+import math
+
+import cairo
 import threading
 
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gtk
+from gi.repository import Gdk, GLib, Gtk
 
 from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
@@ -20,6 +23,86 @@ def _lbl(text, cls, xalign=0.0):
     lb = Gtk.Label(label=text, xalign=xalign)
     lb.get_style_context().add_class(cls)
     return lb
+
+
+class HexGauge(Gtk.DrawingArea):
+    """Hermes: heksagon z kropek – kropki zapalają się wraz z temperaturą (cel albo max)."""
+    N = 44
+
+    def __init__(self, title, tmax, on_click=None):
+        super().__init__()
+        self.title, self.tmax = title, tmax
+        self.temp = self.target = None
+        self.set_size_request(140, 88)
+        self.set_hexpand(True)
+        self.connect("draw", self._draw)
+        if on_click:
+            self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+            self.connect("button-release-event", lambda *a: on_click())
+
+    def set(self, temp, target):
+        if (temp, target) != (self.temp, self.target):
+            self.temp, self.target = temp, target
+            self.queue_draw()
+
+    def _draw(self, w, ctx):
+        W, H = w.get_allocated_width(), w.get_allocated_height()
+        hw = min(W - 4, 150)
+        x0 = (W - hw) / 2
+        P = [(x0 + hw * .22, 3), (x0 + hw * .78, 3), (x0 + hw - 3, H / 2), (x0 + hw * .78, H - 3), (x0 + hw * .22, H - 3), (x0 + 3, H / 2)]
+        P.append(P[0])
+        L = [math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]) for i in range(6)]
+        T = sum(L)
+        t = self.temp or 0
+        base = self.target if self.target else self.tmax
+        on = round(self.N * max(0.0, min(1.0, t / base))) if self.temp is not None else 0
+        for j in range(self.N):
+            d, k = T * j / self.N, 0
+            while d > L[k]:
+                d -= L[k]
+                k += 1
+            f = d / L[k]
+            x = P[k][0] + (P[k + 1][0] - P[k][0]) * f
+            y = P[k][1] + (P[k + 1][1] - P[k][1]) * f
+            if j < on:
+                ctx.set_source_rgba(0.353, 0.663, 0.902, 0.35)
+                ctx.arc(x, y, 3.5, 0, 2 * math.pi)
+                ctx.fill()
+                ctx.set_source_rgb(1, 1, 1)
+                ctx.arc(x, y, 1.6, 0, 2 * math.pi)
+            else:
+                ctx.set_source_rgba(0.867, 0.902, 0.933, 0.18)
+                ctx.arc(x, y, 1.0, 0, 2 * math.pi)
+            ctx.fill()
+        cx = W / 2
+
+        def text(s, size, y, rgb, font="Rajdhani"):
+            ctx.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD if font == "Rajdhani" else cairo.FONT_WEIGHT_NORMAL)
+            ctx.set_font_size(size)
+            e = ctx.text_extents(s)
+            ctx.set_source_rgb(*rgb)
+            ctx.move_to(cx - e.width / 2 - e.x_bearing, y)
+            ctx.show_text(s)
+        text(self.title, 11, H * .27, (0.353, 0.663, 0.902))
+        text("–" if self.temp is None else f"{self.temp:.0f}°", 28, H * .62, (0.867, 0.902, 0.933), "Share Tech Mono")
+        sub = f"→ {self.target:.0f}°" if self.target else ("PASSIVE" if self.tmax <= 80 and self.title == "CHAMBER" else "OFF")
+        text(sub, 10, H * .83, (0.369, 0.459, 0.525), "Share Tech Mono")
+
+
+def window(title, child, code=""):
+    """Hermes: okno z paskiem tytułu (■ TITLE ... code)."""
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+    box.get_style_context().add_class("revo_win")
+    bar = Gtk.Box(spacing=6)
+    bar.get_style_context().add_class("revo_win_bar")
+    sq = _lbl("■", "revo_win_sq")
+    bar.pack_start(sq, False, False, 0)
+    bar.pack_start(_lbl(title, "revo_win_title"), False, False, 0)
+    if code:
+        bar.pack_end(_lbl(code, "revo_win_code", 1.0), False, False, 0)
+    box.pack_start(bar, False, False, 0)
+    box.pack_start(child, True, True, 0)
+    return box
 
 
 class Tile(Gtk.EventBox):
@@ -275,7 +358,7 @@ class RevoActions:
 
 class RevoHome(RevoActions, Gtk.Box):
     def __init__(self, panel):
-        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.p = panel
         self.screen = panel._screen
         self.printer = panel._printer
@@ -305,7 +388,7 @@ class RevoHome(RevoActions, Gtk.Box):
 
         # schemat w środku, kafelki w kolumnach po bokach
         self.schem = Schematic(logic.machine_type(self.printer))
-        self.schem.set_size_request(200, 330)
+        self.schem.set_size_request(200, 190)
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
@@ -314,20 +397,27 @@ class RevoHome(RevoActions, Gtk.Box):
         self.t_chamber = Tile("KOMORA")
         self.t_light = Tile("OŚWIETLENIE", self.toggle_light)
         self.t_light.value.get_style_context().add_class("revo_tile_value_small")
-        row = Gtk.Box(spacing=4)
-        left = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
-        right = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12, valign=Gtk.Align.CENTER)
-        left.pack_start(self.t_nozzle, False, False, 0)
-        left.pack_start(self.t_bed, False, False, 0)
-        right.pack_start(self.t_light, False, False, 0)
-        right.pack_start(self.t_chamber, False, False, 0)
-        row.pack_start(left, False, False, 0)
-        row.pack_start(self.schem, True, True, 0)
-        row.pack_start(right, False, False, 0)
-        self.pack_start(row, True, True, 0)
+        self.hx_noz = HexGauge("NOZZLE", 300, lambda: self.heater_dialog("extruder", "NOZZLE", [0, 200, 210, 220, 240, 250, 260], 300))
+        self.hx_bed = HexGauge({"PAS": "BELT", "STÓŁ": "BED"}.get(bl.upper(), bl.upper()), 120, lambda: self.heater_dialog("heater_bed", bl, [0, 60, 70, 80, 90, 100, 110], 130))
+        self.hx_ch = HexGauge("CHAMBER", 60)
+        hexes = Gtk.Box(spacing=4, homogeneous=True)
+        for h in (self.hx_noz, self.hx_bed, self.hx_ch):
+            hexes.pack_start(h, True, True, 0)
+        sv = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        sv.pack_start(self.schem, True, True, 0)
+        sv.pack_start(hexes, False, False, 0)
+        self.pack_start(window("SCHEMATIC VIEW", sv, "R.00"), True, True, 0)
+        self.t_nozzle.title.set_label("NOZZLE")
+        self.t_nozzle.sub.set_no_show_all(True)
+        self.t_nozzle.sub.hide()
+        self.t_light.title.set_label("LIGHTS")
+        tele = Gtk.Grid(column_homogeneous=True, column_spacing=5, row_spacing=5)
+        tele.attach(self.t_nozzle, 0, 0, 1, 1)
+        tele.attach(self.t_light, 1, 0, 1, 1)
+        self.pack_start(window("TELEMETRY", tele, "R.03"), False, False, 0)
 
         # szpula: ile filamentu zostało (agent odejmuje zużycie); dotknięcie → ustaw / reset
-        self.sz_btn = Gtk.Button(label="FILAMENT · stan szpuli nieznany")
+        self.sz_btn = Gtk.Button(label="FILAMENT · spool level unknown")
         self.sz_btn.get_style_context().add_class("revo_spool")
         self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
         self.pack_start(self.sz_btn, False, False, 0)
@@ -513,6 +603,11 @@ class RevoHome(RevoActions, Gtk.Box):
             self.t_nozzle.sub.set_label(v["nozzle_temp"])
             self.t_bed.value.set_label(v["bed_temp"])
             self.t_chamber.value.set_label(v["chamber_temp"])
+            num = lambda o, k: (lambda x: float(x) if isinstance(x, (int, float)) else None)((self.printer.get_stat(o) or {}).get(k))
+            self.hx_noz.set(num("extruder", "temperature"), num("extruder", "target"))
+            self.hx_bed.set(num("heater_bed", "temperature"), num("heater_bed", "target"))
+            ch = logic.cfg(self.printer, "chamber", "temperature_sensor chamber")
+            self.hx_ch.set(num(ch, "temperature"), None)
             self.t_light.value.set_label(v["light"])
             from ks_includes import revo_live
             self.live_btn.set_visible(revo_live.active())

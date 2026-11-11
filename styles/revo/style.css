@@ -359,3 +359,64 @@ button.revo_live_alert { background: #3A1214; color: #FF4D52; border: 1px solid 
 button.revo_t_skip { background-color: rgba(240, 200, 60, 0.12); border: 2px solid #F0C83C; border-radius: 14px; min-height: 64px; font-weight: bold; letter-spacing: 2px; }
 button.revo_t_skip label { color: #F0C83C; }
 .revo_test_skip { color: #F0C83C; font-size: 15px; }
+
+/* ======================================================================
+   HERMES – jedyny wygląd Revo OS (czarno-granatowy, okna z paskiem ■,
+   cyfry Share Tech Mono, tekst Rajdhani, akcent #5AA9E6)
+   ====================================================================== */
+* { font-family: "Rajdhani", "Barlow Semi Condensed", RobotoMedium, sans-serif; font-weight: 600; }
+junction, list row, treeview.view, window { background-color: #040608; }
+window { background-image: radial-gradient(ellipse at 50% 34%, #0F1B26 0%, #040608 75%); }
+button { background-color: rgba(20, 40, 58, 0.45); border: 1px solid #22303C; border-radius: 0; }
+button:active, .button_active { background-color: rgba(90, 169, 230, 0.18); border-color: #5AA9E6; }
+button.color1, button.color2, button.color3, button.color4 { background-color: rgba(20, 40, 58, 0.45); border: 1px solid #22303C; border-radius: 0; }
+.title_bar, .revo_statusbar { background-color: #0B1219; border-bottom: 1px solid #22303C; }
+.action_bar { background-color: #0B1219; border-top: 1px solid #22303C; }
+.revo_net { font-family: "Share Tech Mono", monospace; color: #9FB1BF; }
+
+.revo_win { background-image: linear-gradient(180deg, #0B1219, #070B0F); border: 1px solid #22303C; }
+.revo_win_bar { background-color: #0F1922; border-bottom: 1px solid #22303C; padding: 3px 8px; }
+.revo_win_sq { color: #FF3B3B; font-size: 0.7em; }
+.revo_win_title, .revo_win_code { font-family: "Share Tech Mono", monospace; font-size: 0.72em; letter-spacing: 1px; color: #DDE6EE; }
+.revo_win_code { color: #4E6272; }
+
+.revo_home { padding: 8px 10px 6px 10px; }
+.revo_state { font-family: "Share Tech Mono", monospace; font-weight: 400; letter-spacing: 2px; }
+.revo_ok { color: #3ED663; } .revo_warn { color: #FFB347; } .revo_err { color: #FF3B3B; }
+.revo_info { font-family: "Share Tech Mono", monospace; color: #5E7586; font-size: 0.8em; }
+.revo_tile { background-color: rgba(20, 40, 58, 0.55); border: none; border-radius: 0; padding: 2px 10px; }
+.revo_win .revo_tile_value { font-size: 1.2em; }
+button.revo_spool { min-height: 30px; padding: 2px; }
+.revo_tile_title { color: #9FB1BF; font-size: 0.75em; letter-spacing: 1px; }
+.revo_tile_value, .revo_tile_value_small, .revo_big { font-family: "Share Tech Mono", monospace; font-weight: 400; color: #DDE6EE; }
+.revo_tile_sub { font-family: "Share Tech Mono", monospace; color: #5E7586; }
+button.revo_print { background-color: rgba(90, 169, 230, 0.14); border: 1px solid #5AA9E6; border-radius: 0; min-height: 50px; letter-spacing: 3px; }
+button.revo_print label { color: #FFFFFF; font-weight: 700; }
+button.revo_print:active { background-color: rgba(90, 169, 230, 0.3); }
+button.revo_preset { background-color: transparent; border: 1px solid #33495A; border-radius: 0; min-height: 46px; }
+button.revo_preset label { color: #C9D4DD; font-weight: 700; letter-spacing: 1px; }
+button.revo_preset:checked, .revo_preset:checked { background-color: rgba(90, 169, 230, 0.14); border-color: #5AA9E6; }
+.revo_preset:checked label { color: #FFFFFF; }
+button.revo_nav { background-color: #0B1219; border: none; border-top: 1px solid #22303C; border-radius: 0; color: #7F93A3; }
+button.revo_nav:active { border-top: 2px solid #5AA9E6; }
+button.revo_spool { background-color: rgba(20, 40, 58, 0.45); color: #9FB1BF; border: 1px solid #22303C; border-radius: 0; font-family: "Share Tech Mono", monospace; font-weight: 400; }
+button.revo_spool_low, button.revo_lic_proba { color: #FFB347; border-color: #FFB347; }
+button.revo_lic_blok, button.revo_live_alert { color: #FF3B3B; border-color: #FF3B3B; background-color: rgba(160, 20, 30, 0.3); border-radius: 0; }
+.revo_serwis_alert { background-color: rgba(150, 90, 10, 0.28); color: #FFB347; border: 1px solid #FFB347; border-radius: 0; }
+progressbar.revo_progress trough { background-color: #1A2631; border-radius: 0; }
+progressbar.revo_progress progress { background-color: #5AA9E6; border-radius: 0; box-shadow: 0 0 8px #5AA9E6; }
+button.revo_estop { background-color: rgba(160, 20, 30, 0.6); border: 1px solid #FF3B3B; border-radius: 0; }
+button.revo_file { background-color: rgba(20, 40, 58, 0.45); border: 1px solid #22303C; border-radius: 0; }
+.revo_test_img { background-color: #070B0F; border: 1px solid #22303C; border-radius: 0; }
+.revo_test_head { font-family: "Share Tech Mono", monospace; color: #5AA9E6; font-weight: 400; }
+.revo_test_name { font-family: "Rajdhani", sans-serif; color: #DDE6EE; }
+button.revo_t_ok { background-color: rgba(62, 214, 99, 0.14); border: 1px solid #3ED663; border-radius: 0; }
+button.revo_t_ok label { color: #FFFFFF; }
+button.revo_t_warn, button.revo_t_danger, button.revo_t_plain, button.revo_t_skip, button.revo_t_stop { border-radius: 0; }
+button.revo_t_danger { background-color: rgba(160, 20, 30, 0.35); border: 1px solid #FF3B3B; }
+button.revo_t_danger label { color: #FFFFFF; }
+button.revo_t_plain { background-color: rgba(20, 40, 58, 0.45); border-color: #22303C; }
+.revo_saver_clock { font-family: "Share Tech Mono", monospace; font-weight: 400; color: #33495A; }
+.revo_saver_state { font-family: "Rajdhani", sans-serif; color: #4E6272; }
+dialog, messagedialog, .dialog-vbox { background-color: #0B1219; }
+entry { background-color: #070B0F; border: 1px solid #33495A; border-radius: 0; font-family: "Share Tech Mono", monospace; }
