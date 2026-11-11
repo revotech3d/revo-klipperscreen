@@ -115,7 +115,7 @@ class Panel(RevoActions, ScreenPanel):
         if self.flow > lim:
             self.fbtn[10].set_active(True)
         mm = self.flow * self.secs / FIL_AREA
-        self.calc.set_label(f"{self.flow} mm³/s × {self.secs} s = {self.flow * self.secs} mm³ ({mm:.0f} mm filamentu)\nlimit dyszy: {lim} mm³/s")
+        self.calc.set_label(f"{self.flow} mm³/s × {self.secs} s = {self.flow * self.secs} mm³ ({mm:.0f} mm filament)\nnozzle limit: {lim} mm³/s")
         st = self._printer.get_stat("extruder") or {}
         t, tg = st.get("temperature"), st.get("target") or 0
         self.t_temp.value.set_label("–" if t is None else f"{t:.0f}°")
