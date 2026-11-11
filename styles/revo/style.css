@@ -361,7 +361,7 @@ button.revo_t_skip label { color: #F0C83C; }
 .revo_test_skip { color: #F0C83C; font-size: 15px; }
 
 /* ======================================================================
-   HERMES – jedyny wygląd Revo OS (czarno-granatowy, okna z paskiem ■,
+   OrionUI – jedyny wygląd Revo OS (czarno-granatowy, okna z paskiem ■,
    cyfry Share Tech Mono, tekst Rajdhani, akcent #5AA9E6)
    ====================================================================== */
 * { font-family: "Rajdhani", "Barlow Semi Condensed", RobotoMedium, sans-serif; font-weight: 600; }
@@ -420,3 +420,11 @@ button.revo_t_plain { background-color: rgba(20, 40, 58, 0.45); border-color: #2
 .revo_saver_state { font-family: "Rajdhani", sans-serif; color: #4E6272; }
 dialog, messagedialog, .dialog-vbox { background-color: #0B1219; }
 entry { background-color: #070B0F; border: 1px solid #33495A; border-radius: 0; font-family: "Share Tech Mono", monospace; }
+
+/* OrionUI: wygaszacz */
+.revo_saver_bg { background-image: radial-gradient(ellipse at 50% 46%, #0B141C 0%, #020304 75%); }
+.revo_saver_clock { font-family: "Share Tech Mono", monospace; font-weight: 400; font-size: 5.2em; color: #C9D4DD; }
+.revo_saver_sub { font-family: "Share Tech Mono", monospace; color: #4E6272; letter-spacing: 3px; font-size: 0.8em; }
+.revo_saver_bar { font-family: "Rajdhani", sans-serif; font-weight: 700; letter-spacing: 6px; font-size: 1.3em; }
+.revo_saver_bar.revo_ok { color: #3ED663; } .revo_saver_bar.revo_warn { color: #FFB347; } .revo_saver_bar.revo_err { color: #FF3B3B; }
+.revo_saver_hint { font-family: "Share Tech Mono", monospace; color: #33495A; letter-spacing: 4px; font-size: 0.8em; margin-top: 0; }
