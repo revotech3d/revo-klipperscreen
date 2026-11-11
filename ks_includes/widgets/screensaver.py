@@ -3,7 +3,7 @@ import logging
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import GLib, Gtk
+from gi.repository import Gdk, GLib, Gtk
 
 
 class ScreenSaver:
@@ -28,9 +28,6 @@ class ScreenSaver:
             use_screensaver = self.config.get_main_config().get("screen_blanking_printing") != "off"
         else:
             use_screensaver = self.config.get_main_config().get("screen_blanking") != "off"
-        # Revo OS: wygaszacz wyłączony (blokował ekran Belta) – ekran zostaje włączony
-        if self.config.get_main_config().get("theme", "") == "revo":
-            use_screensaver = False
         if use_screensaver:
             self.screensaver_timeout = GLib.timeout_add_seconds(
                 self.screen.blanking_time, self.show
@@ -41,7 +38,7 @@ class ScreenSaver:
         if self.is_showing:
             logging.debug("Screensaver active")
             return
-        logging.debug("Showing Screensaver")
+        logging.info("Showing Screensaver")
         if self.screensaver_timeout is not None:
             GLib.source_remove(self.screensaver_timeout)
             self.screensaver_timeout = None
@@ -53,11 +50,15 @@ class ScreenSaver:
             logging.debug("Hiding dialog")
             dialog.hide()
 
-        close = Gtk.Button()
-        close.connect("clicked", self.close)
-        # Revo OS: budź od pierwszego dotyku (wciśnięcie), nie czekaj na puszczenie palca
-        close.connect("button-press-event", lambda *a: self.close() or False)
-        close.connect("touch-event", lambda *a: self.close() or False)
+        # Revo OS: zamiast przycisku – EventBox na cały ekran, a budzenie podpięte też do okna,
+        # żeby dotyk zawsze odblokował ekran, nawet gdy widżet wygaszacza nie dostanie zdarzenia
+        close = Gtk.EventBox()
+        close.set_above_child(True)
+        close.add_events(Gdk.EventMask.BUTTON_PRESS_MASK | Gdk.EventMask.TOUCH_MASK)
+        close.connect("button-press-event", lambda *a: self.close() or True)
+        close.connect("touch-event", lambda *a: self.close() or True)
+        self._wake_ids = [self.screen.connect(sig, lambda *a: self.close() or False)
+                          for sig in ("button-press-event", "touch-event", "key-press-event")]
         if self.config.get_main_config().get("theme", "") == "revo":
             try:
                 self._revo_status(close)
@@ -77,7 +78,6 @@ class ScreenSaver:
         self.screen.overlay.add(self.blackbox)
 
         # Avoid leaving a cursor-handle
-        close.grab_focus()
         self.screen.gtk.set_cursor(False, window=self.screen.get_window())
 
         self.blackbox.show_all()
@@ -105,7 +105,13 @@ class ScreenSaver:
     def close(self, widget=None):
         if not self.is_showing:
             return False
-        logging.debug("Closing Screensaver")
+        logging.info("Closing Screensaver")
+        for i in getattr(self, "_wake_ids", []):
+            try:
+                self.screen.disconnect(i)
+            except Exception:
+                pass
+        self._wake_ids = []
         if getattr(self, "_revo_stop", None):
             self._revo_stop()
             self._revo_stop = None
