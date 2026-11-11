@@ -36,12 +36,12 @@ class Panel(ScreenPanel):
         self._clear()
         ops = self.st.get("operatorzy") or []
         cur = self.st.get("operator")
-        self.box.pack_start(_lbl("OPERATOR MASZYNY", "revo_test_name"), False, False, 6)
+        self.box.pack_start(_lbl("MACHINE OPERATOR", "revo_test_name"), False, False, 6)
         if not [o for o in ops if not o.get("bez_pinu")]:
             code, r = agent.call("/parowanie/kod", timeout=3)
-            t = _lbl("Panel Revo w przeglądarce wymaga logowania. Maszyna nie ma jeszcze operatorów – "
-                     "otwórz Panel Revo, wybierz KOD Z EKRANU i wpisz ten kod, potem załóż konto kierownika. "
-                     "Kod ważny 10 minut.", "revo_test_desc")
+            t = _lbl("Panel Revo in a browser needs a sign-in. The machine has no operators yet – "
+                     "open Panel Revo, choose CODE FROM SCREEN and enter this code, then create the manager account. "
+                     "Code valid for 10 minutes.", "revo_test_desc")
             t.set_line_wrap(True)
             self.box.pack_start(t, False, False, 0)
             self.box.pack_start(_lbl(" ".join((r.get("kod") or "------")), "revo_big", 0.5), False, False, 16)

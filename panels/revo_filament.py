@@ -104,7 +104,7 @@ class Panel(RevoActions, ScreenPanel):
 
     def extrude(self, *a):
         if self.flow > flow_limit(self._diam()):
-            self._screen.show_popup_message(f"Przepływ {self.flow} mm³/s przekracza możliwości dyszy.", 2)
+            self._screen.show_popup_message(f"Flow {self.flow} mm³/s exceeds what the nozzle can handle.", 2)
             return
         self.gcode("M83\n" + extrude_script(self.flow, self.secs) + "\nM82")
 

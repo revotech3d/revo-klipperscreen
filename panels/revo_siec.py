@@ -139,7 +139,7 @@ class Panel(ScreenPanel):
                 continue
             widziane.add(ssid)
             znak = "✓  " if ssid == ssid_teraz else ""
-            zamek = "  ·  hasło" if n.get("security") not in (None, "", "Open", "--") else ""
+            zamek = "  ·  password" if n.get("security") not in (None, "", "Open", "--") else ""
             zapis = "  ·  zapisana" if n.get("known") and ssid != ssid_teraz else ""
             b = _btn(f"{znak}{ssid}   {n.get('signal_level', 0)}%{zamek}{zapis}", lambda s=ssid, k=n.get("known"): self._wybierz(s, k), h=56)
             b.get_child().set_xalign(0.0)
@@ -209,5 +209,5 @@ class Panel(ScreenPanel):
             self.nm.delete_network(ssid)
         except Exception:
             logging.exception("Sieć: zapomnij")
-        self._popup(f"Rozłączono i zapomniano sieć {ssid}.", 1)
+        self._popup(f"Disconnected and forgot network {ssid}.", 1)
         GLib.timeout_add_seconds(2, self._wypelnij)

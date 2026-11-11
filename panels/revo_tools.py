@@ -100,7 +100,7 @@ class Panel(ScreenPanel):
             lines = [x["message"] for x in result["result"]["gcode_store"] if x.get("time", 0) >= t0 and x.get("type") == "response"]
         except (KeyError, TypeError):
             lines = []
-        text = "\n".join(l.replace("// ", "") for l in lines[-14:]) or "Wysłano. Wynik pojawi się w konsoli, gdy maszyna skończy."
+        text = "\n".join(l.replace("// ", "") for l in lines[-14:]) or "Sent. The result appears in the console when the machine finishes."
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         box.get_style_context().add_class("revo_home")
         box.pack_start(_lbl(gcode.split("\n")[-1], "revo_tile_title", 0.5), False, False, 0)

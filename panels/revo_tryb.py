@@ -19,11 +19,11 @@ class Panel(ScreenPanel):
         self.content.add(box)
         opis = Gtk.Label(wrap=True, xalign=0.0)
         if self.revo:
-            opis.set_markup("<b>Tryb awaryjny</b>\n\nPrzełącza ekran na standardowy KlipperScreen – na wypadek problemów "
-                            "z ekranem Revo. Wrócisz tutaj: Więcej → Tryb ekranu → Wróć do ekranu Revo.")
+            opis.set_markup("<b>Emergency mode</b>\n\nSwitches the screen to the standard KlipperScreen – in case of problems "
+                            "with the Revo screen. Come back here: More → Screen mode → Back to Revo screen.")
             self.txt = "PRZEŁĄCZ NA KLIPPERSCREEN"
         else:
-            opis.set_markup("<b>Ekran awaryjny (KlipperScreen)</b>\n\nWróć do ekranu Revo OS.")
+            opis.set_markup("<b>Emergency screen (KlipperScreen)</b>\n\nGo back to the Revo OS screen.")
             self.txt = "WRÓĆ DO EKRANU REVO"
         box.pack_start(opis, False, False, 0)
         self.btn = Gtk.Button(label=self.txt)

@@ -41,7 +41,7 @@ class Panel(ScreenPanel):
         self._clear()
         self.pin = ""
         self.box.pack_start(self._lbl("TRYB SERWISOWY", "revo_state", 0.5), False, False, 4)
-        self.box.pack_start(self._lbl("Wpisz 6-cyfrowy PIN od serwisu Revotech.", "revo_info", 0.5), False, False, 0)
+        self.box.pack_start(self._lbl("Enter the 6-digit PIN from Revotech service.", "revo_info", 0.5), False, False, 0)
         self.dots = self._lbl("○ ○ ○ ○ ○ ○", "revo_big", 0.5)
         self.box.pack_start(self.dots, False, False, 6)
         self.msg = self._lbl("", "revo_err", 0.5, True)
@@ -85,7 +85,7 @@ class Panel(ScreenPanel):
         self.box.pack_start(self._lbl("TRYB SERWISOWY AKTYWNY", "revo_state", 0.5), False, False, 4)
         info = "Dane maszyny są wysyłane do Revotech co minutę."
         if minutes:
-            info += f" Tryb wyłączy się sam po {minutes} min."
+            info += f" The mode ends by itself after {minutes} min."
         self.box.pack_start(self._lbl(info, "revo_info", 0.5, True), False, False, 0)
         self.box.pack_start(self._lbl("WYMIENIONO CZĘŚĆ – WNIOSEK O RESET LICZNIKA", "revo_tile_title"), False, False, 8)
         for key, name in PARTS:
@@ -107,7 +107,7 @@ class Panel(ScreenPanel):
         self._screen._menu_go_back(home=True)
 
     def ask_reset(self, w, key, name):
-        lb = self._lbl(f"Wysłać do Revotech wniosek o reset licznika: {name}?", "revo_splash_text", 0.5, True)
+        lb = self._lbl(f"Send Revotech a request to reset the counter: {name}?", "revo_splash_text", 0.5, True)
         buttons = [{"name": "Send", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
         self._gtk.Dialog("Reset licznika", buttons, lb, self._reset_resp, key, name)

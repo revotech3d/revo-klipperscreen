@@ -520,7 +520,7 @@ class RevoHome(RevoActions, Gtk.Box):
             ctx.remove_class(c)
         if lic.get("stan") == "proba":
             d = lic.get("dni") or 0
-            self.lic_btn.set_label(f"AKTYWUJ LICENCJĘ · {d} {'dzień' if d == 1 else 'dni'} do blokady")
+            self.lic_btn.set_label(f"ACTIVATE LICENSE · {d} {'dzień' if d == 1 else 'dni'} do blokady")
             ctx.add_class("revo_lic_proba")
         elif lic.get("stan") == "blokada":
             self.lic_btn.set_label("MASZYNA ZABLOKOWANA · WPISZ NUMER LICENCJI")

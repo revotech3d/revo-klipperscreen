@@ -18,9 +18,9 @@ def call(path, body=None, timeout=3):
         try:
             return e.code, json.loads(e.read().decode() or "{}")
         except ValueError:
-            return e.code, {"message": f"Błąd {e.code}"}
+            return e.code, {"message": f"Error {e.code}"}
     except Exception:
-        return 0, {"message": "Agent Revo nie odpowiada."}
+        return 0, {"message": "Revo agent is not responding."}
 
 
 def strip_markdown(md):

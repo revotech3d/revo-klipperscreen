@@ -37,7 +37,7 @@ class Panel(RevoActions, ScreenPanel):
         hg.attach(self._btn("ZWOLNIJ SILNIKI", lambda w: self.gcode("M84"), "revo_preset", 40), 2, 1, 2, 1)
         box.pack_start(hg, False, False, 0)
 
-        box.pack_start(_lbl("KROK (mm)", "revo_tile_title"), False, False, 2)
+        box.pack_start(_lbl("STEP (mm)", "revo_tile_title"), False, False, 2)
         sg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         first = None
         for i, st in enumerate(STEPS):
@@ -74,7 +74,7 @@ class Panel(RevoActions, ScreenPanel):
         if belt_on:
             box.pack_start(bg, False, False, 0)
 
-        self.es = Gtk.Button(label="E-STOP · PRZYTRZYMAJ 1 s")
+        self.es = Gtk.Button(label="E-STOP · HOLD 1 s")
         self.es.get_style_context().add_class("revo_estop")
         self.es.set_size_request(-1, 48)
         self.es.connect("pressed", self._es_down)
@@ -107,7 +107,7 @@ class Panel(RevoActions, ScreenPanel):
 
     def _es_up(self, w):
         self._estop = None
-        self.es.set_label("E-STOP · PRZYTRZYMAJ 1 s")
+        self.es.set_label("E-STOP · HOLD 1 s")
 
     def _es_tick(self):
         if self._estop is None:
@@ -118,7 +118,7 @@ class Panel(RevoActions, ScreenPanel):
             self._screen._ws.api.emergency_stop()
             self.es.set_label("ZATRZYMANO")
             return False
-        self.es.set_label(f"PRZYTRZYMAJ… {left:.1f} s")
+        self.es.set_label(f"HOLD… {left:.1f} s")
         return True
 
     def refresh(self):
@@ -127,7 +127,7 @@ class Panel(RevoActions, ScreenPanel):
         for i, a in enumerate("XYZ"):
             self.tp[a].value.set_label(f"{p[i]:.2f}" if len(p) > i else "–")
         hm = th.get("homed_axes", "")
-        self.homed.set_label(f"Zbazowane: {', '.join(hm.upper())}" if hm else "Osie niezbazowane – najpierw BAZUJ")
+        self.homed.set_label(f"Homed: {', '.join(hm.upper())}" if hm else "Axes not homed – HOME first")
         return self._timer is not None
 
     def activate(self):
