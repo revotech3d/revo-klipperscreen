@@ -18,12 +18,12 @@ class Panel(ScreenPanel):
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.box.get_style_context().add_class("revo_home")
         self.content.add(self.box)
-        self.box.pack_start(_lbl("LICENCJA MASZYNY", "revo_test_name"), False, False, 6)
+        self.box.pack_start(_lbl("MACHINE LICENSE", "revo_test_name"), False, False, 6)
         self.stan = _lbl("Wczytywanie…", "revo_state")
         self.stan.set_line_wrap(True)
         self.box.pack_start(self.stan, False, False, 0)
-        opis = _lbl("Numer licencji (REVO-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX) dostajesz od Revotech po zakupie. "
-                    "Wpisz go raz – aktywuje maszynę. Działa także bez internetu.", "revo_test_desc")
+        opis = _lbl("You get the license number (REVO-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX) from Revotech after purchase. "
+                    "Enter it once – it activates the machine. Works without internet too.", "revo_test_desc")
         opis.set_line_wrap(True)
         self.box.pack_start(opis, False, False, 0)
         self.entry = Gtk.Entry()
@@ -31,7 +31,7 @@ class Panel(ScreenPanel):
         self.entry.connect("button-press-event", self._screen.show_keyboard)
         self.entry.connect("activate", lambda *a: self._send())
         self.box.pack_start(self.entry, False, False, 6)
-        self.btn = Gtk.Button(label="AKTYWUJ")
+        self.btn = Gtk.Button(label="ACTIVATE")
         self.btn.get_style_context().add_class("revo_t_plain")
         self.btn.set_size_request(-1, 64)
         self.btn.connect("clicked", lambda *a: self._send())
@@ -50,7 +50,7 @@ class Panel(ScreenPanel):
         if st == "ok":
             self.stan.set_text("Licencja aktywna. Dziękujemy!")
         elif st == "proba":
-            self.stan.set_text(f"Okres próbny – zostało dni: {lic.get('dni')}. {lic.get('powod', '')}")
+            self.stan.set_text(f"Trial – days left: {lic.get('dni')}. {lic.get('powod', '')}")
         elif st == "blokada":
             self.stan.set_text(lic.get("powod", "Maszyna zablokowana."))
         else:

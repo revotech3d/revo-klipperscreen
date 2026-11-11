@@ -112,7 +112,7 @@ class Panel(ScreenPanel, RevoActions):
     def step_siec(self):
         ip = local_ip()
         self._head("SIEĆ",
-                   (f"Maszyna jest w sieci: {ip}. Zeskanuj kod telefonem, żeby otworzyć Panel Revo (http://{ip})"
+                   (f"The machine is on the network: {ip}. Scan the code with a phone to open Panel Revo (http://{ip})"
                     if ip else "Maszyna nie jest połączona z siecią. Podłącz kabel albo ustaw Wi‑Fi.")
                    + " Sieć jest potrzebna do aktualizacji i kontaktu z serwisem Revotech.")
         if ip:
@@ -149,10 +149,10 @@ class Panel(ScreenPanel, RevoActions):
 
     def step_dysza(self):
         vars_ = self._printer.get_stat("save_variables", "variables") or {}
-        cur = vars_.get("revo_nozzle") or "nie ustawiono"
+        cur = str(vars_.get("revo_nozzle") or "not set").replace("mosiadz", "brass").replace("stal", "hardened steel").replace("wolfram", "tungsten")
         self._head("ZAMONTOWANA DYSZA",
-                   f"Teraz: {cur}. Maszyna porówna dyszę z plikiem przy każdym starcie druku i zatrzyma druk, "
-                   "gdy plik był przygotowany pod inną dyszę.")
+                   f"Now: {cur}. At every print start the machine compares the nozzle with the file and stops the print "
+                   "if the file was prepared for a different nozzle.")
         self.box.pack_start(self._btn("WYBIERZ DYSZĘ", self.nozzle_dialog), False, False, 12)
         self._nav()
 

@@ -146,7 +146,7 @@ class Panel(ScreenPanel):
             code, st = agent.call("/status", timeout=1)
             left = (st.get("szpula") or {}).get("zostalo_g") if code == 200 else None
             if left is not None and float(need) * getattr(self, "_ile", 1) > left:
-                w = _lbl(f"Może zabraknąć filamentu: potrzeba ok. {float(need) * getattr(self, '_ile', 1):.0f} g, na szpuli ok. {left:.0f} g.", "revo_err", 0.5)
+                w = _lbl(f"Filament may run out: needs about {float(need) * getattr(self, '_ile', 1):.0f} g, na szpuli ok. {left:.0f} g.", "revo_err", 0.5)
                 w.set_line_wrap(True)
                 box.pack_start(w, False, False, 0)
         buttons = [{"name": "Delete", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
@@ -160,7 +160,7 @@ class Panel(ScreenPanel):
     def _ile_set(self, n):
         self._ile = max(1, min(99, n))
         self._ile_lbl.set_label(str(self._ile))
-        self._ile_info.set_label("" if self._ile == 1 else f"Seria {self._ile} szt. – po każdej pas wysunie wydruk")
+        self._ile_info.set_label("" if self._ile == 1 else f"Seria {self._ile} pcs – the belt ejects each part")
 
     def _resp(self, dialog, resp, path):
         self._gtk.remove_dialog(dialog)
@@ -173,4 +173,4 @@ class Panel(ScreenPanel):
         elif resp == Gtk.ResponseType.OK:
             self._screen._ws.api.print_start(path)
         elif resp == Gtk.ResponseType.REJECT:
-            self._screen._confirm_send_action(None, f"Usunąć plik?\n\n{path}", "server.files.delete_file", {"path": f"gcodes/{path}"})
+            self._screen._confirm_send_action(None, f"Delete file?\n\n{path}", "server.files.delete_file", {"path": f"gcodes/{path}"})

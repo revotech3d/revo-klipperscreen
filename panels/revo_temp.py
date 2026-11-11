@@ -38,7 +38,7 @@ class Panel(RevoActions, ScreenPanel):
             pg.attach(bt, i % 2, i // 2, 1, 1)
         box.pack_start(pg, False, False, 0)
         for name, e, b in PRESETS:
-            box.pack_start(_lbl(f"{name}: dysza {e}°C, pas {b}°C", "revo_info"), False, False, 0)
+            box.pack_start(_lbl(f"{name}: nozzle {e}°C, belt/bed {b}°C", "revo_info"), False, False, 0)
         self.content.add(box)
 
     def activate(self):

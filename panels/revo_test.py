@@ -110,7 +110,7 @@ class Panel(ScreenPanel):
         if v["problems"]:
             desc += "\n\nProblemy:\n" + "\n".join("• " + p for p in v["problems"])
         self.l_desc.set_text(desc)
-        self.l_skip.set_text("Pominięte (bez wpływu na wynik):\n" + "\n".join("• " + k for k in v["skipped"]) if v["skipped"] else "")
+        self.l_skip.set_text("Skipped (no effect on the result):\n" + "\n".join("• " + k for k in v["skipped"]) if v["skipped"] else "")
         self.l_skip.set_visible(bool(v["skipped"]))
         self.l_note.set_text(v["note"])
         self.l_note.set_visible(bool(v["note"]))

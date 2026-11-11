@@ -42,12 +42,12 @@ class Panel(ScreenPanel):
             g.attach(b, i % 2, i // 2, 2 if i == len(KATEGORIE) - 1 and i % 2 == 0 else 1, 1)
         self.box.pack_start(g, False, False, 0)
         self.box.pack_start(_lbl("OPIS (NIEOBOWIĄZKOWY)", "revo_tile_title"), False, False, 4)
-        self.opis = Gtk.Entry(placeholder_text="np. stuka przy ruchu osi Y")
+        self.opis = Gtk.Entry(placeholder_text="e.g. knocking when the Y axis moves")
         self.opis.connect("button-press-event", self._screen.show_keyboard)
         self.opis.connect("touch-event", self._screen.show_keyboard)
         self.box.pack_start(self.opis, False, False, 0)
         self.box.pack_start(_lbl("TELEFON DO KONTAKTU (NIEOBOWIĄZKOWY)", "revo_tile_title"), False, False, 4)
-        self.tel = Gtk.Entry(placeholder_text="jeśli inny niż w umowie", input_purpose=Gtk.InputPurpose.PHONE)
+        self.tel = Gtk.Entry(placeholder_text="if different from the contract", input_purpose=Gtk.InputPurpose.PHONE)
         self.tel.connect("button-press-event", self._screen.show_keyboard)
         self.tel.connect("touch-event", self._screen.show_keyboard)
         self.box.pack_start(self.tel, False, False, 0)
@@ -87,11 +87,11 @@ class Panel(ScreenPanel):
     def done(self, code, r):
         self._clear()
         if code == 200 and r.get("number"):
-            head, text = "ZGŁOSZENIE WYSŁANE", f"Numer zgłoszenia: {r['number']}. Serwis Revotech dostał opis, log i zdjęcie z kamery."
+            head, text = "ZGŁOSZENIE WYSŁANE", f"Report number: {r['number']}. Revotech service received the description, log and camera photo."
         elif code == 200:
             head, text = "ZGŁOSZENIE ZAPISANE", "Maszyna nie ma teraz internetu. Zgłoszenie wyjdzie samo, gdy połączenie wróci."
         else:
-            head, text = "NIE UDAŁO SIĘ", "Agent Revo nie odpowiada. Zadzwoń lub napisz: biuro@revo3d.pl."
+            head, text = "FAILED", "Revo agent is not responding. Call or write: biuro@revo3d.pl."
         self.box.pack_start(_lbl(head, "revo_state", 0.5), False, False, 30)
         t = _lbl(text, "revo_test_desc", 0.5)
         t.set_line_wrap(True)
