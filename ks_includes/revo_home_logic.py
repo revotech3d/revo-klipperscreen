@@ -22,6 +22,14 @@ def light_pin(printer):
     return cfg(printer, "light_pin", "")
 
 
+def kalibracja(printer):
+    """Napis „KALIBRACJA PASA/STOŁU/DYSZY”, gdy trwa MPC_CALIBRATE lub PID_CALIBRATE (makro _REVO_KALIB), inaczej ''."""
+    co = printer.get_stat("gcode_macro _REVO_KALIB", "co") or ""
+    if not co or not (_num(printer.get_stat(co, "target")) or 0) > 0:
+        return ""
+    return "KALIBRACJA DYSZY" if co == "extruder" else f"KALIBRACJA {'PASA' if is_belt(printer) else 'STOŁU'}"
+
+
 def view(printer, hours=None):
     ps = printer.get_stat("print_stats", "state") or "standby"
     klipper = printer.state
@@ -35,6 +43,9 @@ def view(printer, hours=None):
         ext_t = _num(printer.get_stat("extruder", "target")) or 0
         bed_t = _num(printer.get_stat("heater_bed", "target")) or 0
         state, cls = ("NAGRZEWA", "revo_warn") if (ext_t or bed_t) else ("GOTOWA", "revo_ok")
+        kal = kalibracja(printer)
+        if kal:
+            state, cls = kal, "revo_warn"
 
     vars_ = printer.get_stat("save_variables", "variables") or {}
     d = _num(vars_.get("revo_nozzle_diameter"))
