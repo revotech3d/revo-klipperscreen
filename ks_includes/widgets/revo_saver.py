@@ -6,6 +6,7 @@ import time
 import gi
 
 gi.require_version("Gtk", "3.0")
+gi.require_version("PangoCairo", "1.0")
 from gi.repository import GLib, Gtk, Pango, PangoCairo
 
 COLORS = {"revo_ok": (0.24, 0.84, 0.39), "revo_warn": (0.88, 0.64, 0.23), "revo_err": (1.0, 0.30, 0.32)}
@@ -185,8 +186,9 @@ def build(screen, schematic_factory, logo_path):
     import os
     W, H = screen.width, screen.height
     ov = Gtk.Overlay()
-    glow = Glow()
-    glow.set_size_request(W, H)
+    glow = Glow()  # bez set_size_request: rozmiar od nakładki, okno nie może urosnąć ponad ekran
+    glow.set_hexpand(True)
+    glow.set_vexpand(True)
     ov.add(glow)
     box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=26)
     box.set_margin_top(28)
