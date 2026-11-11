@@ -23,7 +23,7 @@ class Panel(ScreenPanel):
         self.stan.set_line_wrap(True)
         self.box.pack_start(self.stan, False, False, 0)
         opis = _lbl("Numer licencji (REVO-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX) dostajesz od Revotech po zakupie. "
-                    "Wpisz go raz – aktywuje maszynę i [r]evo Slicer. Działa także bez internetu.", "revo_test_desc")
+                    "Wpisz go raz – aktywuje maszynę. Działa także bez internetu.", "revo_test_desc")
         opis.set_line_wrap(True)
         self.box.pack_start(opis, False, False, 0)
         self.entry = Gtk.Entry()
