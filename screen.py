@@ -37,7 +37,7 @@ from ks_includes.widgets.lockscreen import LockScreen
 
 
 def revo_fonts():
-    """Hermes: czcionki Rajdhani i Share Tech Mono z repozytorium do ~/.local/share/fonts (przed startem GTK)."""
+    """OrionUI: czcionki Rajdhani i Share Tech Mono z repozytorium do ~/.local/share/fonts (przed startem GTK)."""
     src = pathlib.Path(__file__).parent / "styles" / "revo" / "fonts"
     dst = pathlib.Path.home() / ".local" / "share" / "fonts"
     try:
