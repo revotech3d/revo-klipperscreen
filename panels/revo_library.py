@@ -9,6 +9,7 @@ from gi.repository import Gtk
 
 from ks_includes.revo_agent_client import strip_markdown
 from ks_includes.screen_panel import ScreenPanel
+from ks_includes.widgets.revo_home import orionize, window
 
 CONTENT_DIRS = [os.path.expanduser("~/revo-content"), os.path.expanduser("~/printer_data/revo-content")]
 
@@ -22,7 +23,7 @@ def content_dir():
 
 class Panel(ScreenPanel):
     def __init__(self, screen, title, **kwargs):
-        super().__init__(screen, title or "Biblioteka Revo")
+        super().__init__(screen, title or "Revo Library")
         self.root = content_dir()
         self.scroll = self._gtk.ScrolledWindow()
         self.scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
@@ -66,12 +67,13 @@ class Panel(ScreenPanel):
                 b.add(inner)
                 b.connect("clicked", self.show_item, p)
                 box.pack_start(b, False, False, 0)
+        orionize(box)
         self._set(box)
 
     def show_item(self, w, p):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.get_style_context().add_class("revo_home")
-        back = Gtk.Button(label="‹ Biblioteka")
+        back = Gtk.Button(label="‹ Library")
         back.get_style_context().add_class("revo_preset")
         back.connect("clicked", self.show_list)
         box.pack_start(back, False, False, 0)
@@ -79,10 +81,12 @@ class Panel(ScreenPanel):
             with open(os.path.join(self.root, p["plik"]), encoding="utf-8") as f:
                 text = strip_markdown(f.read())
         except OSError:
-            text = "Nie udało się otworzyć pliku."
+            text = "Could not open the file."
         lb = Gtk.Label(label=text, xalign=0)
         lb.set_line_wrap(True)
         lb.set_selectable(False)
         lb.get_style_context().add_class("revo_doc")
-        box.pack_start(lb, False, False, 0)
+        for m in (lb.set_margin_start, lb.set_margin_end, lb.set_margin_top, lb.set_margin_bottom):
+            m(8)
+        box.pack_start(window(p["tytul"].upper(), lb, "REVO LIBRARY"), False, False, 0)
         self._set(box)
