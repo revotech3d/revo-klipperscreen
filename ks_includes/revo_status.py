@@ -39,6 +39,21 @@ def machine_state(printer_state, print_state, heating=False, service=False, busy
     return "gotowa"
 
 
+# Kalibracje, które stoją w miejscu (idle_timeout zostaje „Ready”) – rozpoznawane po komunikatach Klippera
+_CAL_START = ("Waiting for heater to settle", "Performing heatup test", "Performing ambient transfer",
+              "Waiting for temperature to stabilize", "PID parameters", "Starting PID calibration")
+_CAL_END = ("Finished MPC", "Finished PID", "The SAVE_CONFIG command will update")
+
+
+def calibration_from_response(line, current):
+    """Na podstawie linii odpowiedzi G-code: czy trwa kalibracja grzałki (True/False)."""
+    if line.startswith("!! ") or any(k in line for k in _CAL_END):
+        return False
+    if any(k in line for k in _CAL_START):
+        return True
+    return current
+
+
 def lit_segments(state, progress=0.0, segments=SEGMENTS):
     """Ile segmentów świeci: w druku – postęp, w innych stanach – cały pasek."""
     if state in ("drukowanie", "nagrzewanie", "pauza"):
