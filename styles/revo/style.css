@@ -441,7 +441,8 @@ junction, list row, treeview.view { background-color: #000000; }
 .action_bar { background-color: #000000; border-top: 1px solid #1C2026; }
 button, button.color1, button.color2, button.color3, button.color4, button.revo_file, button.revo_spool {
     background-color: transparent; border: 1px solid #2A2F36; border-radius: 0; }
-button label { letter-spacing: 2px; }
+button label { letter-spacing: 1px; }
+button.revo_nav label, .action_bar button label { letter-spacing: 0; }
 button:active, .button_active { background-color: rgba(90, 160, 255, 0.16); border-color: #5AA0FF; }
 .revo_tile { background-color: transparent; border: none; border-left: 1px solid #1C2026; }
 .revo_tile_title, .revo_info, .revo_tile_sub { color: #9AA4B2; letter-spacing: 3px; font-weight: 400; }
@@ -453,7 +454,7 @@ button.revo_print label { color: #000000; font-weight: 600; letter-spacing: 6px;
 button.revo_print:active { background-color: #7DB5FF; }
 button.revo_preset { background-color: transparent; border: 1px solid #2A2F36; }
 button.revo_preset:checked, .revo_preset:checked { background-color: rgba(90, 160, 255, 0.16); border-color: #5AA0FF; }
-button.revo_nav { background-color: #000000; border-top: 1px solid #1C2026; color: #9AA4B2; letter-spacing: 3px; }
+button.revo_nav { background-color: #000000; border: none; border-top: 1px solid #1C2026; color: #9AA4B2; }
 button.revo_nav:active { border-top: 2px solid #5AA0FF; }
 progressbar.revo_progress trough { min-height: 2px; background-color: #1C2330; border: none; }
 progressbar.revo_progress progress { min-height: 2px; background-color: #5AA0FF; border: none; box-shadow: 0 0 8px #5AA0FF; }
