@@ -472,3 +472,4 @@ dialog, messagedialog, .dialog-vbox { background-color: #05070A; }
 .revo_saver_clock { font-family: "Barlow Condensed", sans-serif; font-weight: 300; color: #FFFFFF; letter-spacing: 6px; }
 .revo_saver_sub, .revo_saver_hint { font-family: "Barlow Condensed", sans-serif; color: #5E6A78; letter-spacing: 5px; }
 .revo_saver_bar { font-family: "Barlow Condensed", sans-serif; letter-spacing: 8px; }
+.revo_net, .revo_info, .revo_tile_sub { font-family: "Barlow Condensed", sans-serif; letter-spacing: 2px; }
