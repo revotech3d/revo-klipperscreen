@@ -76,17 +76,17 @@ class HexGauge(Gtk.DrawingArea):
             ctx.fill()
         cx = W / 2
 
-        def text(s, size, y, rgb, font="Rajdhani"):
-            ctx.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD if font == "Rajdhani" else cairo.FONT_WEIGHT_NORMAL)
+        def text(s, size, y, rgb, font="Barlow Condensed"):
+            ctx.select_font_face(font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
             ctx.set_font_size(size)
             e = ctx.text_extents(s)
             ctx.set_source_rgb(*rgb)
             ctx.move_to(cx - e.width / 2 - e.x_bearing, y)
             ctx.show_text(s)
         text(self.title, 11, H * .27, (0.353, 0.663, 0.902))
-        text("–" if self.temp is None else f"{self.temp:.0f}°", 28, H * .62, (0.867, 0.902, 0.933), "Share Tech Mono")
+        text("–" if self.temp is None else f"{self.temp:.0f}°", 28, H * .62, (0.867, 0.902, 0.933), "Barlow Condensed Light")
         sub = f"SET {self.target:.0f}°" if self.target else ("PASSIVE" if self.tmax <= 80 and self.title == "CHAMBER" else "OFF")
-        text(sub, 10, H * .83, (0.369, 0.459, 0.525), "Share Tech Mono")
+        text(sub, 10, H * .83, (0.369, 0.459, 0.525), "Barlow Condensed Light")
 
 
 def window(title, child, code=""):
