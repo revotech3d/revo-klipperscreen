@@ -13,6 +13,9 @@ def test_states():
     assert rs.machine_state("disconnected", "standby") == "offline"
     assert rs.machine_state("ready", "standby", service=True) == "serwis"
     assert rs.machine_state("error", "standby", service=True) == "blad"  # błąd ważniejszy
+    assert rs.machine_state("ready", "standby", busy=True) == "praca"     # kalibracja poza drukiem
+    assert rs.machine_state("printing", "printing", busy=True) == "drukowanie"
+    assert rs.blink_on("praca", 0.0) != rs.blink_on("praca", 0.5)
 
 def test_segments():
     assert rs.lit_segments("gotowa") == 40
