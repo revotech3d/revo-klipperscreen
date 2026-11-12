@@ -56,7 +56,8 @@ class RevoStatusBar(Gtk.DrawingArea):
                         if target > 0 and temp < target - 5:
                             heating = True
                             break
-                self.state = rs.machine_state(p.state, ps, heating, self.service)
+                busy = (p.get_stat("idle_timeout", "state") or "") == "Printing"
+                self.state = rs.machine_state(p.state, ps, heating, self.service, busy)
                 self.progress = progress
         except Exception as e:  # pasek nigdy nie może wywrócić ekranu
             logging.debug(f"RevoStatusBar: {e}")
