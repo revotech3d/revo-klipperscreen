@@ -13,6 +13,9 @@ class Panel(ScreenPanel):
     AKCJE = {
         "wylacz": ("WYŁĄCZ MASZYNĘ", "machine.shutdown", "Maszyna się wyłącza. Odczekaj 30 s przed odcięciem zasilania."),
         "restart": ("URUCHOM PONOWNIE", "machine.reboot", "Maszyna uruchamia się ponownie."),
+        # tylko w trybie serwisowym: przy następnym włączeniu pokaże się kreator pierwszego uruchomienia
+        "kreator": ("RESET DO PIERWSZEGO STARTU", "machine.shutdown",
+                    "Maszyna się wyłącza. Po włączeniu pokaże się kreator pierwszego uruchomienia."),
     }
 
     def __init__(self, screen, title, **kwargs):
@@ -33,7 +36,14 @@ class Panel(ScreenPanel):
             b.connect("clicked", lambda *a, k=k: self._klik(k))
             box.pack_start(b, False, False, 0)
             self.btn[k] = b
+            if k == "kreator":
+                b.set_no_show_all(True)
+                b.set_visible(bool(getattr(self._printer, "revo_service", False)))
         orionize(box)
+
+    def activate(self):
+        self._reset()
+        self.btn["kreator"].set_visible(bool(getattr(self._printer, "revo_service", False)))
 
     def _klik(self, k):
         if self._printer.state in ("printing", "paused"):
@@ -48,6 +58,10 @@ class Panel(ScreenPanel):
             GLib.timeout_add_seconds(5, self._reset)
             return
         self.info.set_text(ok)
+        if k == "kreator":
+            self._screen._ws.api.gcode_script("SAVE_VARIABLE VARIABLE=revo_first_run_done VALUE=0")
+            GLib.timeout_add_seconds(2, lambda: self._screen._ws.send_method(method) and False)
+            return
         self._screen._ws.send_method(method)
 
     def _reset(self):
