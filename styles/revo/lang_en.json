@@ -672,6 +672,8 @@
 "Trwa wydruk – najpierw go zakończ albo przerwij.": "A print is running – finish or stop it first.",
 "WRÓĆ DO EKRANU REVO": "BACK TO REVO SCREEN",
 "WYŁĄCZ MASZYNĘ": "SHUT DOWN MACHINE",
+"RESET DO PIERWSZEGO STARTU": "RESET TO FIRST START",
+"Maszyna się wyłącza. Po włączeniu pokaże się kreator pierwszego uruchomienia.": "The machine is shutting down. When switched on, the first start wizard will appear.",
 "Wpisz go raz – aktywuje maszynę. Działa także bez internetu.": "Enter it once – it activates the machine. Works without internet too.",
 "Wyłącz": "Off",
 "ZAPOMNIJ SIEĆ": "FORGET NETWORK",

@@ -481,7 +481,7 @@ class RevoHome(RevoActions, Gtk.Box):
     # --- odświeżanie ---
     def first_run_pending(self):
         vars_ = self.printer.get_stat("save_variables", "variables") or {}
-        return "revo_first_run_done" not in vars_ and self.printer.get_stat("save_variables") is not None
+        return not vars_.get("revo_first_run_done") and self.printer.get_stat("save_variables") is not None
 
     def start(self):
         # nowa maszyna: kreator pierwszego uruchomienia (raz na sesję ekranu, do zapisania revo_first_run_done)
