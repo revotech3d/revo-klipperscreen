@@ -9,6 +9,8 @@ COLORS = {
     "drukowanie": ((0.949, 0.953, 0.961), False),  # #F2F3F5
     "nagrzewanie": ((0.941, 0.627, 0.294), False),  # #F0A04B
     "pauza": ((0.941, 0.627, 0.294), True),
+    "praca": ((0.941, 0.627, 0.294), True),        # kalibracja, test, bazowanie poza wydrukiem – nie dotykać
+
     "blad": ((1.0, 0.302, 0.322), True),            # #FF4D52
     "serwis": ((0.357, 0.659, 1.0), False),         # #5BA8FF
     "offline": ((0.604, 0.627, 0.659), False),      # #9AA0A8
@@ -17,7 +19,7 @@ COLORS = {
 SEGMENTS = 40
 
 
-def machine_state(printer_state, print_state, heating=False, service=False):
+def machine_state(printer_state, print_state, heating=False, service=False, busy=False):
     """printer_state: stan Klippera (ready/error/shutdown/startup/disconnected),
     print_state: print_stats.state (standby/printing/paused/complete/cancelled/error)."""
     if printer_state in ("error", "shutdown"):
@@ -32,6 +34,8 @@ def machine_state(printer_state, print_state, heating=False, service=False):
         return "pauza"
     if print_state == "printing":
         return "nagrzewanie" if heating else "drukowanie"
+    if busy:   # idle_timeout = Printing bez wydruku: kalibracja (MPC, mapa stołu, input shaper), test, bazowanie
+        return "praca"
     return "gotowa"
 
 
