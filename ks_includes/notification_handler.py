@@ -106,6 +106,12 @@ class NotificationHandler:
             self._screen.panels_reinit.append("camera")
 
     def _gcode_response(self, data):
+        try:   # Revo OS: pasek statusu – kalibracja grzałki (MPC/PID) w toku
+            from ks_includes import revo_status
+            p = self._screen.printer
+            p.revo_calibrating = revo_status.calibration_from_response(data, getattr(p, "revo_calibrating", False))
+        except Exception:
+            pass
         if self._screen.printer.state in ["error", "shutdown"]:
             return True
 

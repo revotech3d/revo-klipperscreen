@@ -29,3 +29,12 @@ def test_blink():
 
 def test_agent_missing():
     assert rs.agent_service_active("http://127.0.0.1:1/status") is False
+
+
+def test_kalibracja_z_komunikatow():
+    c = rs.calibration_from_response("// Waiting for heater to settle at ambient temperature", False)
+    assert c is True
+    assert rs.calibration_from_response("// Performing heatup test, target is 200.0 degrees", c) is True
+    assert rs.calibration_from_response("ok", c) is True
+    assert rs.calibration_from_response("// Finished MPC calibration of heater 'extruder'", c) is False
+    assert rs.calibration_from_response("!! Heater extruder not heating", True) is False
