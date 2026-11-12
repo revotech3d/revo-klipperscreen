@@ -11,6 +11,7 @@ PATHS = [os.path.expanduser("~/revo-config/web/lang/en.json"),
 _on = False
 _exact, _re = {}, []
 _WS = re.compile(r"^(\s*)([\s\S]*?)(\s*)$")
+_KOD = re.compile(r"^(REVO-\d{4} · )([\s\S]+)$")
 
 
 def tr(text):
@@ -18,6 +19,9 @@ def tr(text):
     if not _on or not isinstance(text, str) or not text.strip():
         return text
     a, k, b = _WS.match(text).groups()
+    m = _KOD.match(k)
+    if m:   # „REVO-0102 · tytuł” – kod zostaje, tytuł tłumaczony
+        return a + m.group(1) + tr(m.group(2)) + b
     if k in _exact:
         return a + _exact[k] + b
     for pat, rep in _re:
