@@ -485,9 +485,16 @@ class RevoHome(RevoActions, Gtk.Box):
 
     def start(self):
         # nowa maszyna: kreator pierwszego uruchomienia (raz na sesję ekranu, do zapisania revo_first_run_done)
+        # Sprawdzane dopiero po 8 s i tylko przy gotowym Klipperze: tuż po restarcie (SAVE_CONFIG, FIRMWARE_RESTART)
+        # zmienne bywają chwilowo puste i ekran brał zwykłą maszynę za nową.
         if self.first_run_pending() and not getattr(self.screen, "_revo_wizard_shown", False):
-            self.screen._revo_wizard_shown = True
-            GLib.idle_add(lambda: self.screen.show_panel("revo_wizard", "Pierwsze uruchomienie") and False)
+            def check():
+                if (self.printer.state == "ready" and self.first_run_pending()
+                        and not getattr(self.screen, "_revo_wizard_shown", False)):
+                    self.screen._revo_wizard_shown = True
+                    self.screen.show_panel("revo_wizard", "Pierwsze uruchomienie")
+                return False
+            GLib.timeout_add_seconds(8, check)
         if self._timer is None:
             self.refresh()
             self._timer = GLib.timeout_add_seconds(1, self.refresh)
