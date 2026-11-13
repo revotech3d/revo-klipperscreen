@@ -143,7 +143,7 @@ class NotificationHandler:
         ):
             self._screen.show_popup_message(data, from_ws=True)
         elif "SAVE_CONFIG" in data and self._screen.printer.state == "ready" and self._revo():
-            # Revo OS: bez okna KlipperScreena – zapis konfiguracji robi serwis (Panel Revo / Tryb serwisowy)
+            # Revo OS: bez okna KlipperScreena – zapis konfiguracji robi serwis (Revo Panel / Tryb serwisowy)
             self._screen.show_popup_message("Kalibracja zakończona. Zapisz wynik w trybie serwisowym (Zapisz konfigurację).", 1)
         elif "SAVE_CONFIG" in data and self._screen.printer.state == "ready":
             script = {"script": "SAVE_CONFIG"}

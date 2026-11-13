@@ -1,6 +1,6 @@
 # Revo OS – angielska wersja ekranu Revo.
 # Teksty Revo są pisane po polsku; gdy język ekranu to angielski, napisy etykiet i przycisków są
-# tłumaczone w locie wspólnym słownikiem z Panelem Revo (revo-config/web/lang/en.json).
+# tłumaczone w locie wspólnym słownikiem z Revo Panel (revo-config/web/lang/en.json).
 import json
 import logging
 import os
