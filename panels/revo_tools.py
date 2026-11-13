@@ -1,5 +1,5 @@
 # Revo OS – Narzędzia serwisowe: wszystkie ważne komendy jako przyciski (bez wpisywania).
-# Katalog wspólny z Panelem Revo (revo-config/web/komendy.json); widać tylko komendy, które ta maszyna zna.
+# Katalog wspólny z Revo Panel (revo-config/web/komendy.json); widać tylko komendy, które ta maszyna zna.
 import time
 
 import gi

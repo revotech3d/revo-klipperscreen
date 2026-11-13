@@ -95,7 +95,7 @@ class Panel(ScreenPanel, RevoActions):
         self._nav("LET'S START", back=False)
 
     def step_jezyk(self):
-        self._head("JĘZYK · LANGUAGE", "Wybierz język ekranu i Panelu Revo. Choose the screen language.")
+        self._head("JĘZYK · LANGUAGE", "Wybierz język ekranu i Revo Panel. Choose the screen language.")
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         for i, (code, name) in enumerate((("pl", "POLSKI"), ("en", "ENGLISH"))):
             g.attach(self._btn(name, lambda c=code: self.set_lang(c), "revo_preset", 80), i, 0, 1, 1)
@@ -112,7 +112,7 @@ class Panel(ScreenPanel, RevoActions):
     def step_siec(self):
         ip = local_ip()
         self._head("SIEĆ",
-                   (f"The machine is on the network: {ip}. Scan the code with a phone to open Panel Revo (http://{ip})"
+                   (f"The machine is on the network: {ip}. Scan the code with a phone to open Revo Panel (http://{ip})"
                     if ip else "Maszyna nie jest połączona z siecią. Podłącz kabel albo ustaw Wi‑Fi.")
                    + " Sieć jest potrzebna do aktualizacji i kontaktu z serwisem Revotech.")
         if ip:
