@@ -1,6 +1,9 @@
 {
 "exact": {
-"INNY": "OTHER",
+"NOWY PIN (4–8 cyfr)": "NEW PIN (4–8 digits)",
+"PIN 4–8 cyfr": "PIN 4–8 digits",
+"login (np. jan.k)": "login (e.g. john.s)",
+"Nie udało się wczytać komend.": "Could not load the commands.",
 "BRAK SIECI": "NO NETWORK",
 "O systemie": "About system",
 "SYSTEM": "SYSTEM",
@@ -22,6 +25,12 @@
 "Aktualizacje przychodzą wyłącznie z serwerów Revotech. Pomoc: biuro@revo3d.pl · +48 512 960 411": "Updates come only from Revotech servers. Help: biuro@revo3d.pl · +48 512 960 411",
 "DOTKNIJ, ABY ODBLOKOWAĆ": "TOUCH TO UNLOCK",
 "ŁĄCZENIE…": "CONNECTING…",
+"Brak połączenia z maszyną – łączę ponownie…": "No connection with the machine – reconnecting…",
+"Połączono – odświeżam…": "Connected – refreshing…",
+"Nie udało się wczytać plików – ponawiam…": "Could not load files – retrying…",
+"Maszyna nie odpowiada": "The machine is not responding",
+"Brak połączenia z maszyną": "No connection with the machine",
+"Zapisano ceny": "Prices saved",
 "REVOTECH WIDZI KAMERĘ I EKRAN · ZAKOŃCZ": "REVOTECH SEES CAMERA AND SCREEN · END",
 "Zdalny podgląd włączony": "Remote view on",
 "Zdalny podgląd zakończony": "Remote view ended",
@@ -80,7 +89,7 @@
 "ZAKOŃCZ": "FINISH",
 "Najpierw zakończ albo anuluj druk.": "Finish or cancel the print first.",
 "Głowica przesunie się w wygodne miejsce i nagrzeje do 250°. Potem wyładuj filament przyciskiem poniżej (albo pomiń, jeśli głowica jest pusta).": "The head moves to a convenient spot and heats to 250°. Then unload the filament with the button below (or skip if the head is empty).",
-"1. Załóż rękawice – dysza ma 250°.\n2. Przytrzymaj blok grzewczy kluczem 16 mm, żeby się nie obrócił.\n3. Odkręć dyszę kluczem 7 mm (w lewo) i odłóż ją na niepalną podkładkę.": "1. Put on gloves – the nozzle is 250°.\n2. Hold the heater block with a 16 mm wrench so it doesn't turn.\n3. Unscrew the nozzle with a 7 mm wrench (counter-clockwise) and put it on a heat-proof surface.",
+"1. Załóż rękawice – dysza ma 250°.\n2. Odkręć dyszę kluczem 7 mm (w lewo) i odłóż ją na niepalną podkładkę.": "1. Put on gloves – the nozzle is 250°.\n2. Unscrew the nozzle with a 7 mm wrench (counter-clockwise) and put it on a heat-proof surface.",
 "WYCZYŚCIĆ KOMUNIKATY?": "CLEAR MESSAGES?",
 "Wyczyszczono": "Cleared",
 "Lista zniknie z ekranu i z Panelu Revo. Historia maszyny i statystyki zostają bez zmian.": "The list disappears from the screen and the Revo Panel. Machine history and statistics stay unchanged.",
@@ -321,7 +330,7 @@
 "Przeciągnij tutaj plik G-code albo": "Drop a G-code file here or",
 "wybierz z dysku": "choose from disk",
 "Brak plików. Wyślij plik z Orca Slicer albo przeciągnij go tutaj.": "No files. Send a file from Orca Slicer or drop it here.",
-"Brak plików.\nWyślij plik z Orca Slicer albo przez Panel Revo w przeglądarce.": "No files.\nSend a file from Orca Slicer or through Panel Revo in a browser.",
+"Brak plików.\nWyślij plik z Orca Slicer albo przez Panel Revo w przeglądarce.": "No files.\nSend a file from Orca Slicer or through Revo Panel in a browser.",
 "Nie udało się wczytać plików.": "Could not load files.",
 "Nie udało się otworzyć pliku.": "Could not open the file.",
 "Czas": "Time",
@@ -668,13 +677,11 @@
 "Sieć jest potrzebna do aktualizacji i kontaktu z serwisem Revotech.": "A network is needed for updates and contact with Revotech service.",
 "Ta maszyna nie ma Wi-Fi – podłącz kabel sieciowy (LAN).": "This machine has no Wi-Fi – plug in a network (LAN) cable.",
 "Ta sieć wymaga logowania firmowego (802.1X). Podłącz maszynę kablem LAN albo poproś serwis Revotech.": "This network needs enterprise sign-in (802.1X). Connect the machine by LAN cable or ask Revotech service.",
-"Telefon musi być w tej samej sieci co maszyna. Otworzy się Panel Revo:": "The phone must be on the same network as the machine. Panel Revo opens:",
+"Telefon musi być w tej samej sieci co maszyna. Otworzy się Panel Revo:": "The phone must be on the same network as the machine. Revo Panel opens:",
 "Test możesz też zrobić później: Menu → Więcej → Test maszyny.": "You can also run the test later: Menu → More → Machine test.",
 "Trwa wydruk – najpierw go zakończ albo przerwij.": "A print is running – finish or stop it first.",
 "WRÓĆ DO EKRANU REVO": "BACK TO REVO SCREEN",
 "WYŁĄCZ MASZYNĘ": "SHUT DOWN MACHINE",
-"RESET DO PIERWSZEGO STARTU": "RESET TO FIRST START",
-"Maszyna się wyłącza. Po włączeniu pokaże się kreator pierwszego uruchomienia.": "The machine is shutting down. When switched on, the first start wizard will appear.",
 "Wpisz go raz – aktywuje maszynę. Działa także bez internetu.": "Enter it once – it activates the machine. Works without internet too.",
 "Wyłącz": "Off",
 "ZAPOMNIJ SIEĆ": "FORGET NETWORK",
@@ -686,9 +693,40 @@
 "ZASILANIE": "POWER",
 "URUCHOM PONOWNIE": "RESTART",
 "LICENCJA": "LICENSE",
-"TRYB EKRANU": "SCREEN MODE"
+"TRYB EKRANU": "SCREEN MODE",
+"INNY": "OTHER",
+"1. Załóż rękawice – dysza ma 250°.\n2. Przytrzymaj blok grzewczy kluczem 16 mm, żeby się nie obrócił.\n3. Odkręć dyszę kluczem 7 mm (w lewo) i odłóż ją na niepalną podkładkę.": "1. Put on gloves – the nozzle is 250°.\n2. Hold the heater block with a 16 mm wrench so it doesn't turn.\n3. Unscrew the nozzle with a 7 mm wrench (counter-clockwise) and put it on a heat-proof surface.",
+"RESET DO PIERWSZEGO STARTU": "RESET TO FIRST START",
+"Maszyna się wyłącza. Po włączeniu pokaże się kreator pierwszego uruchomienia.": "The machine is shutting down. When switched on, the first start wizard will appear.",
+"[r]evo Slicer sam znajduje tę maszynę w sieci: Main Launch Control → Dock. Orca Slicer (opcjonalnie) łączy się adresem i kluczem API. Klucz widzi tylko kierownik i serwis.": "[r]evo Slicer finds this machine on the network by itself: Main Launch Control → Dock. Orca Slicer (optional) connects with the address and API key. Only the manager and service can see the key.",
+"POKAŻ ADRES I KLUCZ": "SHOW ADDRESS AND KEY",
+"Zaloguj się jako kierownik, żeby zobaczyć adres i klucz.": "Sign in as the manager to see the address and key.",
+"Adres maszyny:": "Machine address:",
+"Klucz API:": "API key:",
+"[r]evo Slicer: Main Launch Control → Dock – adres i klucz uzupełni sam.": "[r]evo Slicer: Main Launch Control → Dock – fills in the address and key by itself.",
+"Orca Slicer: Drukarka → Połączenie → typ Octo/Klipper, wpisz adres i klucz.": "Orca Slicer: Printer → Connection → host type Octo/Klipper, enter the address and key.",
+"Brak plików. Wyślij plik z [r]evo Slicer albo przeciągnij go tutaj.": "No files. Send a file from [r]evo Slicer or drop it here.",
+"Brak plików.\nWyślij plik z [r]evo Slicer albo przez Panel Revo w przeglądarce.": "No files.\nSend a file from [r]evo Slicer or through Revo Panel in a browser.",
+"Koszt pojawi się po pierwszym wydruku.": "The cost appears after the first print.",
+"PIN został zresetowany. Ustaw nowy PIN.": "The PIN was reset. Set a new PIN.",
+"Sparowano. Załóż konto kierownika – on dodaje kolejnych operatorów.": "Paired. Create the manager account – the manager adds further operators.",
+"Wysłano zgłoszenie": "Report sent",
+"– dotknij, żeby przejść do testu": "– tap to go to the test",
+"Wpisz numer licencji na ekranie drukarki: Menu → Więcej → Licencja.": "Enter the licence number on the printer screen: Menu → More → Licence."
 },
 "re": [
+[
+"^Odrzucono (.*): tylko pliki z \\[r\\]evo Slicer lub Orca Slicer$",
+"Rejected $1: only files from [r]evo Slicer or Orca Slicer"
+],
+[
+"^Wytłaczam (.*) mm³ \\((.*) mm\\) z przepływem (.*) mm³/s$",
+"Extruding $1 mm³ ($2 mm) at $3 mm³/s"
+],
+[
+"^Zapisano dyszę Ø ?(.*)$",
+"Nozzle saved: Ø $1"
+],
 [
 "^(\\d+) wydruków$",
 "$1 prints"
