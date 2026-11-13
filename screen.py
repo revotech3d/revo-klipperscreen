@@ -124,6 +124,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.env.install_gettext_translations(self._config.get_lang())
 
         self.connect("key-press-event", self._key_press_event)
+        # Revo: dotknięcie poza polem tekstowym i klawiaturą zamyka klawiaturę
+        self.connect("button-press-event", self._tap_outside_keyboard)
         self.connect("configure_event", self.update_size)
         display = Gdk.Display.get_default()
         self.display_number = os.environ.get("DISPLAY") or ":0"
@@ -1568,6 +1570,17 @@ class KlipperScreen(Gtk.ApplicationWindow):
         if entry:
             entry.set_sensitive(False)  # Move the focus
             entry.set_sensitive(True)
+
+    def _tap_outside_keyboard(self, widget, event):
+        if self.keyboard is None:
+            return False
+        w = Gtk.get_event_widget(event)
+        while w is not None:
+            if isinstance(w, Gtk.Entry) or w is self.keyboard.get("box"):
+                return False
+            w = w.get_parent()
+        self.remove_keyboard()
+        return False
 
     def _key_press_event(self, widget, event):
         keyval_name = Gdk.keyval_name(event.keyval)
