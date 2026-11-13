@@ -53,7 +53,7 @@ class Panel(ScreenPanel):
         files = [f for f in self._files.files.values() if self._files.is_gcode(f.get("path", ""))]
         files.sort(key=lambda f: f.get("modified", 0), reverse=True)
         if not files:
-            lb = _lbl("Brak plików.\nWyślij plik z Orca Slicer albo przez Panel Revo w przeglądarce.", "revo_info", 0.5)
+            lb = _lbl("Brak plików.\nWyślij plik z [r]evo Slicer albo przez Panel Revo w przeglądarce.", "revo_info", 0.5)
             lb.set_line_wrap(True)
             box.pack_start(lb, False, False, 40)
         grid = Gtk.Grid(column_homogeneous=True, column_spacing=10, row_spacing=10)
