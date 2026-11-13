@@ -1,5 +1,5 @@
 # Revo OS – wymiana filamentu krok po kroku (materiał → wyładuj → załaduj → szpula) albo samo ustawienie szpuli.
-# Stan szpuli trzyma agent Revo (odejmuje zużycie w czasie druku); ekran i Panel Revo tylko go ustawiają.
+# Stan szpuli trzyma agent Revo (odejmuje zużycie w czasie druku); ekran i Revo Panel tylko go ustawiają.
 import threading
 
 import gi

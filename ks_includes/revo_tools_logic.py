@@ -1,4 +1,4 @@
-# Revo OS – katalog komend serwisowych (wspólny z Panelem Revo: revo-config/web/komendy.json). Bez GTK.
+# Revo OS – katalog komend serwisowych (wspólny z Revo Panel: revo-config/web/komendy.json). Bez GTK.
 import json
 import os
 import re

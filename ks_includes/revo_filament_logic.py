@@ -1,4 +1,4 @@
-# Revo OS – materiały filamentu (temperatura wymiany) i opis stanu szpuli. Te same wartości w Panelu Revo (www).
+# Revo OS – materiały filamentu (temperatura wymiany) i opis stanu szpuli. Te same wartości w Revo Panel (www).
 MATERIALS = [("PLA", 215), ("PETG", 240), ("ABS", 255), ("ASA", 260), ("TPU", 230),
              ("PA", 270), ("PC", 280), ("PETG-CF", 250), ("PA-CF", 280), ("INNY", 240)]
 TEMP = dict(MATERIALS)

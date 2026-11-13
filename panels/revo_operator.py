@@ -1,5 +1,5 @@
 # Revo OS – operatorzy: wybór osoby i PIN. Kto drukował i kto zgłosił problem trafia do historii.
-# Listę operatorów zakłada kierownik w Panelu Revo (przeglądarka); na ekranie tylko logowanie i wylogowanie.
+# Listę operatorów zakłada kierownik w Revo Panel (przeglądarka); na ekranie tylko logowanie i wylogowanie.
 import threading
 
 import gi
@@ -40,8 +40,8 @@ class Panel(ScreenPanel):
         self.box.pack_start(_lbl("MACHINE OPERATOR", "revo_test_name"), False, False, 6)
         if not [o for o in ops if not o.get("bez_pinu")]:
             code, r = agent.call("/parowanie/kod", timeout=3)
-            t = _lbl("Panel Revo in a browser needs a sign-in. The machine has no operators yet – "
-                     "open Panel Revo, choose CODE FROM SCREEN and enter this code, then create the manager account. "
+            t = _lbl("Revo Panel in a browser needs a sign-in. The machine has no operators yet – "
+                     "open Revo Panel, choose CODE FROM SCREEN and enter this code, then create the manager account. "
                      "Code valid for 10 minutes.", "revo_test_desc")
             t.set_line_wrap(True)
             self.box.pack_start(t, False, False, 0)

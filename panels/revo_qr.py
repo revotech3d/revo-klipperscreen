@@ -1,4 +1,4 @@
-# Revo OS – Panel Revo na telefonie: kod QR z adresem maszyny.
+# Revo OS – Revo Panel na telefonie: kod QR z adresem maszyny.
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -21,7 +21,7 @@ class Panel(ScreenPanel):
             box.pack_start(_lbl("ZESKANUJ TELEFONEM", "revo_test_name", 0.5), False, False, 12)
             box.pack_start(QR(url, 260), False, False, 0)
             box.pack_start(_lbl(url, "revo_tile_value_small", 0.5), False, False, 6)
-            t = _lbl("Telefon musi być w tej samej sieci co maszyna. Otworzy się Panel Revo: "
+            t = _lbl("Telefon musi być w tej samej sieci co maszyna. Otworzy się Revo Panel: "
                      "podgląd druku, wysyłanie plików, historia i test maszyny.", "revo_test_desc", 0.5)
             t.set_line_wrap(True)
             box.pack_start(t, False, False, 0)
