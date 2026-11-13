@@ -28,7 +28,11 @@ class Panel(ScreenPanel):
         self.wybrana = None
         self.box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.box.get_style_context().add_class("revo_home")
-        self.content.add(self.box)
+        # przewijane, żeby otwarta klawiatura (z klawiszem ↓) mieściła się na ekranie
+        scroll = self._gtk.ScrolledWindow()
+        scroll.set_vexpand(True)
+        scroll.add(self.box)
+        self.content.add(scroll)
         self.box.pack_start(_lbl("SIEĆ", "revo_test_name"), False, False, 6)
         self.stan = _lbl("", "revo_state")
         self.stan.set_line_wrap(True)
