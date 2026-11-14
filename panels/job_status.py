@@ -604,12 +604,15 @@ class Panel(ScreenPanel):
             "pause": self._gtk.Button("pause", _("Pause"), "color1"),
             "restart": self._gtk.Button("refresh", _("Restart"), "color3"),
             "resume": self._gtk.Button("resume", _("Resume"), "color1"),
+            # Revo: endless flat belt print – stop after the segment being printed
+            "finish": self._gtk.Button("complete", _("Finish after segment"), "color3"),
             "save_offset_probe": self._gtk.Button("home-z", _("Save Z") + "\n" + "Probe", "color1"),
             "save_offset_endstop": self._gtk.Button(
                 "home-z", _("Save Z") + "\n" + "Endstop", "color2"
             ),
         }
         self.buttons["cancel"].connect("clicked", self.cancel)
+        self.buttons["finish"].connect("clicked", self.finish_after_segment)
         self.buttons["control"].connect("clicked", self._screen._go_to_submenu, "")
         self.buttons["fine_tune"].connect("clicked", self.menu_item_clicked, {"panel": "fine_tune"})
         self.buttons["menu"].connect("clicked", self.close_panel)
@@ -696,6 +699,25 @@ class Panel(ScreenPanel):
         self._screen._send_action(widget, "printer.print.pause", {})
         self._screen.show_all()
 
+    def _flat_belt_endless(self):
+        sections = self._printer.get_config_section_list()
+        return "sdcard_loop" in sections and "gcode_macro FLAT_BELT_FINISH" in sections
+
+    def finish_after_segment(self, widget):
+        buttons = [
+            {"name": _("Finish after segment"), "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+            {"name": _("Keep printing"), "response": Gtk.ResponseType.CANCEL, "style": "dialog-error"},
+        ]
+        label = Gtk.Label(hexpand=True, vexpand=True, wrap=True, wrap_mode=Pango.WrapMode.WORD_CHAR)
+        label.set_markup(_("The print stops after the segment being printed now, with a complete segment on the belt."))
+        self._gtk.Dialog(_("Finish after segment"), buttons, label, self.finish_confirm)
+
+    def finish_confirm(self, dialog, response_id):
+        self._gtk.remove_dialog(dialog)
+        if response_id == Gtk.ResponseType.OK:
+            self._screen._ws.api.gcode_script("FLAT_BELT_FINISH")
+            self.disable_button("finish")
+
     def cancel(self, widget):
         buttons = [
             {"name": _("Cancel Print"), "response": Gtk.ResponseType.OK, "style": "dialog-error"},
@@ -770,6 +792,16 @@ class Panel(ScreenPanel):
                     self.buttons["extruder"][x].set_label(self.labels[x].get_text())
                 elif x in self.buttons["heater"]:
                     self.buttons["heater"][x].set_label(self.labels[x].get_text())
+
+        if "gcode_macro FLAT_BELT" in data:
+            belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+            text = _("Segment") + f" {int(belt.get('segments', 0)) + 1}"
+            if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
+                text += f" / {int(belt['total'])}"
+            if belt.get("finishing"):
+                text += " · " + _("last segment")
+            self.labels["lcdmessage"].set_label(text)
+            self.labels["lcdmessage"].show()
 
         if "display_status" in data and "message" in data["display_status"]:
             if data["display_status"]["message"]:
@@ -910,7 +942,20 @@ class Panel(ScreenPanel):
         self.buttons["extrusion"].set_label(f"{self.extrusion:3}% {self.flowrate:5.1f} {self.mms3}")
         return True
 
+    def _flat_belt_endless_running(self):
+        return bool(self._printer.get_stat("gcode_macro FLAT_BELT", "endless"))
+
     def update_time_left(self):
+        if self._flat_belt_endless_running():
+            # Endless: the file loops, so file position, percent and time left mean nothing.
+            # The belt length printed and the elapsed time are what counts.
+            belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+            length = (int(belt.get("segments", 0)) + 1) * float(belt.get("advance", 0)) / 1000
+            elapsed_label = f"{self.labels['elapsed'].get_text()}  {self.labels['duration'].get_text()}"
+            self.buttons["elapsed"].set_label(elapsed_label)
+            self.buttons["left"].set_label(_("Endless") + f"  ~{length:.1f} m")
+            self.labels["progress_text"].set_label("∞")
+            return
         progress = (
             (
                 max(
@@ -1123,6 +1168,10 @@ class Panel(ScreenPanel):
             self.buttons["button_grid"].attach(self.buttons["cancel"], 1, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["fine_tune"], 2, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["control"], 3, 0, 1, 1)
+            if self._flat_belt_endless():
+                self.buttons["button_grid"].attach(self.buttons["finish"], 4, 0, 1, 1)
+                finishing = self._printer.get_stat("gcode_macro FLAT_BELT", "finishing")
+                self.buttons["finish"].set_sensitive(not finishing)
             self.enable_button("pause", "cancel")
             self._gtk.Button_busy(self.buttons["cancel"], False)
             self.can_close = False
