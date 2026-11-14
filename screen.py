@@ -384,6 +384,9 @@ class KlipperScreen(Gtk.ApplicationWindow):
             requested_updates["objects"][p] = ["value"]
         for led in self.printer.get_leds():
             requested_updates["objects"][led] = ["color_data"]
+        # Revo: flat belt segment counter (revo/revo.cfg, BELT_ADVANCE)
+        if "gcode_macro FLAT_BELT" in self.printer.get_config_section_list():
+            requested_updates["objects"]["gcode_macro FLAT_BELT"] = ["segments", "finishing"]
 
         self._ws.api.object_subscription(requested_updates)
 
