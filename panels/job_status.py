@@ -680,6 +680,8 @@ class Panel(ScreenPanel):
         if "gcode_macro FLAT_BELT" in data:
             belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
             text = _("Segment") + f" {int(belt.get('segments', 0)) + 1}"
+            if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
+                text += f" / {int(belt['total'])}"
             if belt.get("finishing"):
                 text += " · " + _("last segment")
             self.labels["lcdmessage"].set_label(text)
@@ -824,7 +826,20 @@ class Panel(ScreenPanel):
         self.buttons["extrusion"].set_label(f"{self.extrusion:3}% {self.flowrate:5.1f} {self.mms3}")
         return True
 
+    def _flat_belt_endless_running(self):
+        return bool(self._printer.get_stat("gcode_macro FLAT_BELT", "endless"))
+
     def update_time_left(self):
+        if self._flat_belt_endless_running():
+            # Endless: the file loops, so file position, percent and time left mean nothing.
+            # The belt length printed and the elapsed time are what counts.
+            belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+            length = (int(belt.get("segments", 0)) + 1) * float(belt.get("advance", 0)) / 1000
+            elapsed_label = f"{self.labels['elapsed'].get_text()}  {self.labels['duration'].get_text()}"
+            self.buttons["elapsed"].set_label(elapsed_label)
+            self.buttons["left"].set_label(_("Endless") + f"  ~{length:.1f} m")
+            self.labels["progress_text"].set_label("∞")
+            return
         progress = (
             (
                 max(
