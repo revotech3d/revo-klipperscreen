@@ -703,14 +703,29 @@ class Panel(ScreenPanel):
         sections = self._printer.get_config_section_list()
         return "sdcard_loop" in sections and "gcode_macro FLAT_BELT_FINISH" in sections
 
+    def _flat_belt_unit(self):
+        # What the belt counter counts (FLAT_BELT_INFO UNIT from [r]evo Slicer): segment, plate or piece
+        return self._printer.get_stat("gcode_macro FLAT_BELT", "unit") or "segment"
+
+    def _flat_belt_texts(self):
+        if self._flat_belt_unit() == "plate":
+            return {"name": _("Plate"), "finish": _("Finish after plate"), "last": _("last plate"),
+                    "explain": _("The print stops after the plate being printed now.")}
+        if self._flat_belt_unit() == "piece":
+            return {"name": _("Piece"), "finish": _("Finish after piece"), "last": _("last piece"),
+                    "explain": _("The print stops after the piece being printed now.")}
+        return {"name": _("Segment"), "finish": _("Finish after segment"), "last": _("last segment"),
+                "explain": _("The print stops after the segment being printed now, with a complete segment on the belt.")}
+
     def finish_after_segment(self, widget):
+        texts = self._flat_belt_texts()
         buttons = [
-            {"name": _("Finish after segment"), "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+            {"name": texts["finish"], "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
             {"name": _("Keep printing"), "response": Gtk.ResponseType.CANCEL, "style": "dialog-error"},
         ]
         label = Gtk.Label(hexpand=True, vexpand=True, wrap=True, wrap_mode=Pango.WrapMode.WORD_CHAR)
-        label.set_markup(_("The print stops after the segment being printed now, with a complete segment on the belt."))
-        self._gtk.Dialog(_("Finish after segment"), buttons, label, self.finish_confirm)
+        label.set_markup(texts["explain"])
+        self._gtk.Dialog(texts["finish"], buttons, label, self.finish_confirm)
 
     def finish_confirm(self, dialog, response_id):
         self._gtk.remove_dialog(dialog)
@@ -795,11 +810,12 @@ class Panel(ScreenPanel):
 
         if "gcode_macro FLAT_BELT" in data:
             belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
-            text = _("Segment") + f" {int(belt.get('segments', 0)) + 1}"
+            texts = self._flat_belt_texts()
+            text = texts["name"] + f" {int(belt.get('segments', 0)) + 1}"
             if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
                 text += f" / {int(belt['total'])}"
             if belt.get("finishing"):
-                text += " · " + _("last segment")
+                text += " · " + texts["last"]
             self.labels["lcdmessage"].set_label(text)
             self.labels["lcdmessage"].show()
 
@@ -1169,6 +1185,7 @@ class Panel(ScreenPanel):
             self.buttons["button_grid"].attach(self.buttons["fine_tune"], 2, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["control"], 3, 0, 1, 1)
             if self._flat_belt_endless():
+                self.buttons["finish"].set_label(self._flat_belt_texts()["finish"])
                 self.buttons["button_grid"].attach(self.buttons["finish"], 4, 0, 1, 1)
                 finishing = self._printer.get_stat("gcode_macro FLAT_BELT", "finishing")
                 self.buttons["finish"].set_sensitive(not finishing)
