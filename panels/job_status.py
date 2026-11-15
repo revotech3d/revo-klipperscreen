@@ -961,7 +961,9 @@ class Panel(ScreenPanel):
             texts = self._flat_belt_texts()
             if belt.get("mode"):
                 target = int(belt.get("target", 0))
-                text = texts["name"] + f" {int(belt.get('done', 0)) + 1}" + (f" / {target}" if target > 0 else "")
+                done = int(belt.get("done", 0))
+                cur = done if 0 < target <= done else done + 1   # after the last one: "Plate 2 / 2", not 3 / 2
+                text = texts["name"] + f" {cur}" + (f" / {target}" if target > 0 else "")
             else:
                 text = texts["name"] + f" {int(belt.get('segments', 0)) + 1}"
                 if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
