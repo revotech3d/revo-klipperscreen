@@ -415,7 +415,13 @@ class Panel(ScreenPanel):
         from ks_includes import revo_belt_logic as bl
         v = self._revo_belt_view()
         if v is None:
-            self.revo_belt_win.hide()
+            if self.revo_belt_win.get_visible():
+                self.revo_belt_win.set_no_show_all(True)
+                self.revo_belt_win.hide()
+                self.revo_view.set_no_show_all(False)
+                self.revo_view.show_all()
+                if hasattr(self, "revo_cam"):
+                    self.revo_view_btn.show()
             return
         b = self.revo_belt
         b["mode"].set_label(v["mode"])
@@ -431,17 +437,23 @@ class Panel(ScreenPanel):
         b["target_title"].set_label(v["target_title"])
         if self._belt_pending is None:
             b["value"].set_label(v["target"])
-        self.revo_belt_win.show()
-        for w in (b["mode"], b["sub"]):
-            w.show()
+        if not self.revo_belt_win.get_visible():
+            self.revo_belt_win.set_no_show_all(False)   # show_all() skips a widget that has no_show_all set
+            self.revo_belt_win.show_all()
+            # the 480×800 screen has no room for both: the belt window takes the place of the model / camera view
+            self.revo_view.set_no_show_all(True)
+            self.revo_view.hide()
+            self.revo_view_btn.hide()
         for w in (b["count_row"], b["bar_unit"], b["bar_all"], b["stats"]):
             if counting:
                 w.show_all()
             else:
                 w.hide()
         if v["loop"] and self.state == "printing":
+            b["stepper"].set_no_show_all(False)
             b["stepper"].show_all()
         else:
+            b["stepper"].set_no_show_all(True)
             b["stepper"].hide()
 
     def _revo_sz_load(self):
