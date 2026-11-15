@@ -323,6 +323,7 @@ class Panel(ScreenPanel):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         top = Gtk.Box(spacing=10)
         b["mode"] = lbl("", "revo_belt_mode")
+        b["mode"].set_ellipsize(Pango.EllipsizeMode.NONE)
         b["sub"] = lbl("", "revo_tile_title")
         b["sub"].set_valign(Gtk.Align.CENTER)
         top.pack_start(b["mode"], False, False, 0)
@@ -370,7 +371,7 @@ class Panel(ScreenPanel):
             b["stepper"].pack_start(btn, False, False, 0)
         b["stepper"].set_no_show_all(True)
         box.add(b["stepper"])
-        self.revo_belt = b
+        self.revo_bw = b
         self._belt_pending = None
         self._belt_send = None
         return box
@@ -387,7 +388,7 @@ class Panel(ScreenPanel):
         else:
             new = bl.step_target(fb, cur, -1 if key == "minus" else 1)
         self._belt_pending = new
-        self.revo_belt["value"].set_label(bl.target_text(fb, new))
+        self.revo_bw["value"].set_label(bl.target_text(fb, new))
         if self._belt_send:
             GLib.source_remove(self._belt_send)
         self._belt_send = GLib.timeout_add(1500, self._revo_belt_send)
@@ -423,7 +424,7 @@ class Panel(ScreenPanel):
                 if hasattr(self, "revo_cam"):
                     self.revo_view_btn.show()
             return
-        b = self.revo_belt
+        b = self.revo_bw
         b["mode"].set_label(v["mode"])
         b["sub"].set_label(v["sub"])
         counting = bool(v["counter"])
