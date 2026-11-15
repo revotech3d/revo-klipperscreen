@@ -418,7 +418,9 @@ class KlipperScreen(Gtk.ApplicationWindow):
             requested_updates["objects"][led] = ["color_data"]
         # Revo: flat belt segment counter (revo/revo.cfg, BELT_ADVANCE)
         if "gcode_macro FLAT_BELT" in self.printer.get_config_section_list():
-            requested_updates["objects"]["gcode_macro FLAT_BELT"] = ["segments", "finishing", "endless", "advance", "total", "unit"]
+            requested_updates["objects"]["gcode_macro FLAT_BELT"] = [
+                "segments", "finishing", "endless", "advance", "total", "unit", "mode", "done", "target", "loop",
+                "min_target", "file_units", "start_len", "unit_mark", "unit_sum", "last_unit", "advanced"]
 
         # Revo OS: stan testu maszyny (zmienne makra) – ekran testu odświeża się na żywo
         if "gcode_macro _REVO_TEST" in self.printer.config:

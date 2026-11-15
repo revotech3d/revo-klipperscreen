@@ -428,3 +428,5 @@ entry { background-color: #070B0F; border: 1px solid #33495A; border-radius: 0; 
 .revo_saver_bar { font-family: "Rajdhani", sans-serif; font-weight: 700; letter-spacing: 6px; font-size: 1.3em; }
 .revo_saver_bar.revo_ok { color: #3ED663; } .revo_saver_bar.revo_warn { color: #FFB347; } .revo_saver_bar.revo_err { color: #FF3B3B; }
 .revo_saver_hint { font-family: "Share Tech Mono", monospace; color: #33495A; letter-spacing: 4px; font-size: 0.8em; margin-top: 0; }
+/* ---- Revo OS: druk na pasie – plakietka trybu ---- */
+.revo_belt_mode { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; letter-spacing: 3px; color: #0A0A0A; background-color: #5AA0FF; padding: 2px 10px; }

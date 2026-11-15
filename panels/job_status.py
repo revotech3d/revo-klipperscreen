@@ -256,6 +256,9 @@ class Panel(ScreenPanel):
         info.attach(sz, 3, 0, 1, 1)
         prog.pack_start(info, False, False, 0)
         box.pack_start(window("PROGRESS", pad(prog), "JOB"), False, False, 0)
+        self.revo_belt_win = window("BELT", pad(self._revo_belt_box()), "MODE")
+        self.revo_belt_win.set_no_show_all(True)
+        box.pack_start(self.revo_belt_win, False, False, 0)
 
         tiles = Gtk.Box(spacing=4, homogeneous=True)
         self.revo_tiles = {"extruder": HexGauge("NOZZLE", 300), "heater_bed": HexGauge("BELT" if lg.is_belt(self._printer) else "BED", 120),
@@ -309,6 +312,138 @@ class Panel(ScreenPanel):
         self.content.add(box)
         GLib.timeout_add_seconds(1, self._revo_tick)
 
+    # ---------- Revo OS: druk na pasie – tryb, licznik, czasy i zmiana ilości w trakcie druku ----------
+    def _revo_belt_box(self):
+        def lbl(text, cls, x=0.0):
+            w = Gtk.Label(label=text, xalign=x)
+            w.get_style_context().add_class(cls)
+            w.set_ellipsize(Pango.EllipsizeMode.END)
+            return w
+        b = {}
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        top = Gtk.Box(spacing=10)
+        b["mode"] = lbl("", "revo_belt_mode")
+        b["sub"] = lbl("", "revo_tile_title")
+        b["sub"].set_valign(Gtk.Align.CENTER)
+        top.pack_start(b["mode"], False, False, 0)
+        top.pack_start(b["sub"], True, True, 0)
+        box.add(top)
+        b["count_row"] = Gtk.Box(spacing=10)
+        b["counter"] = lbl("", "revo_big")
+        b["counter_unit"] = lbl("", "revo_tile_title")
+        b["counter_unit"].set_valign(Gtk.Align.END)
+        b["counter_unit"].set_margin_bottom(8)
+        b["count_row"].pack_start(b["counter"], False, False, 0)
+        b["count_row"].pack_start(b["counter_unit"], True, True, 0)
+        box.add(b["count_row"])
+        b["bar_unit"] = Gtk.ProgressBar()
+        b["bar_unit"].get_style_context().add_class("revo_progress")
+        b["bar_all"] = Gtk.ProgressBar()
+        b["bar_all"].get_style_context().add_class("revo_progress")
+        box.add(b["bar_unit"])
+        box.add(b["bar_all"])
+        b["stats"] = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        b["stat"] = []
+        for i in range(3):
+            col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            t, v = lbl("", "revo_tile_title"), lbl("–", "revo_tile_value")
+            col.add(t)
+            col.add(v)
+            b["stats"].attach(col, i, 0, 1, 1)
+            b["stat"].append((t, v))
+        box.add(b["stats"])
+        # QUANTITY / PLATES / LENGTH: − wartość + ∞, wysyłane po chwili bez dotykania
+        b["stepper"] = Gtk.Box(spacing=6)
+        b["target_title"] = lbl("", "revo_tile_title")
+        b["target_title"].set_valign(Gtk.Align.CENTER)
+        b["stepper"].pack_start(b["target_title"], True, True, 0)
+        for key, text in (("minus", "−"), ("value", ""), ("plus", "+"), ("inf", "∞")):
+            if key == "value":
+                b["value"] = lbl("", "revo_tile_value", 0.5)
+                b["value"].set_size_request(110, -1)
+                b["stepper"].pack_start(b["value"], False, False, 0)
+                continue
+            btn = Gtk.Button(label=text)
+            btn.get_style_context().add_class("revo_preset")
+            btn.set_size_request(64, -1)
+            btn.connect("clicked", self._revo_belt_step, key)
+            b["stepper"].pack_start(btn, False, False, 0)
+        b["stepper"].set_no_show_all(True)
+        box.add(b["stepper"])
+        self.revo_belt = b
+        self._belt_pending = None
+        self._belt_send = None
+        return box
+
+    def _revo_belt_fb(self):
+        return self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+
+    def _revo_belt_step(self, widget, key):
+        from ks_includes import revo_belt_logic as bl
+        fb = self._revo_belt_fb()
+        cur = self._belt_pending if self._belt_pending is not None else int(fb.get("target", 0))
+        if key == "inf":
+            new = 0
+        else:
+            new = bl.step_target(fb, cur, -1 if key == "minus" else 1)
+        self._belt_pending = new
+        self.revo_belt["value"].set_label(bl.target_text(fb, new))
+        if self._belt_send:
+            GLib.source_remove(self._belt_send)
+        self._belt_send = GLib.timeout_add(1500, self._revo_belt_send)
+
+    def _revo_belt_send(self):
+        self._belt_send = None
+        if self._belt_pending is not None:
+            self._screen._ws.api.gcode_script(f"FLAT_BELT_SET_TARGET TARGET={self._belt_pending}")
+        GLib.timeout_add(2000, self._revo_belt_clear_pending)
+        return False
+
+    def _revo_belt_clear_pending(self):
+        if self._belt_send is None:
+            self._belt_pending = None
+        return False
+
+    def _revo_belt_view(self):
+        from ks_includes import revo_belt_logic as bl
+        if self.state not in ("printing", "paused"):
+            return None
+        duration = float(self._printer.get_stat("print_stats", "print_duration") or 0)
+        return bl.view(self._revo_belt_fb(), duration, self.file_metadata.get("estimated_time", 0))
+
+    def _revo_belt_update(self):
+        from ks_includes import revo_belt_logic as bl
+        v = self._revo_belt_view()
+        if v is None:
+            self.revo_belt_win.hide()
+            return
+        b = self.revo_belt
+        b["mode"].set_label(v["mode"])
+        b["sub"].set_label(v["sub"])
+        counting = bool(v["counter"])
+        b["counter"].set_label(v["counter"])
+        b["counter_unit"].set_label(v["counter_unit"] + (" · LAST" if v["finishing"] else ""))
+        b["bar_unit"].set_fraction(v["bar_unit"])
+        b["bar_all"].set_fraction(v["bar_all"])
+        for (t, val), (title, value) in zip(b["stat"], v["stats"]):
+            t.set_label(title)
+            val.set_label(value)
+        b["target_title"].set_label(v["target_title"])
+        if self._belt_pending is None:
+            b["value"].set_label(v["target"])
+        self.revo_belt_win.show()
+        for w in (b["mode"], b["sub"]):
+            w.show()
+        for w in (b["count_row"], b["bar_unit"], b["bar_all"], b["stats"]):
+            if counting:
+                w.show_all()
+            else:
+                w.hide()
+        if v["loop"] and self.state == "printing":
+            b["stepper"].show_all()
+        else:
+            b["stepper"].hide()
+
     def _revo_sz_load(self):
         from ks_includes import revo_agent_client as agent
         from ks_includes import revo_filament_logic as fl
@@ -360,6 +495,7 @@ class Panel(ScreenPanel):
             threading.Thread(target=self._revo_sz_load, daemon=True).start()
         if self._revo_n % 5 == 1:   # seria wydruków: ile sztuk zostało w kolejce
             self._screen._ws.send_method("server.job_queue.status", {}, self._revo_queue)
+        self._revo_belt_update()
         for dev, tile in self.revo_tiles.items():
             if dev == "chamber":
                 dev = lg.cfg(self._printer, "chamber", "temperature_sensor chamber")
@@ -703,6 +839,12 @@ class Panel(ScreenPanel):
         sections = self._printer.get_config_section_list()
         return "sdcard_loop" in sections and "gcode_macro FLAT_BELT_FINISH" in sections
 
+    def _flat_belt_finishable(self):
+        # Finish after the current unit: a print that repeats it in a loop (FLAT_BELT_INFO LOOP=1), or an older
+        # Endless file
+        fb = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+        return self._flat_belt_endless() and (bool(fb.get("loop")) or (not fb.get("mode") and bool(fb.get("endless"))))
+
     def _flat_belt_unit(self):
         # What the belt counter counts (FLAT_BELT_INFO UNIT from [r]evo Slicer): segment, plate or piece
         return self._printer.get_stat("gcode_macro FLAT_BELT", "unit") or "segment"
@@ -811,9 +953,13 @@ class Panel(ScreenPanel):
         if "gcode_macro FLAT_BELT" in data:
             belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
             texts = self._flat_belt_texts()
-            text = texts["name"] + f" {int(belt.get('segments', 0)) + 1}"
-            if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
-                text += f" / {int(belt['total'])}"
+            if belt.get("mode"):
+                target = int(belt.get("target", 0))
+                text = texts["name"] + f" {int(belt.get('done', 0)) + 1}" + (f" / {target}" if target > 0 else "")
+            else:
+                text = texts["name"] + f" {int(belt.get('segments', 0)) + 1}"
+                if int(belt.get("total", 0)) > 0 and not belt.get("endless"):
+                    text += f" / {int(belt['total'])}"
             if belt.get("finishing"):
                 text += " · " + texts["last"]
             self.labels["lcdmessage"].set_label(text)
@@ -962,7 +1108,24 @@ class Panel(ScreenPanel):
         return bool(self._printer.get_stat("gcode_macro FLAT_BELT", "endless"))
 
     def update_time_left(self):
-        if self._flat_belt_endless_running():
+        fb = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
+        if fb.get("loop"):
+            # The file repeats one unit in a loop: the progress and time left come from the units done.
+            from ks_includes import revo_belt_logic as bl
+            v = self._revo_belt_view() or {}
+            elapsed_label = f"{self.labels['elapsed'].get_text()}  {self.labels['duration'].get_text()}"
+            self.buttons["elapsed"].set_label(elapsed_label)
+            if v.get("left") is not None:
+                self.labels["time_left"].set_label(bl.fmt_time(v["left"]))
+            else:
+                self.labels["time_left"].set_label("∞")
+            self.buttons["left"].set_label(f"{self.labels['left'].get_text()}  {self.labels['time_left'].get_text()}")
+            if v.get("progress") is not None:
+                self.update_progress(v["progress"])
+            else:
+                self.labels["progress_text"].set_label("∞")
+            return
+        if self._flat_belt_endless_running() and not fb.get("mode"):
             # Endless: the file loops, so file position, percent and time left mean nothing.
             # The belt length printed and the elapsed time are what counts.
             belt = self._printer.get_stat("gcode_macro FLAT_BELT") or {}
@@ -1184,7 +1347,7 @@ class Panel(ScreenPanel):
             self.buttons["button_grid"].attach(self.buttons["cancel"], 1, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["fine_tune"], 2, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["control"], 3, 0, 1, 1)
-            if self._flat_belt_endless():
+            if self._flat_belt_finishable():
                 self.buttons["finish"].set_label(self._flat_belt_texts()["finish"])
                 self.buttons["button_grid"].attach(self.buttons["finish"], 4, 0, 1, 1)
                 finishing = self._printer.get_stat("gcode_macro FLAT_BELT", "finishing")
