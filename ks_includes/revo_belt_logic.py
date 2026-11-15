@@ -102,3 +102,70 @@ def view(fb, print_duration, est_time=0.0, now=None):
         ("READY AT", time.strftime("%H:%M", time.localtime(now + left)) if left is not None else "–"),
     ]
     return v
+
+
+# ---------- plik przed startem: tryb i ilość z linii FLAT_BELT_INFO ([r]evo Slicer) ----------
+FILE_UNITS = {"sequential": ("PIECE", "PIECES"), "plates": ("PLATE", "PLATES"), "long": ("SEGMENT", "SEGMENTS"),
+              "endless": ("SEGMENT", "SEGMENTS")}
+
+
+def parse_info(line):
+    """FLAT_BELT_INFO MODE=… TARGET=… → dict, or None for a line that is not one or an older file."""
+    if not line.startswith("FLAT_BELT_INFO"):
+        return None
+    p = {}
+    for kv in line.split()[1:]:
+        k, _, v = kv.partition("=")
+        p[k.upper()] = v
+    mode = p.get("MODE", "").lower()
+    if mode not in MODES:
+        return None
+    num = lambda k, d=0.0: float(p.get(k) or d)
+    return {"mode": mode, "target": int(num("TARGET")), "loop": p.get("LOOP") == "1", "advance": num("ADVANCE"),
+            "start_len": num("START"), "file_units": int(num("FILE_UNITS")), "eject": p.get("EJECT", "off").lower()}
+
+
+def read_info(path, limit=1 << 20):
+    """Reads the start of a G-code file until its FLAT_BELT_INFO line (after the header and the start G-code)."""
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            read = 0
+            for line in f:
+                read += len(line)
+                if line.startswith("FLAT_BELT_INFO"):
+                    return parse_info(line.strip())
+                if read > limit:
+                    break
+    except OSError:
+        pass
+    return None
+
+
+def file_badge(info):
+    """Short text for the file list: 'SEQUENTIAL · 59 PCS', 'ENDLESS · 10.00 M', 'FIXED BED · EJECT'."""
+    if not info:
+        return ""
+    name = MODES[info["mode"]][0]
+    t = info["target"]
+    if info["mode"] == "fixed":
+        return name + (" · EJECT" if info["eject"] not in ("", "off") else "")
+    if info["mode"] == "endless":
+        return f"{name} · " + (f"{length_m(info_fb(info), t):.2f} M" if t else "∞")
+    one, many = FILE_UNITS[info["mode"]]
+    return f"{name} · " + (f"{t} {many if t != 1 else one}" if t else "∞")
+
+
+def info_fb(info):
+    """The file's values in the shape of the FLAT_BELT macro, for length_m()."""
+    return {"start_len": info["start_len"], "advance": info["advance"], "mode": info["mode"]}
+
+
+def per_unit(info, est_time):
+    if info and info["file_units"] > 0 and est_time:
+        return float(est_time) / info["file_units"]
+    return None
+
+
+def series_time(info, est_time, target):
+    per = per_unit(info, est_time)
+    return per * target if per and target > 0 else None

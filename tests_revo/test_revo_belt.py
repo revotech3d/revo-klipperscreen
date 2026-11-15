@@ -50,3 +50,23 @@ def test_stepper_never_goes_below_the_current_unit():
     assert bl.step_target(SEQ, 13, -1) == 13
     assert bl.step_target(SEQ, 0, -1) == 13 and bl.step_target(SEQ, 0, +1) == 0
     assert bl.step_target(dict(SEQ, done=0, min_target=2), 0, -1) == 2
+
+
+def test_file_info_from_the_gcode_line():
+    i = bl.parse_info("FLAT_BELT_INFO MODE=sequential TARGET=59 LOOP=1 FILE_UNITS=1 ADVANCE=80.000 UNIT=piece ENDLESS=0 SEGMENTS=59")
+    assert i["mode"] == "sequential" and i["target"] == 59 and i["loop"]
+    assert bl.file_badge(i) == "SEQUENTIAL · 59 PIECES"
+    assert bl.series_time(i, 1500, 59) == 59 * 1500
+    e = bl.parse_info("FLAT_BELT_INFO MODE=endless TARGET=70 LOOP=1 FILE_UNITS=2 ADVANCE=140.000 START=340.0 UNIT=segment")
+    assert bl.file_badge(e) == "ENDLESS · 10.00 M" and bl.per_unit(e, 18652) == 9326
+    f = bl.parse_info("FLAT_BELT_INFO MODE=fixed TARGET=0 LOOP=0 FILE_UNITS=0 UNIT=piece EJECT=time")
+    assert bl.file_badge(f) == "FIXED BED · EJECT" and not f["loop"]
+    # an older file without MODE is not a belt file for the list
+    assert bl.parse_info("FLAT_BELT_INFO ENDLESS=1 ADVANCE=140.000 SEGMENTS=0 UNIT=segment") is None
+
+
+def test_read_info_from_a_file(tmp_path):
+    g = tmp_path / "a.gcode"
+    g.write_text("; HEADER\n" + "; thumbnail data\n" * 1000 + "PRINT_START\nFLAT_BELT_INFO MODE=plates TARGET=3 LOOP=1 FILE_UNITS=1 ADVANCE=175.6 UNIT=plate\nG1 X1\n")
+    assert bl.file_badge(bl.read_info(str(g))) == "PLATES · 3 PLATES"
+    assert bl.read_info(str(tmp_path / "missing.gcode")) is None
