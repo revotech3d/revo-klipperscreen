@@ -215,7 +215,8 @@ class Panel(ScreenPanel):
         self.revo_view_btn.set_no_show_all(True)
         self.revo_view_btn.connect("clicked", lambda w: self._revo_view_toggle())
         live.pack_start(self.revo_view_btn, False, False, 0)
-        box.pack_start(window("LIVE VIEW", pad(live), "MODEL · CAMERA"), True, True, 0)
+        self.revo_live_win = window("LIVE VIEW", pad(live), "MODEL · CAMERA")
+        box.pack_start(self.revo_live_win, True, True, 0)
         threading.Thread(target=self._revo_cam_check, daemon=True).start()
 
         prow = Gtk.Box(spacing=12)
@@ -321,28 +322,24 @@ class Panel(ScreenPanel):
             return w
         b = {}
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        # [MODE] 12 / 59 PIECES
         top = Gtk.Box(spacing=10)
         b["mode"] = lbl("", "revo_belt_mode")
         b["mode"].set_ellipsize(Pango.EllipsizeMode.NONE)
-        b["sub"] = lbl("", "revo_tile_title")
-        b["sub"].set_valign(Gtk.Align.CENTER)
-        top.pack_start(b["mode"], False, False, 0)
-        top.pack_start(b["sub"], True, True, 0)
-        box.add(top)
-        b["count_row"] = Gtk.Box(spacing=10)
+        b["mode"].set_valign(Gtk.Align.CENTER)
         b["counter"] = lbl("", "revo_big")
+        b["counter"].set_ellipsize(Pango.EllipsizeMode.NONE)
         b["counter_unit"] = lbl("", "revo_tile_title")
         b["counter_unit"].set_valign(Gtk.Align.END)
         b["counter_unit"].set_margin_bottom(8)
-        b["count_row"].pack_start(b["counter"], False, False, 0)
-        b["count_row"].pack_start(b["counter_unit"], True, True, 0)
-        box.add(b["count_row"])
+        top.pack_start(b["mode"], False, False, 0)
+        top.pack_start(b["counter"], False, False, 0)
+        top.pack_start(b["counter_unit"], True, True, 0)
+        box.add(top)
+        # the series is the PROGRESS bar; this one is the piece, plate or segment being printed
         b["bar_unit"] = Gtk.ProgressBar()
         b["bar_unit"].get_style_context().add_class("revo_progress")
-        b["bar_all"] = Gtk.ProgressBar()
-        b["bar_all"].get_style_context().add_class("revo_progress")
         box.add(b["bar_unit"])
-        box.add(b["bar_all"])
         b["stats"] = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         b["stat"] = []
         for i in range(3):
@@ -353,22 +350,24 @@ class Panel(ScreenPanel):
             b["stats"].attach(col, i, 0, 1, 1)
             b["stat"].append((t, v))
         box.add(b["stats"])
-        # QUANTITY / PLATES / LENGTH: − wartość + ∞, wysyłane po chwili bez dotykania
-        b["stepper"] = Gtk.Box(spacing=6)
+        # QUANTITY / PLATES / LENGTH: − wartość + ∞, wysyłane po chwili bez dotykania; FINISH AFTER …
+        b["stepper"] = Gtk.Grid(column_homogeneous=True, column_spacing=6, row_spacing=6)
         b["target_title"] = lbl("", "revo_tile_title")
-        b["target_title"].set_valign(Gtk.Align.CENTER)
-        b["stepper"].pack_start(b["target_title"], True, True, 0)
-        for key, text in (("minus", "−"), ("value", ""), ("plus", "+"), ("inf", "∞")):
-            if key == "value":
-                b["value"] = lbl("", "revo_tile_value", 0.5)
-                b["value"].set_size_request(110, -1)
-                b["stepper"].pack_start(b["value"], False, False, 0)
-                continue
+        b["value"] = lbl("", "revo_tile_value", 0.5)
+        b["stepper"].attach(b["target_title"], 0, 0, 2, 1)
+        for col, (key, text) in enumerate((("minus", "−"), ("plus", "+"), ("inf", "∞"))):
             btn = Gtk.Button(label=text)
             btn.get_style_context().add_class("revo_preset")
-            btn.set_size_request(64, -1)
             btn.connect("clicked", self._revo_belt_step, key)
-            b["stepper"].pack_start(btn, False, False, 0)
+            b[key] = btn
+        b["stepper"].attach(b["minus"], 2, 0, 1, 1)
+        b["stepper"].attach(b["value"], 3, 0, 1, 1)
+        b["stepper"].attach(b["plus"], 4, 0, 1, 1)
+        b["stepper"].attach(b["inf"], 5, 0, 1, 1)
+        b["finish"] = Gtk.Button(label="")
+        b["finish"].get_style_context().add_class("revo_preset")
+        b["finish"].connect("clicked", self.finish_after_segment)
+        b["stepper"].attach(b["finish"], 0, 1, 6, 1)
         b["stepper"].set_no_show_all(True)
         box.add(b["stepper"])
         self.revo_bw = b
@@ -419,37 +418,31 @@ class Panel(ScreenPanel):
             if self.revo_belt_win.get_visible():
                 self.revo_belt_win.set_no_show_all(True)
                 self.revo_belt_win.hide()
-                self.revo_view.set_no_show_all(False)
-                self.revo_view.show_all()
-                if hasattr(self, "revo_cam"):
-                    self.revo_view_btn.show()
+                self.revo_live_win.set_no_show_all(False)
+                self.revo_live_win.show_all()
             return
         b = self.revo_bw
         b["mode"].set_label(v["mode"])
-        b["sub"].set_label(v["sub"])
-        counting = bool(v["counter"])
         b["counter"].set_label(v["counter"])
         b["counter_unit"].set_label(v["counter_unit"] + (" · LAST" if v["finishing"] else ""))
         b["bar_unit"].set_fraction(v["bar_unit"])
-        b["bar_all"].set_fraction(v["bar_all"])
         for (t, val), (title, value) in zip(b["stat"], v["stats"]):
             t.set_label(title)
             val.set_label(value)
         b["target_title"].set_label(v["target_title"])
         if self._belt_pending is None:
             b["value"].set_label(v["target"])
+        texts = self._flat_belt_texts()
+        b["finish"].set_label(texts["finish"].upper())
+        b["finish"].set_sensitive(not v["finishing"])
         if not self.revo_belt_win.get_visible():
             self.revo_belt_win.set_no_show_all(False)   # show_all() skips a widget that has no_show_all set
             self.revo_belt_win.show_all()
-            # the 480×800 screen has no room for both: the belt window takes the place of the model / camera view
-            self.revo_view.set_no_show_all(True)
-            self.revo_view.hide()
-            self.revo_view_btn.hide()
-        for w in (b["count_row"], b["bar_unit"], b["bar_all"], b["stats"]):
-            if counting:
-                w.show_all()
-            else:
-                w.hide()
+            # the 480×800 screen has no room for both: the belt window takes the place of the live view
+            self.revo_live_win.set_no_show_all(True)
+            self.revo_live_win.hide()
+        for w in (b["bar_unit"], b["stats"], b["counter"], b["counter_unit"]):
+            w.set_visible(bool(v["counter"]))
         if v["loop"] and self.state == "printing":
             b["stepper"].set_no_show_all(False)
             b["stepper"].show_all()
@@ -1360,7 +1353,7 @@ class Panel(ScreenPanel):
             self.buttons["button_grid"].attach(self.buttons["cancel"], 1, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["fine_tune"], 2, 0, 1, 1)
             self.buttons["button_grid"].attach(self.buttons["control"], 3, 0, 1, 1)
-            if self._flat_belt_finishable():
+            if self._flat_belt_finishable() and not getattr(self, "revo", None):
                 self.buttons["finish"].set_label(self._flat_belt_texts()["finish"])
                 self.buttons["button_grid"].attach(self.buttons["finish"], 4, 0, 1, 1)
                 finishing = self._printer.get_stat("gcode_macro FLAT_BELT", "finishing")
