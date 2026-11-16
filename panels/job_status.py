@@ -351,23 +351,25 @@ class Panel(ScreenPanel):
             b["stat"].append((t, v))
         box.add(b["stats"])
         # QUANTITY / PLATES / LENGTH: − wartość + ∞, wysyłane po chwili bez dotykania; FINISH AFTER …
-        b["stepper"] = Gtk.Grid(column_homogeneous=True, column_spacing=6, row_spacing=6)
-        b["target_title"] = lbl("", "revo_tile_title")
+        # one compact row (the screen is 800 px high: the bar with E-STOP must stay visible): − value + ∞ | FINISH AFTER …
+        b["stepper"] = Gtk.Grid(column_homogeneous=True, column_spacing=6)
+        b["target_title"] = lbl("", "revo_tile_title")   # kept for _revo_belt_update; the counter already names the unit
         b["value"] = lbl("", "revo_tile_value", 0.5)
-        b["stepper"].attach(b["target_title"], 0, 0, 2, 1)
         for col, (key, text) in enumerate((("minus", "−"), ("plus", "+"), ("inf", "∞"))):
             btn = Gtk.Button(label=text)
             btn.get_style_context().add_class("revo_preset")
+            btn.get_style_context().add_class("revo_compact")
+            btn.set_size_request(-1, 44)
             btn.connect("clicked", self._revo_belt_step, key)
             b[key] = btn
-        b["stepper"].attach(b["minus"], 2, 0, 1, 1)
-        b["stepper"].attach(b["value"], 3, 0, 1, 1)
-        b["stepper"].attach(b["plus"], 4, 0, 1, 1)
-        b["stepper"].attach(b["inf"], 5, 0, 1, 1)
+        b["stepper"].attach(b["minus"], 0, 0, 1, 1)
+        b["stepper"].attach(b["value"], 1, 0, 2, 1)
+        b["stepper"].attach(b["plus"], 3, 0, 1, 1)
+        b["stepper"].attach(b["inf"], 4, 0, 1, 1)
         b["finish"] = Gtk.Button(label="")
         b["finish"].get_style_context().add_class("revo_preset")
-        b["finish"].connect("clicked", self.finish_after_segment)
-        b["stepper"].attach(b["finish"], 0, 1, 6, 1)
+        b["finish"].get_style_context().add_class("revo_compact")
+        b["stepper"].attach(b["finish"], 5, 0, 3, 1)
         b["stepper"].set_no_show_all(True)
         box.add(b["stepper"])
         self.revo_bw = b
@@ -433,7 +435,8 @@ class Panel(ScreenPanel):
         if self._belt_pending is None:
             b["value"].set_label(v["target"])
         texts = self._flat_belt_texts()
-        b["finish"].set_label(texts["finish"].upper())
+        b["finish"].set_label(texts["finish"].upper().replace(" AFTER ", " AFTER\n", 1))
+        b["finish"].get_child().set_justify(Gtk.Justification.CENTER)
         b["finish"].set_sensitive(not v["finishing"])
         if not self.revo_belt_win.get_visible():
             self.revo_belt_win.set_no_show_all(False)   # show_all() skips a widget that has no_show_all set
@@ -1097,9 +1100,8 @@ class Panel(ScreenPanel):
                         f"{self.labels['total_layers'].get_text()}"
                     )
             if "total_duration" in data["print_stats"]:
-                self.labels["duration"].set_label(
-                    self.format_time(data["print_stats"]["total_duration"])
-                )
+                from ks_includes import revo_belt_logic as bl   # krótko („9h 46m”): długie druki Belt nie mieszczą się w kolumnie
+                self.labels["duration"].set_label(bl.fmt_time(data["print_stats"]["total_duration"]))
             if self.state in ["printing", "paused"]:
                 self.update_time_left()
 

@@ -27,6 +27,7 @@ from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
 import screen  # noqa: E402
 from ks_includes import revo_net  # noqa: E402
+from ks_includes.widgets.revo_estop import HOLD_S  # noqa: E402
 
 # Wygląd jak na maszynie w sieci firmy (w generatorze nie ma prawdziwej sieci)
 revo_net.describe = lambda *a, **k: "Wi-Fi 72% 192.168.1.50"
@@ -216,7 +217,7 @@ def explore(win):
             st["buttons"].append(btn)
             if w.__class__.__name__ == "EStopHold":
                 btn["to"] = "estop"
-                btn["hold"] = 3
+                btn["hold"] = HOLD_S
                 continue
             if lab.strip() == "main" and order:
                 btn["to"] = states[order[0]]["id"]
@@ -256,7 +257,7 @@ def explore(win):
 
 
 def stop_screen(win, home_id):
-    # E-STOP przytrzymany 3 s: ten sam ekran zatrzymania co na maszynie (Klipper shutdown z webhooks)
+    # E-STOP przytrzymany (HOLD_S): ten sam ekran zatrzymania co na maszynie (Klipper shutdown z webhooks)
     reset(win)
     win.printer.data.setdefault("webhooks", {})["state_message"] = "Shutdown due to webhooks request"
     win.printer.data["webhooks"]["state"] = "shutdown"

@@ -7,7 +7,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import GLib, Gtk
 
-HOLD_S = 3.0
+HOLD_S = 1.0
 
 
 def hold_state(elapsed, hold=HOLD_S, done=False):
@@ -28,7 +28,7 @@ class EStopHold(Gtk.Button):
         self.on_stop, self.hold = on_stop, hold
         self.t0, self.done, self.src = None, False, None
         self.get_style_context().add_class("revo_estop_hold")
-        self.set_tooltip_text("Emergency stop – hold for 3 seconds")
+        self.set_tooltip_text("Emergency stop – hold for 1 second")
         self.set_size_request(width, height)
         self.da = Gtk.DrawingArea()
         self.da.connect("draw", self._draw)

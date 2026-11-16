@@ -8,6 +8,7 @@ from gi.repository import GLib, Gtk
 
 from ks_includes.screen_panel import ScreenPanel
 from ks_includes.widgets.revo_home import RevoActions, Tile, _lbl, window
+from ks_includes.widgets.revo_estop import HOLD_S
 
 STEPS = [0.1, 1, 10, 50, 100]
 
@@ -78,7 +79,7 @@ class Panel(RevoActions, ScreenPanel):
             bg.set_margin_start(6); bg.set_margin_end(6); bg.set_margin_top(6); bg.set_margin_bottom(6)
             box.pack_start(window("BELT", bg, "EJECT"), False, False, 0)
 
-        self.es = Gtk.Button(label="E-STOP · HOLD 3 s")
+        self.es = Gtk.Button(label="E-STOP · HOLD 1 s")
         self.es.get_style_context().add_class("revo_estop")
         self.es.set_size_request(-1, 40)
         self.es.connect("pressed", self._es_down)
@@ -107,16 +108,16 @@ class Panel(RevoActions, ScreenPanel):
 
     def _es_down(self, w):
         self._estop = time.monotonic()
-        GLib.timeout_add(100, self._es_tick)
+        GLib.timeout_add(50, self._es_tick)
 
     def _es_up(self, w):
         self._estop = None
-        self.es.set_label("E-STOP · HOLD 3 s")
+        self.es.set_label("E-STOP · HOLD 1 s")
 
     def _es_tick(self):
         if self._estop is None:
             return False
-        left = 3.0 - (time.monotonic() - self._estop)
+        left = HOLD_S - (time.monotonic() - self._estop)
         if left <= 0:
             self._estop = None
             self._screen._ws.api.emergency_stop()

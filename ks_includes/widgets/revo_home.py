@@ -399,7 +399,7 @@ class RevoHome(RevoActions, Gtk.Box):
         head.pack_start(self.info_lbl, False, False, 0)
         head.set_valign(Gtk.Align.CENTER)
         top.pack_start(head, True, True, 0)
-        # E-STOP: hold 3 s (M112). The hotend fan keeps running: [heater_fan] shutdown_speed is 1.0.
+        # E-STOP: hold 1 s (M112). The hotend fan keeps running: [heater_fan] shutdown_speed is 1.0.
         self.estop = EStopHold(self.screen._ws.api.emergency_stop)
         self.estop.set_valign(Gtk.Align.CENTER)
         top.pack_end(self.estop, False, False, 0)
