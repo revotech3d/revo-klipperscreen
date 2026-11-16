@@ -36,7 +36,16 @@ class Panel(ScreenPanel):
             "refresh", _("Firmware Restart"), "color2"
         )
         self.labels["firmware_restart"].connect("clicked", self.firmware_restart)
+        if self.revo:
+            self.labels["firmware_restart"] = Gtk.Button(label="FULL RESTART")
+            self.labels["firmware_restart"].get_style_context().add_class("revo_restart_blink")
+            self.labels["firmware_restart"].set_size_request(-1, 96)
+            self.labels["firmware_restart"].connect("clicked", self.firmware_restart)
         self.labels["restart_system"] = self._gtk.Button("refresh", _("System Restart"), "color1")
+        if self.revo:
+            self.labels["restart_system"] = Gtk.Button(label="SYSTEM REBOOT")
+            self.labels["restart_system"].get_style_context().add_class("revo_preset")
+            self.labels["restart_system"].set_size_request(-1, 60)
         self.labels["restart_system"].connect("clicked", self.reboot_poweroff, "reboot")
         self.labels["shutdown"] = self._gtk.Button("shutdown", _("System Shutdown"), "color2")
         self.labels["shutdown"].connect("clicked", self.reboot_poweroff, "shutdown")
@@ -76,7 +85,13 @@ class Panel(ScreenPanel):
 
     def clear_action_bar(self):
         for child in self.labels["actions"].get_children():
+            if child not in self.labels.values():   # Revo: the row box holding two buttons
+                for b in child.get_children():
+                    child.remove(b)
             self.labels["actions"].remove(child)
+        if self.revo:
+            self.labels["actions"].set_orientation(Gtk.Orientation.HORIZONTAL)
+            self.labels["actions"].set_homogeneous(True)
 
     def show_restart_buttons(self):
         self.clear_action_bar()
@@ -86,6 +101,17 @@ class Panel(ScreenPanel):
                 logging.info(f"Associated power devices: {power_devices}")
                 self.add_power_button(power_devices)
 
+        if self.revo and self._screen.state.initialized:
+            # Revo OS: after a shutdown or an error only FIRMWARE_RESTART brings the boards back; it blinks
+            self.labels["actions"].set_orientation(Gtk.Orientation.VERTICAL)
+            self.labels["actions"].set_homogeneous(False)
+            self.labels["actions"].add(self.labels["firmware_restart"])
+            row = Gtk.Box(homogeneous=True)
+            row.add(self.labels["restart_system"])
+            row.add(self.labels["menu"])
+            self.labels["actions"].add(row)
+            self.labels["actions"].show_all()
+            return
         if self._screen.state.initialized:
             self.labels["actions"].add(self.labels["restart"])
             self.labels["actions"].add(self.labels["firmware_restart"])
