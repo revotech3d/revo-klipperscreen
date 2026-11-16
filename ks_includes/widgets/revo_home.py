@@ -1,4 +1,4 @@
-# Revo OS – ekran główny „Gotowa”: schemat maszyny, kafelki temperatur, DRUKUJ, presety, menu
+# Revo OS – ekran główny „Gotowa”: schemat maszyny, kafelki temperatur, DRUKUJ, menu (presety grzania na ekranie Filament)
 import logging
 import math
 
@@ -472,20 +472,9 @@ class RevoHome(RevoActions, Gtk.Box):
         druk = Gtk.Button(label="ROZPOCZNIJ DRUK")
         druk.get_style_context().add_class("revo_print")
         druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"}))
+        druk.set_size_request(-1, 76)
         self.pack_start(druk, False, False, 0)
-
-        pre = Gtk.Grid(column_homogeneous=True, column_spacing=8)
-        for i, (name, e, b) in enumerate(PRESETS):
-            bt = Gtk.Button(label=name)
-            bt.get_style_context().add_class("revo_preset")
-            bt.connect("clicked", self.preheat, e, b)
-            pre.attach(bt, i, 0, 1, 1)
-        cool = Gtk.Button(label="Wyłącz\ngrzanie")
-        cool.get_child().set_justify(Gtk.Justification.CENTER)
-        cool.get_style_context().add_class("revo_preset")
-        cool.connect("clicked", self.preheat, 0, 0)
-        pre.attach(cool, 3, 0, 1, 1)
-        self.pack_start(pre, False, False, 0)
+        # no preset row here (customer feedback): PLA / PETG / ABS-ASA and heaters off live on the Filament screen
 
         nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
         items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "revo_filament", "name": "Filament"})),
@@ -495,6 +484,7 @@ class RevoHome(RevoActions, Gtk.Box):
         for i, (icon, name, cb) in enumerate(items):
             bt = self.p._gtk.Button(icon, name, None, 0.9)
             bt.get_style_context().add_class("revo_nav")
+            bt.set_size_request(-1, 104)
             bt.connect("clicked", lambda w, c=cb: c())
             nav.attach(bt, i, 0, 1, 1)
         self.pack_start(nav, False, False, 0)
