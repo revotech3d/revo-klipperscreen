@@ -70,8 +70,10 @@ class Panel(ScreenPanel):
         btn = Gtk.Button()
         btn.get_style_context().add_class("revo_file")
         v = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        # two cards must fit the screen width (minus the status bar, margins and the window frame)
+        cw = max(120, (int(self._gtk.content_width) - 56) // 2)
         img = Gtk.Image()
-        img.set_size_request(-1, 150)
+        img.set_size_request(-1, min(150, cw * 3 // 4))
         v.pack_start(img, False, False, 0)
         name = Gtk.Label(label=os.path.splitext(os.path.basename(path))[0], xalign=0)
         name.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
@@ -79,17 +81,21 @@ class Panel(ScreenPanel):
         v.pack_start(name, False, False, 0)
         bits = [fmt_time(f.get("estimated_time")), f.get("filament_type") or "",
                 f"Ø{f['nozzle_diameter']:g}" if f.get("nozzle_diameter") else ""]
-        v.pack_start(_lbl(" · ".join(b for b in bits if b) or " ", "revo_info"), False, False, 0)
+        info = _lbl(" · ".join(b for b in bits if b) or " ", "revo_info")
+        info.set_ellipsize(Pango.EllipsizeMode.END)
+        v.pack_start(info, False, False, 0)
         # Belt: tryb i ilość z pliku ([r]evo Slicer), czytane w tle
         badge = _lbl("", "revo_belt_mode")
         badge.set_halign(Gtk.Align.START)
+        badge.set_line_wrap(True)       # "SEQUENTIAL · 10 PIECES" wraps instead of widening the card
+        badge.set_max_width_chars(24)
         badge.set_no_show_all(True)
         v.pack_start(badge, False, False, 0)
         self._belt_badge(path, badge)
         btn.add(v)
         btn.connect("clicked", self.confirm, path)
         if f.get("thumbnails"):
-            self.load_image_async(path, 200, 150, small=True, callback=lambda p, img=img: p and img.set_from_pixbuf(p))
+            self.load_image_async(path, cw - 20, min(150, cw * 3 // 4), small=True, callback=lambda p, img=img: p and img.set_from_pixbuf(p))
         else:
             img.set_from_pixbuf(self._gtk.PixbufFromIcon("file", 90, 90))
         return btn
