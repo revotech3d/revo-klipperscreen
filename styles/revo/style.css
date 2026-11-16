@@ -449,7 +449,9 @@ button.revo_restart_blink label { color: #FFFFFF; font-family: "Barlow Semi Cond
 /* Revo: power button in the top-right corner (titlebar) */
 button.revo_power { min-height: 0; min-width: 0; padding: 2px 6px; margin: 0 2px 0 6px; background: transparent; border: 1px solid #33495A; border-radius: 6px; }
 button.revo_power:active { background: rgba(255, 77, 82, .25); }
-/* Revo: START PRINT on the home screen – the main action, filled green so it is seen at once (customer feedback) */
-button.revo_start { background-color: #2FB457; background-image: none; border: 1px solid #3ED663; border-radius: 4px; min-height: 76px; }
-button.revo_start label { color: #04120A; font-weight: 800; font-size: 1.45em; letter-spacing: 6px; }
-button.revo_start:active { background-color: #24903F; }
+/* Revo: START PRINT on the home screen – the main action. SpaceX-style: solid white slab, black wide-spaced capitals,
+   square corners (customer feedback: the outline button was not noticed) */
+button.revo_start { background-color: #F2F3F5; background-image: none; border: 1px solid #FFFFFF; border-radius: 2px; min-height: 76px;
+                    box-shadow: 0 0 18px rgba(255, 255, 255, 0.18); }
+button.revo_start label { color: #050608; font-weight: 700; font-size: 1.35em; letter-spacing: 9px; }
+button.revo_start:active { background-color: #C9CDD2; }
