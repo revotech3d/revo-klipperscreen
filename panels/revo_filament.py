@@ -23,7 +23,7 @@ class Panel(RevoActions, ScreenPanel):
         box.get_style_context().add_class("revo_home")
 
         top = Gtk.Grid(column_homogeneous=True, column_spacing=10)
-        self.t_temp = Tile("NOZZLE °C", lambda: self.heater_dialog("extruder", "DYSZA", [0, 200, 210, 220, 240, 250, 260, 280], 320))
+        self.t_temp = Tile("NOZZLE °C", lambda: self.heater_dialog("extruder", "NOZZLE", [0, 200, 210, 220, 240, 250, 260, 280], 320))
         self.t_noz = Tile("DYSZA", self.nozzle_dialog)
         for t in (self.t_temp, self.t_noz):
             t.sub.set_line_wrap(True)
