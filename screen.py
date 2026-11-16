@@ -425,6 +425,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         # Revo OS: stan testu maszyny (zmienne makra) – ekran testu odświeża się na żywo
         if "gcode_macro _REVO_TEST" in self.printer.config:
             requested_updates["objects"]["gcode_macro _REVO_TEST"] = None
+        if "gcode_macro _REVO_CFG" in self.printer.config:   # moduł Belt przełączany w trakcie pracy (machine_type)
+            requested_updates["objects"]["gcode_macro _REVO_CFG"] = None
         if "gcode_macro _REVO_KALIB" in self.printer.config:
             requested_updates["objects"]["gcode_macro _REVO_KALIB"] = None
         self._ws.api.object_subscription(requested_updates)
@@ -1131,12 +1133,25 @@ class KlipperScreen(Gtk.ApplicationWindow):
     def process_update(self, *args):
         self.base_panel.process_update(*args)
         self._revo_test_autoshow(*args)
+        self._revo_module_watch(*args)
         if (
             self.printer
             and self._cur_panels
             and hasattr(self.panels[self._cur_panels[-1]], "process_update")
         ):
             self.panels[self._cur_panels[-1]].process_update(*args)
+
+    def _revo_module_watch(self, action=None, data=None, *args):
+        # Revo OS: moduł Belt przełączony (ekran, Revo Panel, panel floty) – ekran przebudowuje panele
+        try:
+            mt = (data or {}).get("gcode_macro _REVO_CFG", {}).get("machine_type")
+        except AttributeError:
+            return
+        if action != "notify_status_update" or mt is None:
+            return
+        old, self._revo_mt = getattr(self, "_revo_mt", None), mt
+        if old is not None and old != mt:
+            GLib.timeout_add(500, lambda: self.reload_panels() and False)
 
     def _revo_test_autoshow(self, action=None, data=None, *args):
         # Revo OS: gdy test maszyny ruszy (z ekranu, Panelu Revo lub konsoli), ekran pokazuje panel testu

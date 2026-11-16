@@ -97,6 +97,17 @@ class Panel(ScreenPanel):
             self.box.pack_start(b, False, False, 0)
         self.msg = self._lbl("The counter resets after Revotech approves.", "revo_info", 0.5, True)
         self.box.pack_start(self.msg, False, False, 8)
+        # moduł Belt: jeden Revo OS dla wszystkich maszyn, przełącza serwis (makro REVO_BELT_MODULE)
+        from ks_includes import revo_home_logic as lg
+        on = lg.is_belt(self._printer)
+        row = Gtk.Box(spacing=8)
+        row.pack_start(self._lbl(f"BELT MODULE · {'ON' if on else 'OFF'}", "revo_tile_title"), True, True, 0)
+        bm = Gtk.Button(label="SWITCH OFF" if on else "SWITCH ON")
+        bm.get_style_context().add_class("revo_preset")
+        bm.set_size_request(170, 56)
+        bm.connect("clicked", self.ask_belt, not on)
+        row.pack_end(bm, False, False, 0)
+        self.box.pack_start(row, False, False, 0)
         end = Gtk.Button(label="END SERVICE MODE")
         end.get_style_context().add_class("revo_print")
         end.connect("clicked", self.logout)
@@ -107,6 +118,21 @@ class Panel(ScreenPanel):
     def logout(self, *args):
         agent.call("/serwis/koniec", {"source": "ekran"})
         self._screen._menu_go_back(home=True)
+
+    def ask_belt(self, w, on):
+        txt = ("Switch the Belt module on? Belt modes, belt controls and Eject become available. "
+               "The belt drive must be in printer.cfg." if on else
+               "Switch the Belt module off? The machine works as a rigid-bed printer and files sliced "
+               "in a Belt mode are refused.")
+        lb = self._lbl(txt, "revo_splash_text", 0.5, True)
+        buttons = [{"name": "Switch", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
+                   {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
+        self._gtk.Dialog("Belt module", buttons, lb, self._belt_resp, on)
+
+    def _belt_resp(self, dialog, resp, on):
+        self._gtk.remove_dialog(dialog)
+        if resp == Gtk.ResponseType.OK:
+            self._screen._ws.api.gcode_script(f"REVO_BELT_MODULE ENABLE={1 if on else 0}")
 
     def ask_reset(self, w, key, name):
         lb = self._lbl(f"Send Revotech a request to reset the counter: {name}?", "revo_splash_text", 0.5, True)
