@@ -23,7 +23,7 @@ def hold_state(elapsed, hold=HOLD_S, done=False):
 class EStopHold(Gtk.Button):
     """E-STOP button: hold it HOLD_S seconds to call on_stop()."""
 
-    def __init__(self, on_stop, hold=HOLD_S, width=136, height=58):
+    def __init__(self, on_stop, hold=HOLD_S, width=136, height=48):
         super().__init__()
         self.on_stop, self.hold = on_stop, hold
         self.t0, self.done, self.src = None, False, None
@@ -90,5 +90,5 @@ class EStopHold(Gtk.Button):
             ctx.set_source_rgb(*rgb)
             ctx.move_to((W - ext.width) / 2 - ext.x_bearing, y)
             ctx.show_text(s)
-        text("E-STOP", 22, H * 0.55, (1, 1, 1))
+        text("E-STOP", 20, H * 0.56, (1, 1, 1))
         text(sub, 11, H * 0.85, (1.0, 0.89, 0.894))
