@@ -52,7 +52,10 @@ class BasePanel(ScreenPanel):
         for control in self.control:
             self.set_control_sensitive(False, control)
         self.control["estop"] = self._gtk.Button("emergency", scale=self.abscale)
-        self.control["estop"].connect("clicked", self.emergency_stop)
+        # Revo OS: E-STOP in the action bar is held like every other E-STOP (HOLD_S), a tap does nothing
+        self.control["estop"].connect("pressed", self._estop_down)
+        self.control["estop"].connect("released", self._estop_up)
+        self._estop_src = None
         self.control["estop"].set_no_show_all(True)
         self.shutdown = {
             "panel": "revo_wylacz" if self._config.get_main_config().get("theme", "") == "revo" else "shutdown",
@@ -142,6 +145,21 @@ class BasePanel(ScreenPanel):
         self._build_main_grid()
 
         self.update_time()
+
+    def _estop_down(self, widget):
+        from ks_includes.widgets.revo_estop import HOLD_S
+        self._estop_up(widget)
+        self._estop_src = GLib.timeout_add(int(HOLD_S * 1000), self._estop_fire, widget)
+
+    def _estop_up(self, widget):
+        if self._estop_src:
+            GLib.source_remove(self._estop_src)
+            self._estop_src = None
+
+    def _estop_fire(self, widget):
+        self._estop_src = None
+        self.emergency_stop(widget)
+        return False
 
     def _reconfigure_main_grid(self):
         self.main_grid.remove(self.titlebar)

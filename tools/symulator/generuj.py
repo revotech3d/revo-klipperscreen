@@ -215,7 +215,7 @@ def explore(win):
             cx, cy = r[0] + r[2] // 2, r[1] + r[3] // 2
             btn = {"r": r, "label": lab[:60], "to": None}
             st["buttons"].append(btn)
-            if w.__class__.__name__ == "EStopHold":
+            if w.__class__.__name__ == "EStopHold" or lab.strip() == "emergency":   # action-bar E-STOP is held too
                 btn["to"] = "estop"
                 btn["hold"] = HOLD_S
                 continue
