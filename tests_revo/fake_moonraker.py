@@ -1,5 +1,5 @@
 """Minimalny udawany Moonraker do podglądu KlipperScreena bez drukarki.
-Użycie: python fake_moonraker.py [gotowa|drukowanie|blad]  (port 7125)"""
+Użycie: python fake_moonraker.py [gotowa|drukowanie|drukowanie-<fixed|seq|plates|long|endless>|stol-drukowanie|blad]  (port 7125)"""
 import asyncio
 import json
 import sys
@@ -11,6 +11,21 @@ MODE = sys.argv[1] if len(sys.argv) > 1 else "drukowanie"
 TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
 printing = "drukowanie" in MODE
 koniec = MODE == "koniec"
+# Belt: tryb druku z [r]evo Slicer (drukowanie-<tryb>), dane makra FLAT_BELT jak w trakcie prawdziwego druku
+BELT = {
+    "fixed": ("obudowa-200x150_0.4_PETG.gcode", 6200, 2860, {"mode": "fixed", "unit": "segment", "target": 1, "file_units": 1}),
+    "seq": ("PLA_59_kostek_30x30x39.gcode", 1500, 23 * 1500 + 640, {"mode": "sequential", "unit": "piece", "done": 23, "target": 59, "loop": True,
+            "file_units": 1, "unit_sum": 23 * 1500, "unit_mark": 23 * 1500, "advance": 80.0}),
+    "plates": ("PLA_3_stoly_15_kostek.gcode", 23820, 23820 + 11000, {"mode": "plates", "unit": "plate", "done": 1, "target": 3, "loop": True,
+               "file_units": 1, "unit_sum": 23820, "unit_mark": 23820, "advance": 400.0}),
+    "long": ("PLA_detal_200x20x600.gcode", 66480, 31000, {"mode": "long", "unit": "segment", "done": 1, "target": 3, "loop": False,
+             "file_units": 3, "unit_sum": 22100, "unit_mark": 22100, "advance": 250.0}),
+    "endless": ("PLA_tasma_320x2_10m.gcode", 1780, 31 * 1780 + 700, {"mode": "endless", "unit": "segment", "done": 31, "target": 70, "loop": True,
+                "file_units": 1, "unit_sum": 31 * 1780, "unit_mark": 31 * 1780, "advance": 140.0, "start_len": 340.0, "min_target": 2, "endless": True}),
+}
+TRYB = MODE.split("drukowanie-")[1] if "drukowanie-" in MODE else ("fixed" if MODE == "drukowanie" else "")
+PLIK, EST, DUR, FB = BELT[TRYB] if TRYB in BELT else ("kostka-20mm_0.4_PETG.gcode", 6200, 2860, {})
+PLA = TRYB not in ("", "fixed")
 
 CONFIG = {
     "printer": {"kinematics": "corexy", "max_velocity": "500", "max_accel": "10000", "max_z_velocity": "15"},
@@ -23,13 +38,13 @@ STATUS = {
     "configfile": {"config": CONFIG, "settings": {"extruder": {"nozzle_diameter": 0.4, "filament_diameter": 1.75}}},
     "webhooks": {"state": "error" if MODE == "blad" else "ready",
                  "state_message": "MCU 'mcu' shutdown: Timer too close" if MODE == "blad" else "Printer is ready"},
-    "extruder": {"temperature": 245.1 if printing else 24.0, "target": 245 if printing else 0, "power": 0.4},
-    "heater_bed": {"temperature": 79.8 if printing else 23.0, "target": 80 if printing else 0, "power": 0.3},
+    "extruder": {"temperature": (220.2 if PLA else 245.1) if printing else 24.0, "target": (220 if PLA else 245) if printing else 0, "power": 0.4},
+    "heater_bed": {"temperature": (55.1 if PLA else 79.8) if printing else 23.0, "target": (55 if PLA else 80) if printing else 0, "power": 0.3},
     "temperature_sensor komora": {"temperature": 47.5 if printing else 22.0},
     "fan": {"speed": 0.6 if printing else 0},
     "print_stats": {"state": "printing" if printing else ("complete" if koniec else "standby"),
-                    "filename": "kostka-20mm_0.4_PETG.gcode" if (printing or koniec) else "",
-                    "print_duration": 2860, "total_duration": 2900, "filament_used": 3120,
+                    "filename": PLIK if (printing or koniec) else "",
+                    "print_duration": DUR, "total_duration": DUR + 40, "filament_used": 3120,
                     "info": {"current_layer": 84, "total_layer": 180}},
     "virtual_sdcard": {"progress": 0.46 if printing else 0, "is_active": printing, "file_position": 0},
     "display_status": {"progress": 0.46 if printing else 0, "message": None},
@@ -42,6 +57,9 @@ STATUS = {
     "save_variables": {"variables": {"revo_first_run_done": 1, "revo_nozzle_diameter": 0.4, "revo_nozzle": "0.4 mosiadz"}},
     "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight", "belt_stepper": "" if "stol" in MODE else "belt_drives"},
     "output_pin caselight": {"value": 1.0},
+    **({"gcode_macro FLAT_BELT": {"segments": 0, "advanced": 0.0, "finishing": False, "endless": False, "advance": 0.0, "total": 0, "unit": "segment",
+                                   "mode": "", "done": 0, "target": 0, "loop": False, "min_target": 1, "file_units": 0, "start_len": 0.0,
+                                   "unit_mark": 0.0, "unit_sum": 0.0, "last_unit": 0.0, "cleared": False, **FB}} if FB else {}),
     "gcode_macro _REVO_TEST": {
         "faza": TEST_FAZA, "step": 5, "last": "nie rusza",
         "ask": {"t": "Czy ruszył tylko ten silnik?", "ok": "DZIAŁA", "cmd": "REVO_TEST_ODP WYNIK=ok"},
@@ -68,12 +86,12 @@ RESULTS = {
     "machine.system_info": {"system_info": {"cpu_info": {}, "distribution": {}, "network": {}}},
     "server.config": {"config": {"data_store": {"temperature_store_size": 1200}}},
     "server.temperature_store": {},
-    "server.files.list": [{"path": "kostka-20mm_0.4_PETG.gcode", "modified": time.time(), "size": 1234567,
+    "server.files.list": [{"path": PLIK, "modified": time.time(), "size": 1234567,
                            "permissions": "rw"}],
     "server.files.get_directory": {"dirs": [], "files": [], "disk_usage": {"total": 1, "used": 0, "free": 1},
                                    "root_info": {"name": "gcodes", "permissions": "rw"}},
     "server.files.roots": [{"name": "gcodes", "path": "/x", "permissions": "rw"}],
-    "server.files.metadata": {"filename": "kostka-20mm_0.4_PETG.gcode", "estimated_time": 6200,
+    "server.files.metadata": {"filename": PLIK, "estimated_time": EST,
                               "layer_height": 0.2, "object_height": 20, "thumbnails": []},
     "machine.update.status": {"version_info": {}, "busy": False},
     "server.history.list": {"jobs": [], "count": 0},

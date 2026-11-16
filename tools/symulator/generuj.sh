@@ -1,5 +1,5 @@
 #!/bin/bash
-# Symulator ekranu Revo OS: zrzuty i mapa przycisków dla 4 wariantów (Belt / sztywny stół × gotowa / drukuje).
+# Symulator ekranu Revo OS: zrzuty i mapa przycisków: Belt (gotowa, druk Fixed bed, Sequential, Plates, Long parts, Endless) i sztywny stół (gotowa, druk).
 # Użycie: [SYM_OS=1.4.68 SYM_SCREEN=1.4.58 SYM_AGENT=1.9.32 SYM_LIB=1.5.5] tools/symulator/generuj.sh <katalog wyjściowy>   (np. ../revotech-sites/content/revo3d-pl/media/symulator)
 # Wymaga: xvfb-run, python3.12 z GTK, Pillow; FAKE_PY = python z pakietem websockets (fałszywy Moonraker).
 set -e
@@ -23,7 +23,7 @@ class H(BaseHTTPRequestHandler):
 HTTPServer(("127.0.0.1", 7130), H).serve_forever()
 PY
 FA=$!
-for V in belt:idle belt-druk:drukowanie stol:stol stol-druk:stol-drukowanie; do
+for V in belt:idle belt-druk:drukowanie belt-seq:drukowanie-seq belt-plates:drukowanie-plates belt-long:drukowanie-long belt-endless:drukowanie-endless stol:stol stol-druk:stol-drukowanie; do
   NAME=${V%%:*}; MODE=${V##*:}
   [ -n "$ONLY" ] && [ "$ONLY" != "$NAME" ] && continue
   ( cd "$ROOT" && ${FAKE_PY:-python3} tests_revo/fake_moonraker.py "$MODE" > "$TMP/fm-$NAME.log" 2>&1 ) & FM=$!
