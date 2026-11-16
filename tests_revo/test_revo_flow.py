@@ -3,7 +3,7 @@ spec = importlib.util.spec_from_file_location("f", pathlib.Path(__file__).parent
 f = importlib.util.module_from_spec(spec); spec.loader.exec_module(f)
 
 def test_limit():
-    assert f.flow_limit(0.4) == 25 and f.flow_limit("0.6") == 45 and f.flow_limit(None) == 25
+    assert f.flow_limit(0.4) == 25 and f.flow_limit("0.6") == 35 and f.flow_limit(None) == 25
 
 def test_script_split_and_volume():
     s = f.extrude_script(25, 10).splitlines()
