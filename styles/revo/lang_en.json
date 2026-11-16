@@ -1053,10 +1053,6 @@
 [
 "^Przepływ ([0-9.,]+) mm³/s przekracza możliwości zamontowanej dyszy \\(maks\\. ([0-9.,]+) mm³/s\\)\\.$",
 "Flow $1 mm³/s is more than the installed nozzle can do (max. $2 mm³/s)."
-],
-[
-"^FILAMENT · INNY( · .*)?$",
-"FILAMENT · OTHER$1"
 ]
 ]
 }

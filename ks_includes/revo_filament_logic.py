@@ -13,6 +13,8 @@ def swap_temp(old, new):
 def label(sz):
     sz = sz or {}
     mat, left = sz.get("mat") or "", sz.get("zostalo_g")
+    if mat == "INNY":   # material code from the spool form; the screen is in English
+        mat = "OTHER"
     if left is None:
         return f"{mat} · spool level unknown".strip(" ·")
     return f"{mat} · {left:.0f} g".strip(" ·")
