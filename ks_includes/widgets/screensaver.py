@@ -28,7 +28,7 @@ class ScreenSaver:
             use_screensaver = self.config.get_main_config().get("screen_blanking_printing") != "off"
         else:
             use_screensaver = self.config.get_main_config().get("screen_blanking") != "off"
-        if use_screensaver:
+        if use_screensaver and self.screen.blanking_time > 0:   # "off" = 0: never blank (before, 0 s blanked at once)
             self.screensaver_timeout = GLib.timeout_add_seconds(
                 self.screen.blanking_time, self.show
             )

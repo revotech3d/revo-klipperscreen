@@ -429,6 +429,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
             requested_updates["objects"]["gcode_macro _REVO_CFG"] = None
         if "gcode_macro _REVO_KALIB" in self.printer.config:
             requested_updates["objects"]["gcode_macro _REVO_KALIB"] = None
+        if "save_variables" in self.printer.config:   # installed nozzle, spool, module: screens show the saved values live
+            requested_updates["objects"]["save_variables"] = ["variables"]
         self._ws.api.object_subscription(requested_updates)
 
     @staticmethod
@@ -456,8 +458,12 @@ class KlipperScreen(Gtk.ApplicationWindow):
                     self._menu_go_back(home=True)
                 else:
                     self._remove_all_panels()
-                    for dialog in self.dialogs:
-                        self.gtk.remove_dialog(dialog)
+                    # an open question from a macro (action:prompt, e.g. REVO-0101 nozzle check) stays on top:
+                    # it is the reason the print waits, closing it left the operator without the question
+                    keep = self.prompt.prompt if self.prompt is not None else None
+                    for dialog in list(self.dialogs):
+                        if dialog is not keep:
+                            self.gtk.remove_dialog(dialog)
             else:
                 self._remove_current_panel()
             if panel_name not in self.panels:
