@@ -362,7 +362,7 @@ class RevoActions:
         buttons = [{"name": "Save", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Replace\nnozzle", "response": Gtk.ResponseType.APPLY, "style": "dialog-secondary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
-        self.p._gtk.Dialog("Dysza", buttons, box, self._nozzle_response)
+        self.p._gtk.Dialog("Nozzle", buttons, box, self._nozzle_response)
 
     def _nozzle_response(self, dialog, response):
         self.p._gtk.remove_dialog(dialog)
@@ -616,7 +616,7 @@ class RevoHome(RevoActions, Gtk.Box):
             row.pack_end(sw, False, False, 0)
             box.pack_start(row, False, False, 6)
         buttons = [{"name": "Save", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
-        self.p._gtk.Dialog("Powitanie", buttons, box, self._consent_resp)
+        self.p._gtk.Dialog("Welcome", buttons, box, self._consent_resp)
         return False
 
     def _consent_resp(self, dialog, resp):

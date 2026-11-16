@@ -66,16 +66,16 @@ class Panel(ScreenPanel):
         return False
 
     def confirm(self, it):
-        t = _lbl(f"Potwierdź wykonanie: {it['name']}. This maintenance counter starts again from zero.", "revo_test_desc")
+        t = _lbl(f"Confirm that this was done: {it['name']}. The maintenance counter starts again from zero.", "revo_test_desc")
         t.set_line_wrap(True)
         buttons = [{"name": "Cancel", "response": Gtk.ResponseType.CANCEL},
-                   {"name": "ZROBIONE", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+                   {"name": "DONE", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
 
         def resp(dialog, r):
             self._gtk.remove_dialog(dialog)
             if r == Gtk.ResponseType.OK:
                 self.done(it["key"])
-        self._gtk.Dialog("Przegląd", buttons, t, resp)
+        self._gtk.Dialog("Maintenance", buttons, t, resp)
 
     def done(self, key):
         self._screen._ws.api.gcode_script(logic.done_gcode(key, self.hours))

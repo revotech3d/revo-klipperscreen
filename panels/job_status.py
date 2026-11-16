@@ -488,7 +488,7 @@ class Panel(ScreenPanel):
         def close(dialog, r):
             cam.stop()
             self._gtk.remove_dialog(dialog)
-        self._gtk.Dialog("Kamera", buttons, cam, close)
+        self._gtk.Dialog("Camera", buttons, cam, close)
 
     def _revo_tick(self):
         if self.revo is None:

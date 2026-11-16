@@ -195,7 +195,7 @@ class Panel(ScreenPanel):
         buttons = [{"name": "Delete", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
                    {"name": "Print", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
-        self._gtk.Dialog("Drukuj", buttons, box, self._resp, path)
+        self._gtk.Dialog("Print", buttons, box, self._resp, path)
         if f.get("thumbnails"):
             self.load_image_async(path, self._screen.width * 0.8, self._screen.height * 0.4,
                                   callback=lambda p: p and img.set_from_pixbuf(p))

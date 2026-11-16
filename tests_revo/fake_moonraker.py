@@ -9,7 +9,7 @@ import websockets
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "drukowanie"
 TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
-printing = MODE == "drukowanie"
+printing = "drukowanie" in MODE
 koniec = MODE == "koniec"
 
 CONFIG = {
@@ -40,7 +40,7 @@ STATUS = {
     "idle_timeout": {"state": "Printing" if printing else "Idle"},
     "pause_resume": {"is_paused": False},
     "save_variables": {"variables": {"revo_first_run_done": 1, "revo_nozzle_diameter": 0.4, "revo_nozzle": "0.4 mosiadz"}},
-    "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight", "belt_stepper": "belt_drives" if MODE != "stol" else ""},
+    "gcode_macro _REVO_CFG": {"chamber": "temperature_sensor komora", "light_pin": "caselight", "belt_stepper": "" if "stol" in MODE else "belt_drives"},
     "output_pin caselight": {"value": 1.0},
     "gcode_macro _REVO_TEST": {
         "faza": TEST_FAZA, "step": 5, "last": "nie rusza",

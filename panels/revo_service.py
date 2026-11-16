@@ -140,7 +140,7 @@ class Panel(ScreenPanel):
         lb = self._lbl(f"Send Revotech a request to reset the counter: {name}?", "revo_splash_text", 0.5, True)
         buttons = [{"name": "Send", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
-        self._gtk.Dialog("Reset licznika", buttons, lb, self._reset_resp, key, name)
+        self._gtk.Dialog("Counter reset", buttons, lb, self._reset_resp, key, name)
 
     def _reset_resp(self, dialog, resp, key, name):
         self._gtk.remove_dialog(dialog)

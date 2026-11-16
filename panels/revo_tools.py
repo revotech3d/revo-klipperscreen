@@ -107,6 +107,6 @@ class Panel(ScreenPanel):
         out = _lbl(text, "revo_info", 0.0)
         out.set_selectable(False)
         box.pack_start(out, False, False, 0)
-        self._gtk.Dialog("Wynik", [{"name": "OK", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}],
+        self._gtk.Dialog("Result", [{"name": "OK", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}],
                          box, lambda d, r: self._gtk.remove_dialog(d))
         return False
