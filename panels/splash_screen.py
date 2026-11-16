@@ -61,20 +61,27 @@ class Panel(ScreenPanel):
 
         if self.revo:
             info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-            image.set_margin_top(40)
+            image.set_margin_top(16)
             self.labels["text"].get_style_context().add_class("revo_splash_text")
         else:
             info = Gtk.Box()
         info.pack_start(image, False, True, 8)
         if self.revo:
             # stop screen: plain-language title, reason, what to do, REVO code (revo_stop_logic)
-            self.stop = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            self.stop = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
             self.stop.set_no_show_all(True)
             self.stop.set_margin_start(16)
             self.stop.set_margin_end(16)
             self.stop_lbl = {}
-            for key, cls in (("title", "revo_stop_title"), ("reason", "revo_stop_reason"),
-                             ("detail", "revo_stop_detail"), ("code", "revo_stop_code")):
+            for key, cls, head in (("title", "revo_stop_title", None),
+                                   ("reason", "revo_stop_reason", "WHAT HAPPENED"),
+                                   ("detail", "revo_stop_detail", "WHAT TO DO"),
+                                   ("code", "revo_stop_code", None)):
+                if head:
+                    hl = Gtk.Label(label=head, xalign=0)
+                    hl.get_style_context().add_class("revo_stop_head")
+                    hl.show()
+                    self.stop.pack_start(hl, False, False, 0)
                 lb = Gtk.Label(wrap=True, wrap_mode=Pango.WrapMode.WORD_CHAR, xalign=0)
                 lb.get_style_context().add_class(cls)
                 lb.show()

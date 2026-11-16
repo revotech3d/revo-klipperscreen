@@ -442,6 +442,7 @@ button.revo_restart_blink label { color: #FFFFFF; font-family: "Barlow Semi Cond
 
 /* ---- Revo: ekran zatrzymania (tytuł, powód, co zrobić, kod) ---- */
 .revo_stop_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.9em; font-weight: 700; letter-spacing: 3px; color: #FF4D52; }
-.revo_stop_reason { font-size: 1.15em; color: #FFFFFF; }
-.revo_stop_detail { font-size: 1.0em; color: #C9D4DD; }
-.revo_stop_code { font-family: "Share Tech Mono", monospace; font-size: 0.8em; color: #8E9BA6; }
+.revo_stop_head { font-size: 0.75em; letter-spacing: 2px; color: #8E9BA6; margin-top: 8px; }
+.revo_stop_reason { font-size: 1.0em; color: #FFFFFF; }
+.revo_stop_detail { font-size: 1.0em; color: #DDE6EE; }
+.revo_stop_code { font-family: "Share Tech Mono", monospace; font-size: 0.8em; color: #8E9BA6; margin-top: 10px; }
