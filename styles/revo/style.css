@@ -428,3 +428,21 @@ entry { background-color: #070B0F; border: 1px solid #33495A; border-radius: 0; 
 .revo_saver_bar { font-family: "Rajdhani", sans-serif; font-weight: 700; letter-spacing: 6px; font-size: 1.3em; }
 .revo_saver_bar.revo_ok { color: #3ED663; } .revo_saver_bar.revo_warn { color: #FFB347; } .revo_saver_bar.revo_err { color: #FF3B3B; }
 .revo_saver_hint { font-family: "Share Tech Mono", monospace; color: #33495A; letter-spacing: 4px; font-size: 0.8em; margin-top: 0; }
+/* ---- Revo OS: druk na pasie – plakietka trybu ---- */
+.revo_belt_mode { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; letter-spacing: 3px; color: #0A0A0A; background-color: #5AA0FF; padding: 2px 10px; }
+
+/* ---- Revo: przyciski w oknach (klawiatura temperatury, presety) – bez dużego paddingu przycisków okna ---- */
+.dialog button.revo_preset { padding: 2px 4px; margin-top: 0; min-height: 44px; }
+
+/* ---- Revo: E-STOP (rysowany) i migający FULL RESTART na ekranie zatrzymania ---- */
+button.revo_estop_hold { padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; min-height: 0; }
+@keyframes revo_blink { 0% { background-color: #0F2232; border-color: #5AA9E6; } 50% { background-color: #1F5F8E; border-color: #BFE2FF; } 100% { background-color: #0F2232; border-color: #5AA9E6; } }
+button.revo_restart_blink { border: 2px solid #5AA9E6; border-radius: 0; background-color: #0F2232; animation: revo_blink 1.2s ease-in-out infinite; margin: 6px; }
+button.revo_restart_blink label { color: #FFFFFF; font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 5px; }
+
+/* ---- Revo: ekran zatrzymania (tytuł, powód, co zrobić, kod) ---- */
+.revo_stop_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.9em; font-weight: 700; letter-spacing: 3px; color: #FF4D52; }
+.revo_stop_head { font-size: 0.75em; letter-spacing: 2px; color: #8E9BA6; margin-top: 8px; }
+.revo_stop_reason { font-size: 1.0em; color: #FFFFFF; }
+.revo_stop_detail { font-size: 1.0em; color: #DDE6EE; }
+.revo_stop_code { font-family: "Share Tech Mono", monospace; font-size: 0.8em; color: #8E9BA6; margin-top: 10px; }

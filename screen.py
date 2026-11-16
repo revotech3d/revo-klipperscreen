@@ -416,6 +416,11 @@ class KlipperScreen(Gtk.ApplicationWindow):
             requested_updates["objects"][p] = ["value"]
         for led in self.printer.get_leds():
             requested_updates["objects"][led] = ["color_data"]
+        # Revo: flat belt segment counter (revo/revo.cfg, BELT_ADVANCE)
+        if "gcode_macro FLAT_BELT" in self.printer.get_config_section_list():
+            requested_updates["objects"]["gcode_macro FLAT_BELT"] = [
+                "segments", "finishing", "endless", "advance", "total", "unit", "mode", "done", "target", "loop",
+                "min_target", "file_units", "start_len", "unit_mark", "unit_sum", "last_unit", "advanced"]
 
         # Revo OS: stan testu maszyny (zmienne makra) – ekran testu odświeża się na żywo
         if "gcode_macro _REVO_TEST" in self.printer.config:
@@ -934,6 +939,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self._init_printer(_("Klipper has disconnected"), go_to_splash=True)
 
     def state_error(self):
+        self.set_screenblanking_timeout("off")  # the stop screen and its restart button stay visible
         msg = _("Klipper has encountered an error.") + "\n"
         state = self.printer.get_stat("webhooks", "state_message")
         if "FIRMWARE_RESTART" in state:
@@ -968,6 +974,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.printer_initializing(_("Klipper is attempting to start"))
 
     def state_shutdown(self):
+        self.set_screenblanking_timeout("off")  # the stop screen and its restart button stay visible
         self.printer.stop_tempstore_updates()
         msg = self.printer.get_stat("webhooks", "state_message")
         self.printer_initializing(_("Klipper has shutdown") + "\n\n" + msg, go_to_splash=True)

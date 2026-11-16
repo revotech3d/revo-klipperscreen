@@ -8,8 +8,9 @@ import threading
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, GLib, Gtk
+from gi.repository import Gdk, GLib, Gtk, Pango
 
+from ks_includes.widgets.revo_estop import EStopHold
 from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
 from ks_includes import revo_serwis_logic as serwis
@@ -259,43 +260,67 @@ class RevoActions:
             self.gcode(f"SET_PIN PIN={pin} VALUE={0 if on else 1}")
 
     def heater_dialog(self, heater, title, presets, tmax):
-        """Ustawienie temperatury docelowej: presety + korekta ±5°C."""
+        """Target temperature: type it on the keypad, or pick a preset, or step it ±5 °C."""
         st = self.printer.get_stat(heater) or {}
-        self._ht = {"h": heater, "t": int(st.get("target") or 0), "max": tmax}
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        self._ht = {"h": heater, "t": int(st.get("target") or 0), "max": tmax, "typing": False}
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.get_style_context().add_class("revo_home")
-        box.pack_start(_lbl(f"{title} – TEMPERATURA", "revo_state", 0.5), False, False, 4)
         now = st.get("temperature")
-        box.pack_start(_lbl(f"Teraz: {now:.0f}°C" if now is not None else "Teraz: –", "revo_info", 0.5), False, False, 0)
+        box.pack_start(_lbl(f"NOW {now:.0f}°C" if now is not None else "NOW –", "revo_info", 0.5), False, False, 0)
         self._ht_lbl = _lbl("", "revo_big", 0.5)
-        box.pack_start(self._ht_lbl, False, False, 4)
-        adj = Gtk.Grid(column_homogeneous=True, column_spacing=8)
+        box.pack_start(self._ht_lbl, False, False, 2)
+        # keypad: digits type the target, ⌫ deletes, −5 / +5 step it (hold to go faster)
+        pad = Gtk.Grid(column_homogeneous=True, row_homogeneous=True, column_spacing=6, row_spacing=6)
         self._holds = []
-        for i, sign in enumerate((-1, 1)):
-            b = Gtk.Button(label="−" if sign < 0 else "+")
+
+        def key(label, cb, col, row, width=1):
+            b = Gtk.Button(label=label)
             b.get_style_context().add_class("revo_preset")
-            b.set_size_request(-1, 72)
-            self._holds.append(Hold(b, lambda held, sign=sign: self._ht_set(self._ht["t"] + sign * hold_steps(held))))
-            adj.attach(b, i, 0, 1, 1)
-        box.pack_start(adj, False, False, 0)
-        box.pack_start(_lbl("Przytrzymaj − / +, żeby zmieniać szybciej", "revo_info", 0.5), False, False, 0)
-        box.pack_start(_lbl("PRESETY", "revo_tile_title"), False, False, 4)
-        g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
-        for i, v in enumerate(presets):
-            b = Gtk.Button(label="WYŁ." if v == 0 else f"{v}°")
+            b.set_size_request(-1, 54)
+            if cb is not None:
+                b.connect("clicked", lambda w: cb())
+            pad.attach(b, col, row, width, 1)
+            return b
+        for n in range(9):
+            key(str(n + 1), lambda d=n + 1: self._ht_digit(d), n % 3, n // 3)
+        key("⌫", self._ht_back, 3, 0)
+        for row, sign in ((1, -1), (2, 1)):
+            b = key("−5" if sign < 0 else "+5", None, 3, row)
+            self._holds.append(Hold(b, lambda held, sign=sign: self._ht_step(sign * hold_steps(held))))
+        key("0", lambda: self._ht_digit(0), 0, 3, 2)
+        key("OFF", lambda: self._ht_set(0), 2, 3, 2)
+        box.pack_start(pad, False, False, 0)
+        box.pack_start(_lbl("PRESETS", "revo_tile_title"), False, False, 2)
+        g = Gtk.Grid(column_homogeneous=True, column_spacing=6, row_spacing=6)
+        for i, v in enumerate(v for v in presets if v):
+            b = Gtk.Button(label=f"{v}°")
             b.get_style_context().add_class("revo_preset")
-            b.set_size_request(-1, 56)
+            b.set_size_request(-1, 48)
             b.connect("clicked", lambda w, v=v: self._ht_set(v))
             g.attach(b, i % 4, i // 4, 1, 1)
         box.pack_start(g, False, False, 0)
         self._ht_set(self._ht["t"])
         buttons = [{"name": "Set", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
-        self.p._gtk.Dialog(title, buttons, box, self._heater_response)
+        self.p._gtk.Dialog(f"{title} · TEMPERATURE", buttons, box, self._heater_response)
 
-    def _ht_set(self, v):
-        self._ht["t"] = max(0, min(self._ht["max"], int(v)))
-        self._ht_lbl.set_label("WYŁĄCZONE" if self._ht["t"] == 0 else f"{self._ht['t']}°C")
+    def _ht_digit(self, d):
+        # the first digit starts a new value, the next ones append (up to 3 digits)
+        t = d if not self._ht["typing"] else int(f"{self._ht['t']}{d}"[-3:])
+        self._ht_set(t, typing=True)
+
+    def _ht_back(self):
+        self._ht_set(self._ht["t"] // 10, typing=True)
+
+    def _ht_step(self, d):
+        self._ht_set(self._ht["t"] + d)
+
+    def _ht_set(self, v, typing=False):
+        self._ht["typing"] = typing
+        v = int(v)
+        over = v > self._ht["max"]
+        self._ht["t"] = max(0, min(self._ht["max"], v))
+        self._ht_lbl.set_label(f"MAX {self._ht['max']}°C" if over else ("OFF" if self._ht["t"] == 0 else f"{self._ht['t']}°C"))
 
     def _heater_response(self, dialog, response):
         self.p._gtk.remove_dialog(dialog)
@@ -366,10 +391,18 @@ class RevoHome(RevoActions, Gtk.Box):
         self.get_style_context().add_class("revo_home")
 
         top = Gtk.Box(spacing=8)
+        head = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.state_lbl = _lbl("GOTOWA", "revo_state")
-        self.info_lbl = _lbl("", "revo_info", 1.0)
-        top.pack_start(self.state_lbl, False, False, 0)
-        top.pack_end(self.info_lbl, True, True, 0)
+        self.info_lbl = _lbl("", "revo_info")
+        self.info_lbl.set_ellipsize(Pango.EllipsizeMode.END)
+        head.pack_start(self.state_lbl, False, False, 0)
+        head.pack_start(self.info_lbl, False, False, 0)
+        head.set_valign(Gtk.Align.CENTER)
+        top.pack_start(head, True, True, 0)
+        # E-STOP: hold 3 s (M112). The hotend fan keeps running: [heater_fan] shutdown_speed is 1.0.
+        self.estop = EStopHold(self.screen._ws.api.emergency_stop)
+        self.estop.set_valign(Gtk.Align.CENTER)
+        top.pack_end(self.estop, False, False, 0)
         self.pack_start(top, False, False, 0)
 
         # zdalny podgląd aktywny: widoczny pasek z możliwością zakończenia
@@ -388,7 +421,7 @@ class RevoHome(RevoActions, Gtk.Box):
 
         # schemat w środku, kafelki w kolumnach po bokach
         self.schem = Schematic(logic.machine_type(self.printer))
-        self.schem.set_size_request(200, 190)
+        self.schem.set_size_request(200, 166)  # E-STOP in the header takes the height back
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
@@ -407,9 +440,8 @@ class RevoHome(RevoActions, Gtk.Box):
         sv.pack_start(self.schem, True, True, 0)
         sv.pack_start(hexes, False, False, 0)
         self.pack_start(window("SCHEMATIC VIEW", sv, "R.00"), True, True, 0)
-        self.t_nozzle.title.set_label("NOZZLE")
-        self.t_nozzle.sub.set_no_show_all(True)
-        self.t_nozzle.sub.hide()
+        self.t_nozzle = Tile("TEMPERATURE", lambda: self.screen.show_panel("revo_temp", "Temperature"))
+        self.t_nozzle.value.get_style_context().add_class("revo_tile_value_small")
         self.t_light.title.set_label("LIGHTS")
         tele = Gtk.Grid(column_homogeneous=True, column_spacing=5, row_spacing=5)
         tele.attach(self.t_nozzle, 0, 0, 1, 1)
@@ -600,14 +632,16 @@ class RevoHome(RevoActions, Gtk.Box):
         try:
             v = logic.view(self.printer, self.hours)
             self.state_lbl.set_label(v["state"])
+            if self.printer.state not in ("shutdown", "error", "disconnected"):
+                self.estop.reset()
             ctx = self.state_lbl.get_style_context()
             for c in ("revo_ok", "revo_warn", "revo_err"):
                 ctx.remove_class(c)
             ctx.add_class(v["state_class"])
             sysv = (self.system or {}).get("revo_os")
             self.info_lbl.set_label(v["info"] + (f" · Revo OS {sysv}" if sysv and sysv != "?" else ""))
-            self.t_nozzle.value.set_label(v["nozzle_size"])
-            self.t_nozzle.sub.set_label(v["nozzle_temp"])
+            self.t_nozzle.value.set_label(v["nozzle_temp"])
+            self.t_nozzle.sub.set_label(f"{'BELT' if logic.is_belt(self.printer) else 'BED'} {v['bed_temp']}")
             self.t_bed.value.set_label(v["bed_temp"])
             self.t_chamber.value.set_label(v["chamber_temp"])
             num = lambda o, k: (lambda x: float(x) if isinstance(x, (int, float)) else None)((self.printer.get_stat(o) or {}).get(k))
