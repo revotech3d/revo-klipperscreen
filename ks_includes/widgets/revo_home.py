@@ -421,7 +421,7 @@ class RevoHome(RevoActions, Gtk.Box):
 
         # schemat w środku, kafelki w kolumnach po bokach
         self.schem = Schematic(logic.machine_type(self.printer))
-        self.schem.set_size_request(200, 190)
+        self.schem.set_size_request(200, 166)  # E-STOP in the header takes the height back
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
