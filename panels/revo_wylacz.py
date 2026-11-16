@@ -53,7 +53,8 @@ class Panel(ScreenPanel):
         if self.uzbrojony != k:
             self._reset()
             self.uzbrojony = k
-            self.btn[k].set_label(f"DOTKNIJ PONOWNIE: {txt}")
+            from ks_includes.revo_i18n import tr   # the whole "…: X" is not in the dictionary – translate both parts
+            self.btn[k].set_label(f"{tr('DOTKNIJ PONOWNIE')}: {tr(txt)}")
             self.btn[k].get_style_context().add_class("revo_t_warn")
             GLib.timeout_add_seconds(5, self._reset)
             return

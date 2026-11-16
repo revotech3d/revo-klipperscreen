@@ -712,7 +712,9 @@
 "Sparowano. Załóż konto kierownika – on dodaje kolejnych operatorów.": "Paired. Create the manager account – the manager adds further operators.",
 "Wysłano zgłoszenie": "Report sent",
 "– dotknij, żeby przejść do testu": "– tap to go to the test",
-"Wpisz numer licencji na ekranie drukarki: Menu → Więcej → Licencja.": "Enter the licence number on the printer screen: Menu → More → Licence."
+"Wpisz numer licencji na ekranie drukarki: Menu → Więcej → Licencja.": "Enter the licence number on the printer screen: Menu → More → Licence.",
+"Kalibracja zakończona. Zapisz wynik w trybie serwisowym (Zapisz konfigurację).": "Calibration finished. Save the result in Service mode (Save config).",
+"Przepływ (mm³/s)": "Flow (mm³/s)"
 },
 "re": [
 [
@@ -1046,6 +1048,10 @@
 [
 "^krok krytyczny: (.*)$",
 "critical step: $1"
+],
+[
+"^Przepływ ([0-9.,]+) mm³/s przekracza możliwości zamontowanej dyszy \\(maks\\. ([0-9.,]+) mm³/s\\)\\.$",
+"Flow $1 mm³/s is more than the installed nozzle can do (max. $2 mm³/s)."
 ]
 ]
 }

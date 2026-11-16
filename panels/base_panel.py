@@ -108,6 +108,17 @@ class BasePanel(ScreenPanel):
         self.control["net"] = Gtk.Label(label="")
         self.control["net"].get_style_context().add_class("revo_net")
         self.control["time_box"].pack_end(self.control["net"], False, False, 6)
+        # Revo: power (shut down / restart) in the top-right corner of every screen; hidden while printing
+        self.control["power"] = self._gtk.Button("shutdown", scale=0.55)
+        self.control["power"].set_name("power")
+        self.control["power"].set_tooltip_text("Power")
+        self.control["power"].set_hexpand(False)
+        self.control["power"].set_vexpand(False)
+        self.control["power"].get_style_context().add_class("revo_power")
+        self.control["power"].connect("clicked", self._power)
+        self.control["power"].set_no_show_all(True)
+        self.control["time_box"].pack_end(self.control["power"], False, False, 0)
+        self.control["time_box"].reorder_child(self.control["power"], 0)
         self._net_n = 0
 
         self.battery_icons = self.load_battery_icons()
@@ -145,6 +156,10 @@ class BasePanel(ScreenPanel):
         self._build_main_grid()
 
         self.update_time()
+
+    def _power(self, widget):
+        if "revo_wylacz" not in self._screen._cur_panels:
+            self.menu_item_clicked(widget, self.shutdown)
 
     def _estop_down(self, widget):
         from ks_includes.widgets.revo_estop import HOLD_S
@@ -407,6 +422,7 @@ class BasePanel(ScreenPanel):
         printing, connected, printer_select = self.get_printer_state()
         self.control["estop"].set_visible(printing)
         self.control["shutdown"].set_visible(not printing)
+        self.control["power"].set_visible(not printing)
         self.show_shortcut(self.shortcut["panel"])
         # Revo OS: dzwonek (standardowe powiadomienia KlipperScreena) tylko w trybie serwisowym
         if self._config.get_main_config().get("theme", "") == "revo" and self.shortcut["panel"] == "notifications":
