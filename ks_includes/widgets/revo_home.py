@@ -8,8 +8,9 @@ import threading
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, GLib, Gtk
+from gi.repository import Gdk, GLib, Gtk, Pango
 
+from ks_includes.widgets.revo_estop import EStopHold
 from ks_includes.widgets.revo_hold import Hold, hold_steps
 from ks_includes import revo_home_logic as logic
 from ks_includes import revo_serwis_logic as serwis
@@ -390,10 +391,18 @@ class RevoHome(RevoActions, Gtk.Box):
         self.get_style_context().add_class("revo_home")
 
         top = Gtk.Box(spacing=8)
+        head = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.state_lbl = _lbl("GOTOWA", "revo_state")
-        self.info_lbl = _lbl("", "revo_info", 1.0)
-        top.pack_start(self.state_lbl, False, False, 0)
-        top.pack_end(self.info_lbl, True, True, 0)
+        self.info_lbl = _lbl("", "revo_info")
+        self.info_lbl.set_ellipsize(Pango.EllipsizeMode.END)
+        head.pack_start(self.state_lbl, False, False, 0)
+        head.pack_start(self.info_lbl, False, False, 0)
+        head.set_valign(Gtk.Align.CENTER)
+        top.pack_start(head, True, True, 0)
+        # E-STOP: hold 3 s (M112). The hotend fan keeps running: [heater_fan] shutdown_speed is 1.0.
+        self.estop = EStopHold(self.screen._ws.api.emergency_stop)
+        self.estop.set_valign(Gtk.Align.CENTER)
+        top.pack_end(self.estop, False, False, 0)
         self.pack_start(top, False, False, 0)
 
         # zdalny podgląd aktywny: widoczny pasek z możliwością zakończenia
@@ -623,6 +632,8 @@ class RevoHome(RevoActions, Gtk.Box):
         try:
             v = logic.view(self.printer, self.hours)
             self.state_lbl.set_label(v["state"])
+            if self.printer.state not in ("shutdown", "error", "disconnected"):
+                self.estop.reset()
             ctx = self.state_lbl.get_style_context()
             for c in ("revo_ok", "revo_warn", "revo_err"):
                 ctx.remove_class(c)

@@ -78,7 +78,7 @@ class Panel(RevoActions, ScreenPanel):
             bg.set_margin_start(6); bg.set_margin_end(6); bg.set_margin_top(6); bg.set_margin_bottom(6)
             box.pack_start(window("BELT", bg, "EJECT"), False, False, 0)
 
-        self.es = Gtk.Button(label="E-STOP · HOLD 1 s")
+        self.es = Gtk.Button(label="E-STOP · HOLD 3 s")
         self.es.get_style_context().add_class("revo_estop")
         self.es.set_size_request(-1, 40)
         self.es.connect("pressed", self._es_down)
@@ -111,12 +111,12 @@ class Panel(RevoActions, ScreenPanel):
 
     def _es_up(self, w):
         self._estop = None
-        self.es.set_label("E-STOP · HOLD 1 s")
+        self.es.set_label("E-STOP · HOLD 3 s")
 
     def _es_tick(self):
         if self._estop is None:
             return False
-        left = 1.0 - (time.monotonic() - self._estop)
+        left = 3.0 - (time.monotonic() - self._estop)
         if left <= 0:
             self._estop = None
             self._screen._ws.api.emergency_stop()
