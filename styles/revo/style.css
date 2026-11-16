@@ -449,9 +449,10 @@ button.revo_restart_blink label { color: #FFFFFF; font-family: "Barlow Semi Cond
 /* Revo: power button in the top-right corner (titlebar) */
 button.revo_power { min-height: 0; min-width: 0; padding: 2px 6px; margin: 0 2px 0 6px; background: transparent; border: 1px solid #33495A; border-radius: 6px; }
 button.revo_power:active { background: rgba(255, 77, 82, .25); }
-/* Revo: START PRINT on the home screen – the main action. SpaceX-style: solid white slab, black wide-spaced capitals,
-   square corners (customer feedback: the outline button was not noticed) */
-button.revo_start { background-color: #F2F3F5; background-image: none; border: 1px solid #FFFFFF; border-radius: 2px; min-height: 76px;
-                    box-shadow: 0 0 18px rgba(255, 255, 255, 0.18); }
-button.revo_start label { color: #050608; font-weight: 700; font-size: 1.35em; letter-spacing: 9px; }
-button.revo_start:active { background-color: #C9CDD2; }
+/* Revo: START PRINT on the home screen – the main action (customer feedback: the outline button was not noticed).
+   Blue-grey night sky with stars, white wide-spaced capitals, thin light frame – in the SpaceX spirit of the screen. */
+button.revo_start { background-color: #22344A; background-image: url("./styles/revo/images/start_stars.png"); background-size: cover;
+                    background-position: center; border: 1px solid #9DB8CE; border-radius: 2px; min-height: 76px;
+                    box-shadow: 0 0 16px rgba(120, 165, 205, 0.30); }
+button.revo_start label { color: #FFFFFF; font-weight: 700; font-size: 1.35em; letter-spacing: 9px; text-shadow: 0 0 8px rgba(190, 220, 245, 0.55); }
+button.revo_start:active { background-color: #1A2838; border-color: #FFFFFF; }
