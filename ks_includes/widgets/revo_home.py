@@ -472,6 +472,7 @@ class RevoHome(RevoActions, Gtk.Box):
         druk = Gtk.Button(label="ROZPOCZNIJ DRUK")
         druk.get_style_context().add_class("revo_print")
         druk.connect("clicked", lambda *a: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"}))
+        druk.get_style_context().add_class("revo_start")
         druk.set_size_request(-1, 76)
         self.pack_start(druk, False, False, 0)
         # no preset row here (customer feedback): PLA / PETG / ABS-ASA and heaters off live on the Filament screen
