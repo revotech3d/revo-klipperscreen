@@ -51,6 +51,15 @@ def top_window(win):
     return dl[-1] if dl else win
 
 
+def top_layer(win):
+    """Okno dialogowe albo najwyższa nakładka (PIN, blokada ekranu) – przyciski pod nią są niedostępne."""
+    top = top_window(win)
+    if top is not win:
+        return top, top
+    kids = [c for c in win.overlay.get_children() if c.get_visible() and c.get_mapped()]
+    return top, (kids[-1] if len(kids) > 1 else top)
+
+
 def walk(w, fn):
     if not w.get_visible() or not w.get_mapped():
         return
@@ -91,7 +100,7 @@ def visible_rect(w, top):
 
 
 def buttons(win):
-    top = top_window(win)
+    top, layer = top_layer(win)
     out = []
 
     def f(w):
@@ -99,24 +108,24 @@ def buttons(win):
             r = visible_rect(w, top)
             if r:
                 out.append((w, r, label_of(w) or w.get_tooltip_text() or w.get_name() or ""))
-    walk(top, f)
+    walk(layer, f)
     out.sort(key=lambda t: (t[1][1], t[1][0]))
     return out
 
 
 def signature(win):
-    top = top_window(win)
-    texts = []
-
-    def f(w):
-        if isinstance(w, Gtk.Label):
-            t = w.get_text().strip()
-            if t and not CLOCK.match(t):
-                texts.append(t)
-    walk(top, f)
+    """Ekran = rodzaj + panel + tytuł okna + napisy na przyciskach. Wartości (temperatury, wybrany krok)
+    nie tworzą nowych ekranów – zmieniają się tylko napisy na etykietach."""
+    top, layer = top_layer(win)
+    labels = sorted({re.sub(r"\d+", "#", lab) for w, r, lab in buttons(win)})
+    heads = []
+    walk(layer, lambda w: heads.append(w.get_text()) if isinstance(w, Gtk.Label) and
+         w.get_style_context().has_class("revo_win_title") else None)
+    labels += sorted(set(heads))
     panel = win._cur_panels[-1] if win._cur_panels else ""
-    kind = "dialog" if top is not win else "panel"
-    return hashlib.sha1(json.dumps([kind, panel, sorted(set(texts))]).encode()).hexdigest()[:12], panel, kind
+    kind = "dialog" if top is not win or layer is not top else "panel"
+    dtitle = top.get_title() if top is not win else ""
+    return hashlib.sha1(json.dumps([kind, panel, dtitle, labels]).encode()).hexdigest()[:12], panel, kind
 
 
 def title(win):
@@ -147,6 +156,11 @@ def reset(win):
             win.gtk.remove_dialog(d)
         except Exception:
             d.destroy()
+    kids = win.overlay.get_children()
+    for c in kids[1:]:   # nakładki (PIN, blokada) z poprzedniego kroku
+        win.overlay.remove(c)
+    if kids:
+        kids[0].show()
     win._menu_go_back(home=True)
     pump(0.5)
 
