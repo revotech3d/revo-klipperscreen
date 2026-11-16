@@ -57,9 +57,12 @@ class Panel(RevoActions, ScreenPanel):
         w2.pack_start(sg, False, False, 0)
 
         jg = Gtk.Grid(column_homogeneous=True, row_homogeneous=True, column_spacing=6, row_spacing=6)
-        for (lab, ax, d, c, r) in (("X−", "X", -1, 0, 0), ("Y+", "Y", 1, 1, 0), ("X+", "X", 1, 2, 0), ("Y−", "Y", -1, 1, 1),
-                                   ("Z+", "Z", 1, 3, 0), ("Z−", "Z", -1, 3, 1)):
-            jg.attach(self._btn(lab, lambda w, ax=ax, d=d: self.jog(ax, d), "revo_preset", 36), c, r, 1, 1)
+        # a plain cross (as seen from above: ▲ = to the back, ◀ = to the left) and Z as UP / DOWN of the head
+        for (lab, ax, d, c, r) in (("▲", "Y", 1, 1, 0), ("◀", "X", -1, 0, 1), ("▶", "X", 1, 2, 1), ("▼", "Y", -1, 1, 2),
+                                   ("▲ UP", "Z", 1, 3, 0), ("▼ DOWN", "Z", -1, 3, 2)):
+            jg.attach(self._btn(lab, lambda w, ax=ax, d=d: self.jog(ax, d), "revo_preset", 34), c, r, 1, 1)
+        for (lab, c) in (("X · Y", 1), ("Z", 3)):   # the axis names in the middle row, for service
+            jg.attach(_lbl(lab, "revo_tile_title", 0.5), c, 1, 1, 1)
         w2.pack_start(jg, False, False, 0)
         box.pack_start(window("JOG", w2, "STEP mm"), False, False, 0)
 

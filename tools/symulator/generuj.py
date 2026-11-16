@@ -183,14 +183,14 @@ def find_button(win, center):
     return None
 
 
-def replay(win, path):
+def replay(win, path, wait=0.4):
     reset(win)
     for c in path:
         b = find_button(win, c)
         if b is None:
             return False
         b.clicked()
-        pump(0.4)
+        pump(wait)
     return True
 
 
@@ -204,7 +204,10 @@ def explore(win):
         sig, path = queue.pop(0)
         st = states[sig]
         if not replay(win, path):
-            continue
+            pump(1.5)   # second try: some screens (guides, dialogs) need longer to build
+            if not replay(win, path, 1.2):
+                print(f"replay failed: {st['id']}", flush=True)
+                continue
         st["title"] = title(win).strip()
         if st["kind"] == "dialog" and path:
             st["parent"] = next((v["id"] for v in states.values() if v["path"] == path[:-1]), None)
@@ -253,7 +256,13 @@ def explore(win):
                 queue.append((nsig, path + [(cx, cy)]))
             btn["to"] = states[nsig]["id"]
         print(f"[{len(order)}] {st['id']} {st['title']} buttons={len(st['buttons'])}", flush=True)
-    return [states[s] for s in order if "img" in states[s]]
+    out = [states[s] for s in order if "img" in states[s]]
+    ok = {s["id"] for s in out} | {"estop"}
+    for s in out:   # no dead links: a screen that could not be replayed is not in the simulator
+        for b in s["buttons"]:
+            if b.get("to") and b["to"] not in ok:
+                b["to"] = None
+    return out
 
 
 def stop_screen(win, home_id):

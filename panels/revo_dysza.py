@@ -88,10 +88,31 @@ class Panel(ScreenPanel):
         self.step = 0
         self._screen._menu_go_back()
 
+    def back(self):
+        """BACK = one step back: the previous step of the guide; on the first step back to the Nozzle window."""
+        if self.step > 0:
+            if STEPS[self.step] == "grzanie":
+                self.gcode("SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0")
+            self.step -= 1
+            self.render()
+            return True
+        self._screen._menu_go_back()
+        home = self._screen.panels.get(self._screen._cur_panels[-1]) if self._screen._cur_panels else None
+        if getattr(home, "revo", None):
+            GLib.idle_add(lambda: home.revo.nozzle_dialog() and False)
+        return True
+
+    def activate(self):
+        # the panel is kept between visits: every entry starts the guide from the first step
+        self.step = 0
+        self.render()
+
     def deactivate(self):
         if self._timer:
             GLib.source_remove(self._timer)
             self._timer = None
+        if 0 < self.step < len(STEPS) - 1:   # left in the middle (Home): do not leave the nozzle at 250 °C
+            self.gcode("SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0")
 
     # ---------- kroki ----------
     def s_wybor(self):
