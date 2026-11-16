@@ -26,6 +26,16 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
 import screen  # noqa: E402
+from ks_includes import revo_net  # noqa: E402
+
+# Wygląd jak na maszynie w sieci firmy (w generatorze nie ma prawdziwej sieci)
+revo_net.describe = lambda *a, **k: "Wi-Fi 72% 192.168.1.50"
+revo_net.local_ip = lambda: "192.168.1.50"
+try:
+    from panels import revo_system
+    revo_system.ip = lambda: "192.168.1.50"
+except Exception:
+    pass
 
 MAX_STATES = int(os.environ.get("SYM_MAX", "70"))
 MAX_DEPTH = int(os.environ.get("SYM_DEPTH", "4"))
@@ -213,14 +223,24 @@ def explore(win):
                 continue
             if SKIP.search(lab) or lab.strip() == "shutdown" or NOOP.match(lab.strip()) or len(path) >= MAX_DEPTH:
                 continue
-            if dirty and not replay(win, path):
-                break
+            try:
+                if dirty and not replay(win, path):
+                    break
+            except Exception as e:
+                print("replay error", e, flush=True)
+                dirty = True
+                continue
             b = find_button(win, (cx, cy))
             if b is None:
                 continue
-            b.clicked()
-            pump(0.5)
-            nsig, npanel, nkind = signature(win)
+            try:
+                b.clicked()
+                pump(0.5)
+                nsig, npanel, nkind = signature(win)
+            except Exception as e:
+                print("click error", lab, e, flush=True)
+                dirty = True
+                continue
             dirty = nsig != sig
             if nsig == sig:
                 continue
@@ -256,16 +276,17 @@ def run(win):
         states.append(stop_screen(win, states[0]["id"]))
         for s in states:
             s.pop("path", None)
-        ver = ""
-        try:
-            ver = os.popen("git -C %s describe --tags --abbrev=0" % ROOT).read().strip()
-        except Exception:
-            pass
+        ver = ("v" + os.environ["SYM_SCREEN"]) if os.environ.get("SYM_SCREEN") else \
+            os.popen("git -C %s describe --tags --abbrev=0" % ROOT).read().strip()
         man = {"variant": VARIANT, "version": ver, "generated": time.strftime("%Y-%m-%d"), "start": states[0]["id"],
                "size": [480, 800], "screens": {s["id"]: s for s in states}}
         with open(os.path.join(OUT, "manifest.json"), "w", encoding="utf-8") as f:
             json.dump(man, f, ensure_ascii=False, indent=1)
         print("DONE", len(states), flush=True)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        sys.stdout.flush()
     finally:
         os._exit(0)
 
