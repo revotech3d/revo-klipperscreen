@@ -57,6 +57,7 @@ class Panel(ScreenPanel):
         scroll = self._gtk.ScrolledWindow()
         scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         scroll.add(self.labels["text"])
+        self._raw = scroll
 
         if self.revo:
             info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
@@ -66,7 +67,21 @@ class Panel(ScreenPanel):
             info = Gtk.Box()
         info.pack_start(image, False, True, 8)
         if self.revo:
-            tel = Gtk.Label(label="Serwis Revotech: +48 512 960 411", halign=Gtk.Align.CENTER)
+            # stop screen: plain-language title, reason, what to do, REVO code (revo_stop_logic)
+            self.stop = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+            self.stop.set_no_show_all(True)
+            self.stop.set_margin_start(16)
+            self.stop.set_margin_end(16)
+            self.stop_lbl = {}
+            for key, cls in (("title", "revo_stop_title"), ("reason", "revo_stop_reason"),
+                             ("detail", "revo_stop_detail"), ("code", "revo_stop_code")):
+                lb = Gtk.Label(wrap=True, wrap_mode=Pango.WrapMode.WORD_CHAR, xalign=0)
+                lb.get_style_context().add_class(cls)
+                lb.show()
+                self.stop_lbl[key] = lb
+                self.stop.pack_start(lb, False, False, 0)
+            info.pack_start(self.stop, False, False, 8)
+            tel = Gtk.Label(label="Revotech service: +48 512 960 411", halign=Gtk.Align.CENTER)
             tel.get_style_context().add_class("revo_info")
             info.pack_end(tel, False, False, 8)
         info.pack_end(scroll, True, True, 8)
@@ -81,6 +96,18 @@ class Panel(ScreenPanel):
 
     def update_text(self, text):
         self.labels["text"].set_label(f"{text}")
+        if self.revo:
+            stopped = str(text).startswith(("Klipper has shutdown", "Klipper has encountered an error"))
+            if stopped:
+                from ks_includes import revo_stop_logic as sl
+                belt = bool((self._printer.get_stat("gcode_macro _REVO_CFG") or {}).get("belt_stepper")) if self._printer else True
+                d = sl.describe(text, belt)
+                self.stop_lbl["title"].set_label(d["title"])
+                self.stop_lbl["reason"].set_label(d["reason"])
+                self.stop_lbl["detail"].set_label(d["detail"])
+                self.stop_lbl["code"].set_label(d["code"] + (f" · Klipper: {d['klipper']}" if d["klipper"] else ""))
+            self.stop.set_visible(stopped)
+            self._raw.set_visible(not stopped)   # the raw Klipper text, replaced by the plain-language one
         self.show_restart_buttons()
 
     def clear_action_bar(self):

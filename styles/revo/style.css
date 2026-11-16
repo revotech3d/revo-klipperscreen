@@ -439,3 +439,9 @@ button.revo_estop_hold { padding: 0; margin: 0; border: 0; border-radius: 0; bac
 @keyframes revo_blink { 0% { background-color: #0F2232; border-color: #5AA9E6; } 50% { background-color: #1F5F8E; border-color: #BFE2FF; } 100% { background-color: #0F2232; border-color: #5AA9E6; } }
 button.revo_restart_blink { border: 2px solid #5AA9E6; border-radius: 0; background-color: #0F2232; animation: revo_blink 1.2s ease-in-out infinite; margin: 6px; }
 button.revo_restart_blink label { color: #FFFFFF; font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 5px; }
+
+/* ---- Revo: ekran zatrzymania (tytuł, powód, co zrobić, kod) ---- */
+.revo_stop_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.9em; font-weight: 700; letter-spacing: 3px; color: #FF4D52; }
+.revo_stop_reason { font-size: 1.15em; color: #FFFFFF; }
+.revo_stop_detail { font-size: 1.0em; color: #C9D4DD; }
+.revo_stop_code { font-family: "Share Tech Mono", monospace; font-size: 0.8em; color: #8E9BA6; }
