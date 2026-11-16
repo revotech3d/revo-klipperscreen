@@ -512,7 +512,7 @@ class KlipperScreenConfig:
                     "name": _("Auto-close notifications"),
                     "type": "binary",
                     "tooltip": _("Close messages after a timeout"),
-                    "value": "True",
+                    "value": "False",
                 }
             },
             {

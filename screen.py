@@ -576,7 +576,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
         self.base_panel.update_shortcut_icon(level)
 
-        if self._config.get_main_config().getboolean("autoclose_popups", True):
+        # Revo OS: a message stays until the operator taps it (Szymon's decision) – a newer message replaces it
+        if self._config.get_main_config().getboolean("autoclose_popups", False):
             if self.popup_timeout is not None:
                 GLib.source_remove(self.popup_timeout)
                 self.popup_timeout = None
