@@ -291,6 +291,8 @@ def run(win):
         os._exit(0)
 
 
+# Panele, które bez prawdziwego sprzętu się nie ładują (LED, sieć, system) – bez okna błędu, ekran zostaje
+screen.KlipperScreen.show_error_modal = lambda self, *a, **k: print("panel error", a[0] if a else "", flush=True)
 orig = screen.KlipperScreen.__init__
 
 
