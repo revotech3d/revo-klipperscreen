@@ -58,6 +58,7 @@ class Panel(ScreenPanel):
                 b.get_style_context().add_class("revo_preset")
                 inner = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
                 t = Gtk.Label(label=p["tytul"], xalign=0)
+                t.set_line_wrap(True)   # długie tytuły zawijają się – karta mieści się na ekranie obok paska przewijania
                 t.get_style_context().add_class("revo_tile_value_small")
                 d = Gtk.Label(label=p.get("opis", ""), xalign=0)
                 d.set_line_wrap(True)

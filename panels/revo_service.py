@@ -89,12 +89,14 @@ class Panel(ScreenPanel):
             info += f" The mode ends by itself after {minutes} min."
         self.box.pack_start(self._lbl(info, "revo_info", 0.5, True), False, False, 0)
         self.box.pack_start(self._lbl("PART REPLACED – REQUEST COUNTER RESET", "revo_tile_title"), False, False, 8)
-        for key, name in PARTS:
+        grid = Gtk.Grid(column_homogeneous=True, row_spacing=8, column_spacing=8)
+        for i, (key, name) in enumerate(PARTS):   # dwie kolumny – z przełącznikiem modułu Belt mieści się na ekranie
             b = Gtk.Button(label=name)
             b.get_style_context().add_class("revo_preset")
             b.set_size_request(-1, 56)
             b.connect("clicked", self.ask_reset, key, name)
-            self.box.pack_start(b, False, False, 0)
+            grid.attach(b, i % 2, i // 2, 1, 1)
+        self.box.pack_start(grid, False, False, 0)
         self.msg = self._lbl("The counter resets after Revotech approves.", "revo_info", 0.5, True)
         self.box.pack_start(self.msg, False, False, 8)
         # moduł Belt: jeden Revo OS dla wszystkich maszyn, przełącza serwis (makro REVO_BELT_MODULE)

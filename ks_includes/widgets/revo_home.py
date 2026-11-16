@@ -34,7 +34,7 @@ class HexGauge(Gtk.DrawingArea):
         super().__init__()
         self.title, self.tmax = title, tmax
         self.temp = self.target = None
-        self.set_size_request(140, 88)
+        self.set_size_request(132, 88)   # 3 × 132 + odstępy mieszczą się w 448 px treści
         self.set_hexpand(True)
         self.connect("draw", self._draw)
         if on_click:

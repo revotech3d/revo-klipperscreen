@@ -204,7 +204,7 @@ class Panel(ScreenPanel):
 
         thumb = self._unparent(self.labels["thumbnail"])
         thumb.set_halign(Gtk.Align.CENTER)
-        thumb.set_size_request(200, 160)
+        thumb.set_size_request(200, 140)   # min; podgląd rośnie, gdy jest miejsce – z paskiem akcji mieści się w 800 px
         # podgląd: model z pliku albo kamera na żywo (przełącznik pod obrazem)
         self.revo_view = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
         self.revo_view.add_named(thumb, "model")

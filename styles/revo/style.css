@@ -293,7 +293,7 @@ button.revo_preset:checked, radiobutton.revo_preset:checked, .revo_preset:checke
 
 /* ---- Revo OS: dolny pasek nawigacji (podstrony) spójny z menu ekranu głównego ---- */
 .action_bar { background-color: #050607; border-top: 1px solid #1E2125; }
-.action_bar button { background-color: transparent; border: none; border-radius: 0; }
+.action_bar button { background-color: transparent; border: none; border-radius: 0; padding-left: 0; padding-right: 0; min-width: 0; }
 .action_bar button image { opacity: 0.75; }
 .action_bar button:active { background-color: #131518; }
 .title_bar { background-color: #050607; }
