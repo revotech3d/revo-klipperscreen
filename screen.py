@@ -1149,8 +1149,13 @@ class KlipperScreen(Gtk.ApplicationWindow):
             return
         if action != "notify_status_update" or mt is None:
             return
-        old, self._revo_mt = getattr(self, "_revo_mt", None), mt
-        if old is not None and old != mt:
+        if mt not in ("belt", "stol"):
+            return
+        old = getattr(self, "_revo_mt", None)
+        if old is None:   # przed _REVO_BELT_MODULE_INIT ekran budował się wg belt_stepper
+            old = "belt" if self.printer.get_stat("gcode_macro _REVO_CFG", "belt_stepper") else "stol"
+        self._revo_mt = mt
+        if old != mt:
             GLib.timeout_add(500, lambda: self.reload_panels() and False)
 
     def _revo_test_autoshow(self, action=None, data=None, *args):
