@@ -23,7 +23,7 @@ class H(BaseHTTPRequestHandler):
 HTTPServer(("127.0.0.1", 7130), H).serve_forever()
 PY
 FA=$!
-for V in belt:idle belt-druk:drukowanie belt-seq:drukowanie-seq belt-plates:drukowanie-plates belt-long:drukowanie-long belt-endless:drukowanie-endless belt-pauza:drukowanie-pauza stol:stol stol-druk:stol-drukowanie stol-pauza:stol-drukowanie-pauza; do
+for V in ${SYM_VARIANTS:-belt:idle belt-druk:drukowanie belt-seq:drukowanie-seq belt-plates:drukowanie-plates belt-long:drukowanie-long belt-endless:drukowanie-endless belt-pauza:drukowanie-pauza stol:stol stol-druk:stol-drukowanie stol-pauza:stol-drukowanie-pauza}; do
   NAME=${V%%:*}; MODE=${V##*:}
   [ -n "$ONLY" ] && [ "$ONLY" != "$NAME" ] && continue
   ( cd "$ROOT" && ${FAKE_PY:-python3} tests_revo/fake_moonraker.py "$MODE" > "$TMP/fm-$NAME.log" 2>&1 ) & FM=$!

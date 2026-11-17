@@ -293,6 +293,11 @@ def prompt_screen(win):
 def run(win):
     try:
         pump(2)
+        if os.environ.get("SYM_DONE"):   # finished / cancelled print: summary screen as the machine shows it
+            win.show_panel("job_status", remove_all=True)
+            pump(2.5)
+            print("DONE_SCREEN", shoot("done"), flush=True)
+            return
         if os.environ.get("SYM_PROMPT_ONLY"):
             print("PROMPT", prompt_screen(win), flush=True)
             reset(win)

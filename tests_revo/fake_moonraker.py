@@ -12,7 +12,7 @@ TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
 printing = "drukowanie" in MODE
 paused = MODE.endswith("-pauza")   # wstrzymany druk (PAUSE): ekran z RESUME
 _M = MODE[:-len("-pauza")] if paused else MODE
-koniec = MODE == "koniec"
+koniec = MODE in ("koniec", "anulowany")   # wydruk zakończony / anulowany: ekran podsumowania
 # Belt: tryb druku z [r]evo Slicer (drukowanie-<tryb>), dane makra FLAT_BELT jak w trakcie prawdziwego druku
 BELT = {
     "fixed": ("obudowa-200x150_0.4_PETG.gcode", 6200, 2860, {"mode": "fixed", "unit": "segment", "target": 1, "file_units": 1}),
@@ -44,7 +44,7 @@ STATUS = {
     "heater_bed": {"temperature": (55.1 if PLA else 79.8) if printing else 23.0, "target": (55 if PLA else 80) if printing else 0, "power": 0.3},
     "temperature_sensor komora": {"temperature": 47.5 if printing else 22.0},
     "fan": {"speed": 0.6 if printing else 0},
-    "print_stats": {"state": ("paused" if paused else "printing") if printing else ("complete" if koniec else "standby"),
+    "print_stats": {"state": ("paused" if paused else "printing") if printing else (("cancelled" if MODE == "anulowany" else "complete") if koniec else "standby"),
                     "filename": PLIK if (printing or koniec) else "",
                     "print_duration": DUR, "total_duration": DUR + 40, "filament_used": 3120,
                     "info": {"current_layer": 84, "total_layer": 180}},

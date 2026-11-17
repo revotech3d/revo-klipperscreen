@@ -256,7 +256,8 @@ class Panel(ScreenPanel):
         sz.add(self.revo_sz)
         info.attach(sz, 3, 0, 1, 1)
         prog.pack_start(info, False, False, 0)
-        box.pack_start(window("PROGRESS", pad(prog), "JOB"), False, False, 0)
+        self.revo_prog_win = window("PROGRESS", pad(prog), "JOB")
+        box.pack_start(self.revo_prog_win, False, False, 0)
         self.revo_belt_win = window("BELT", pad(self._revo_belt_box()), "MODE")
         self.revo_belt_win.set_no_show_all(True)
         box.pack_start(self.revo_belt_win, False, False, 0)
@@ -420,8 +421,9 @@ class Panel(ScreenPanel):
             if self.revo_belt_win.get_visible():
                 self.revo_belt_win.set_no_show_all(True)
                 self.revo_belt_win.hide()
-                self.revo_live_win.set_no_show_all(False)
-                self.revo_live_win.show_all()
+                if self.state not in ("complete", "cancelled", "error"):
+                    self.revo_live_win.set_no_show_all(False)
+                    self.revo_live_win.show_all()
             return
         b = self.revo_bw
         b["mode"].set_label(v["mode"])
@@ -1340,14 +1342,31 @@ class Panel(ScreenPanel):
             ps = self._printer.get_stat("print_stats") or {}
             secs = int(ps.get("print_duration") or 0)
             fil = float(ps.get("filament_used") or 0) / 1000
-            self.revo_done_info.set_label(f"Czas druku {secs // 3600} h {secs % 3600 // 60:02d} min · filament {fil:.1f} m")
+            name = os.path.splitext(os.path.basename(ps.get("filename") or self.filename or ""))[0]
+            pct = int(round(float((self._printer.get_stat("virtual_sdcard") or {}).get("progress") or 0) * 100))
+            # cancelled / error: the progress window (0 %, time remaining) would suggest the print is still going –
+            # the summary says where it stopped instead
+            stopped = f" · stopped at {pct} %" if self.state != "complete" else ""
+            self.revo_done_info.set_label((f"{name}\n" if name else "") + f"Print time {secs // 3600} h {secs % 3600 // 60:02d} min · filament {fil:.1f} m{stopped}")
             for w in self.revo_done.get_children():
                 w.show_all()
             self.revo_done.show()
             self.revo_btns.hide()
+            # after the print the summary, EJECT, PRINT AGAIN / HOME SCREEN and the bottom bar need the room:
+            # the live view (big preview) gives way, the file name is in the summary
+            self.revo_live_win.set_no_show_all(True)
+            self.revo_live_win.hide()
+            done_ok = self.state == "complete"
+            self.revo_prog_win.set_no_show_all(not done_ok)
+            self.revo_prog_win.set_visible(done_ok)
         else:
+            self.revo_prog_win.set_no_show_all(False)
+            self.revo_prog_win.show_all()
             self.revo_done.hide()
             self.revo_btns.show_all()
+            if not self.revo_belt_win.get_visible():
+                self.revo_live_win.set_no_show_all(False)
+                self.revo_live_win.show_all()
 
     def show_buttons_for_state(self):
         self.buttons["button_grid"].remove_row(0)
