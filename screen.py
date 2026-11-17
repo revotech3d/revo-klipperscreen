@@ -639,11 +639,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
     def _revo_runout_alert(self):
         """Pause from the filament sensor: REVO-0203 also on machines whose printer.cfg does not send it."""
-        for f in self.printer.get_filament_sensors():
-            st = self.printer.get_stat(f)
-            if st.get("enabled") and st.get("filament_detected") is False:
-                self._revo_alert("REVO-0203 · Filament ran out or is stuck", "The filament sensor stopped the print.", 3)
-                return
+        if self._revo_runout():
+            self._revo_alert("REVO-0203 · Filament ran out or is stuck", "The filament sensor stopped the print.", 3)
 
     def close_popup_message(self, widget=None):
         if self.popup_message is None:
@@ -1019,10 +1016,17 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
     def state_paused(self):
         self.state_printing()
-        if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True):
-            self.show_panel("revo_filament" if self._config.get_main_config().get("theme", "") == "revo" else "extrude")
-        if self._config.get_main_config().get("theme", "") == "revo":
+        revo = self._config.get_main_config().get("theme", "") == "revo"
+        # Revo: the Filament screen opens only when the filament sensor caused the pause; a pause for a question
+        # (e.g. REVO-0101 nozzle check) or from the operator stays on the print screen with RESUME
+        if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True) and (not revo or self._revo_runout()):
+            self.show_panel("revo_filament" if revo else "extrude")
+        if revo:
             self._revo_runout_alert()
+
+    def _revo_runout(self):
+        return any(self.printer.get_stat(f).get("enabled") and self.printer.get_stat(f).get("filament_detected") is False
+                   for f in self.printer.get_filament_sensors())
 
     def state_printing(self):
         self.base_panel.close_update_dialog(force=True)

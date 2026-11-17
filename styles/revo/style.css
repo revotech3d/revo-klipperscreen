@@ -467,3 +467,5 @@ dialog.revo_prompt_dialog button.dialog-error { border-color: #FF4D52; backgroun
 dialog.revo_prompt_dialog button.dialog-error label { color: #FF8A8E; }
 .revo_prompt_q { font-size: 1.3em; color: #FFFFFF; margin-top: 4px; }
 .revo_prompt_title.revo_err, .revo_prompt_code.revo_err { color: #FF4D52; }
+/* Filament: niższe przyciski, żeby ekran mieścił się nad dolnym paskiem */
+button.revo_fil, button.revo_preset.revo_fil, button.revo_print.revo_fil, radiobutton.revo_fil { min-height: 36px; padding-top: 2px; padding-bottom: 2px; }

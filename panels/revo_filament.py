@@ -19,7 +19,7 @@ class Panel(RevoActions, ScreenPanel):
         super().__init__(screen, title or "Filament")
         self.p, self.printer, self.screen = self, self._printer, self._screen
         self.flow, self.secs, self._timer = 10, 10, None
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.get_style_context().add_class("revo_home")
 
         top = Gtk.Grid(column_homogeneous=True, column_spacing=10)
@@ -116,6 +116,15 @@ class Panel(RevoActions, ScreenPanel):
             ex.attach(b, i, 0, 1, 1)
         box.pack_start(ex, False, False, 0)
         orionize(box, "STATUS", "NOZZLE · SPOOL")
+        # niższe przyciski (klasa revo_fil): cały ekran mieści się nad dolnym paskiem (cofnij / ekran główny / E-STOP),
+        # który wcześniej wypadał za krawędź wyświetlacza
+        def _fil(w):
+            if isinstance(w, Gtk.Button):
+                w.get_style_context().add_class("revo_fil")
+                w.set_size_request(-1, -1)
+            elif isinstance(w, Gtk.Container):
+                w.foreach(_fil)
+        box.foreach(_fil)
         self.content.add(box)
 
     def _set(self, k, v):
