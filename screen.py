@@ -532,6 +532,16 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.base_panel.update_shortcut_icon(level=0)
 
     def show_popup_message(self, message, level=3, from_ws=False):
+        import re
+        if self._config.get_main_config().get("theme", "") == "revo" and self.gtk is not None:
+            # Revo OS: every error and warning (with a REVO code or not) in the same window as a machine question,
+            # it stays until OK; plain information stays a short banner
+            m = re.search(r"(REVO-\d{4})\s*·\s*(.+)$", message or "")
+            if m:
+                title, _, text = m.group(2).partition(": ")
+                return self._revo_alert(f"{m.group(1)} · {title}", text, level)
+            if level >= 2:
+                return self._revo_alert("ERROR" if level >= 3 else "WARNING", (message or "").strip(), level)
         if from_ws:
             if (datetime.now() - self.last_popup_time).seconds < 1:
                 return
@@ -585,6 +595,23 @@ class KlipperScreen(Gtk.ApplicationWindow):
             self.popup_timeout = GLib.timeout_add_seconds(timeout, self.close_popup_message)
 
         return False
+
+    def _revo_alert(self, header, text, level):
+        from ks_includes.widgets.prompts import revo_box, revo_style_answers
+        self.screensaver.close()
+        if getattr(self, "_revo_alert_dlg", None) is not None:   # a newer message replaces the previous one
+            self.gtk.remove_dialog(self._revo_alert_dlg)
+        err = level >= 3
+        box = revo_box(header, text, "■  ERROR · CHECK THE MACHINE" if err else "■  MESSAGE FROM THE MACHINE", error=err)
+        box.pack_start(Gtk.Box(vexpand=True), True, True, 0)
+        buttons = [{"name": "OK", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+
+        def done(dialog, response_id):
+            self._revo_alert_dlg = None
+            self.gtk.remove_dialog(dialog)
+
+        self._revo_alert_dlg = self.gtk.Dialog(" ", buttons, box, done)
+        revo_style_answers(self._revo_alert_dlg, buttons, self.width)
 
     def close_popup_message(self, widget=None):
         if self.popup_message is None:

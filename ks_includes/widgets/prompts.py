@@ -96,56 +96,14 @@ class Prompt:
         )
         self.id += 1
 
-    def _revo_help(self, code):
-        """WHAT TO DO for a REVO code from Revo Panel's code list (revo-config web/kody.json)."""
-        import json
-        import os
-        for path in ("~/revo-config/web/kody.json",):
-            try:
-                with open(os.path.expanduser(path), encoding="utf-8") as f:
-                    for k in json.load(f).get("kody", []):
-                        if k.get("kod") == code:
-                            return k.get("rozwiazanie_en", "")
-            except (OSError, ValueError):
-                pass
-        return ""
-
     def _revo_show(self):
         """Revo OS look (like the stop screen): ACTION REQUIRED, code, title, question, what to do, answers."""
-        import re
-        m = re.match(r"\s*(REVO-\d{4})\s*·\s*(.*)$", self.header or "")
-        code, title = (m.group(1), m.group(2)) if m else ("", self.header.strip())
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8, vexpand=True)
-        box.get_style_context().add_class("revo_prompt")
-
-        def lab(text, cls, wrap=True):
-            lb = Gtk.Label(label=text, wrap=wrap, xalign=0, halign=Gtk.Align.FILL)
-            lb.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
-            lb.get_style_context().add_class(cls)
-            box.pack_start(lb, False, False, 0)
-            return lb
-
-        lab("■  ACTION REQUIRED · THE MACHINE IS WAITING", "revo_stop_head")
-        if code:
-            lab(code, "revo_prompt_code")
-        lab(title.upper(), "revo_prompt_title")
-        if self.text:
-            lab(self.text, "revo_prompt_q")
-        helptext = self._revo_help(code) if code else ""
-        if helptext:
-            lab("WHAT TO DO", "revo_stop_head")
-            lab(helptext, "revo_stop_detail")
+        box = revo_box(self.header, self.text, "■  ACTION REQUIRED · THE MACHINE IS WAITING")
         if self.scroll_box.get_children():   # buttons sent with prompt_button (rare) – below the text
             box.pack_start(self.scroll_box, False, False, 0)
         box.pack_start(Gtk.Box(vexpand=True), True, True, 0)
-
         self.prompt = self.gtk.Dialog(self.window_title, self.buttons, box, self.response)
-        self.prompt.get_style_context().add_class("revo_prompt_dialog")
-        for b in self.buttons:   # answers: normal height, capitals, Revo colours (classes from the macro's style)
-            w = self.prompt.get_widget_for_response(b["response"])
-            if w is not None:
-                w.set_size_request(int(self.screen.width * 0.92 / max(1, len(self.buttons))) - 12, 72)
-                w.set_label(b["name"].upper())
+        revo_style_answers(self.prompt, self.buttons, self.screen.width)
         self.prompt.connect("key-press-event", self._key_press_event)
         self.prompt.connect("delete-event", self.close)
         self.screen.screensaver.close()
@@ -206,3 +164,56 @@ class Prompt:
             self.gtk.remove_dialog(self.prompt)
         self.prompt = None
         self.screen.prompt = None
+
+
+# ---------- Revo OS: one look for every message with a REVO code (questions, errors, warnings) ----------
+def revo_help(code):
+    """WHAT TO DO for a REVO code from Revo Panel's code list (revo-config web/kody.json)."""
+    import json
+    import os
+    try:
+        with open(os.path.expanduser("~/revo-config/web/kody.json"), encoding="utf-8") as f:
+            for k in json.load(f).get("kody", []):
+                if k.get("kod") == code:
+                    return k.get("rozwiazanie_en", "")
+    except (OSError, ValueError):
+        pass
+    return ""
+
+
+def revo_box(header, text, head, error=False):
+    """Content: head line, REVO code, title (amber; red for an error), message, WHAT TO DO."""
+    import re
+    m = re.match(r"\s*(REVO-\d{4})\s*·\s*(.*)$", header or "")
+    code, title = (m.group(1), m.group(2)) if m else ("", (header or "").strip())
+    box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8, vexpand=True)
+    box.get_style_context().add_class("revo_prompt")
+
+    def lab(t, cls):
+        lb = Gtk.Label(label=t, wrap=True, xalign=0, halign=Gtk.Align.FILL)
+        lb.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        for c in cls.split():
+            lb.get_style_context().add_class(c)
+        box.pack_start(lb, False, False, 0)
+
+    lab(head, "revo_stop_head")
+    if code:
+        lab(code, "revo_prompt_code revo_err" if error else "revo_prompt_code")
+    if title:
+        lab(title.upper(), "revo_prompt_title revo_err" if error else "revo_prompt_title")
+    if text:
+        lab(text, "revo_prompt_q")
+    helptext = revo_help(code) if code else ""
+    if helptext and helptext.strip() != (text or "").strip():
+        lab("WHAT TO DO", "revo_stop_head")
+        lab(helptext, "revo_stop_detail")
+    return box
+
+
+def revo_style_answers(dialog, buttons, width):
+    dialog.get_style_context().add_class("revo_prompt_dialog")
+    for b in buttons:   # answers: normal height, capitals, Revo colours (classes from the button style)
+        w = dialog.get_widget_for_response(b["response"])
+        if w is not None:
+            w.set_size_request(int(width * 0.92 / max(1, len(buttons))) - 12, 72)
+            w.set_label(b["name"].upper())
