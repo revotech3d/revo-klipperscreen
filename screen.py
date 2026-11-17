@@ -1070,7 +1070,9 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
     def change_language(self, widget, lang):
         from ks_includes import revo_i18n
-        revo_i18n.install(lang)
+        # Revo screens are written in Polish and translated to English: any language other than Polish shows them
+        # in English (before: German, French… fell back to the Polish source texts)
+        revo_i18n.install(lang if str(lang).lower().startswith("pl") else "en")
         self._config.install_language(lang)
         self.env.install_gettext_translations(self._config.get_lang())
         self._config._create_configurable_options(self)
