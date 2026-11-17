@@ -1359,6 +1359,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         if not self._ws:
             return
         devs = self.search_power_devices(devices)
+        if not devs:   # no such power device in Moonraker: nothing to switch (avoids "Method not found" on every screensaver)
+            return
         if on:
             self.log_notification(_("Powering on:") + f" {devices}")
             self._ws.api.power_device_on(devs)
