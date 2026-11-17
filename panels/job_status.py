@@ -263,7 +263,13 @@ class Panel(ScreenPanel):
         box.pack_start(self.revo_belt_win, False, False, 0)
 
         tiles = Gtk.Box(spacing=4, homogeneous=True)
-        self.revo_tiles = {"extruder": HexGauge("NOZZLE", 300), "heater_bed": HexGauge("BELT" if lg.is_belt(self._printer) else "BED", 120),
+        # nozzle and belt/bed: tap → the same temperature keypad as on the home screen
+        from ks_includes.widgets.revo_home import RevoActions
+        act = type("RevoTempActions", (RevoActions,), {})()
+        act.p, act.printer, act.screen = self, self._printer, self._screen
+        bl = "BELT" if lg.is_belt(self._printer) else "BED"
+        self.revo_tiles = {"extruder": HexGauge("NOZZLE", 300, lambda: act.heater_dialog("extruder", "NOZZLE", [0, 190, 200, 210, 220, 240, 250, 260], 300)),
+                           "heater_bed": HexGauge(bl, 120, lambda: act.heater_dialog("heater_bed", bl, [0, 55, 60, 70, 80, 90, 100, 110], 130)),
                            "chamber": HexGauge("CHAMBER", 60)}
         for t in self.revo_tiles.values():
             t.set_size_request(130, 78)
@@ -1435,6 +1441,10 @@ class Panel(ScreenPanel):
         if self._screen.vertical_mode:
             max_width = self._screen.width * 0.9
             max_height = self._screen.height / 4
+            if getattr(self, "revo", None) is not None:
+                # Revo: progress, thermal, buttons and the bottom bar must fit on 800 px – a 200 px preview pushed
+                # the bottom bar below the screen edge
+                max_height = 140
         else:
             max_width = self._screen.width * 0.25
             max_height = self._gtk.content_height * 0.47

@@ -705,7 +705,9 @@ class BasePanel(ScreenPanel):
         else:
             printer = ""
         if "logo" in self.control:
-            self.control["logo"].set_visible(not title and self._config.get_main_config().get("theme", "") == "revo")
+            # home screen (no title) and the print screen (Szymon: logo also there)
+            on_job = self._screen._cur_panels[-1:] == ["job_status"]
+            self.control["logo"].set_visible((not title or on_job) and self._config.get_main_config().get("theme", "") == "revo")
         if not title:
             self.titlelbl.set_label(f"{printer}")
             return
