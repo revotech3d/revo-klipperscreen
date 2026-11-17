@@ -456,3 +456,13 @@ button.revo_start { background-color: #22344A; background-image: url("./styles/r
                     box-shadow: 0 0 16px rgba(120, 165, 205, 0.30); }
 button.revo_start label { color: #FFFFFF; font-weight: 700; font-size: 1.35em; letter-spacing: 9px; text-shadow: 0 0 8px rgba(190, 220, 245, 0.55); }
 button.revo_start:active { background-color: #1A2838; border-color: #FFFFFF; }
+/* Revo: a question from the machine (action:prompt, e.g. REVO-0101) – same language as the stop screen, amber = waits for you */
+.revo_prompt { padding: 18px 20px 0 20px; }
+.revo_prompt_code { font-family: "Share Tech Mono", monospace; font-size: 1.05em; color: #F0A04B; letter-spacing: 2px; margin-top: 6px; }
+.revo_prompt_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 2px; color: #F0A04B; }
+dialog.revo_prompt_dialog button { border-radius: 2px; border: 1px solid #33495A; background-color: #0B1219; background-image: none; margin: 6px; }
+dialog.revo_prompt_dialog button label { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; letter-spacing: 4px; color: #FFFFFF; }
+dialog.revo_prompt_dialog button.dialog-primary { border-color: #5AA9E6; background-color: rgba(90, 169, 230, 0.18); }
+dialog.revo_prompt_dialog button.dialog-error { border-color: #FF4D52; background-color: rgba(255, 77, 82, 0.12); }
+dialog.revo_prompt_dialog button.dialog-error label { color: #FF8A8E; }
+.revo_prompt_q { font-size: 1.3em; color: #FFFFFF; margin-top: 4px; }

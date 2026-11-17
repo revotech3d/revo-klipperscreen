@@ -279,9 +279,23 @@ def stop_screen(win, home_id):
     return st
 
 
+def prompt_screen(win):
+    """REVO-0101 question as the machine shows it (action:prompt from REVO_CHECK_NOZZLE)."""
+    reset(win)
+    for line in ("prompt_begin REVO-0101 · File prepared for nozzle 0.4", "prompt_text Installed nozzle is 0.6. Print anyway?",
+                 "prompt_footer_button Cancel|_REVO_NOZZLE_CANCEL|error", "prompt_footer_button Print|_REVO_NOZZLE_OK|primary",
+                 "prompt_show"):
+        win.process_action(line)
+    pump(1.5)
+    return shoot("prompt")
+
+
 def run(win):
     try:
         pump(2)
+        if os.environ.get("SYM_PROMPT_ONLY"):
+            print("PROMPT", prompt_screen(win), flush=True)
+            return
         states = explore(win)
         states.append(stop_screen(win, states[0]["id"]))
         for s in states:
