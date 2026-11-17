@@ -1042,7 +1042,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         revo = self._config.get_main_config().get("theme", "") == "revo"
         # Revo: the Filament screen opens only when the filament sensor caused the pause; a pause for a question
         # (e.g. REVO-0101 nozzle check) or from the operator stays on the print screen with RESUME
-        if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True) and (not revo or self._revo_runout()):
+        spool = bool((self.printer.get_stat("gcode_macro FLAT_BELT") or {}).get("spool_change"))   # Belt: pause for a new spool
+        if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True) and (not revo or self._revo_runout() or spool):
             self.show_panel("revo_filament" if revo else "extrude")
         if revo:
             self._revo_runout_alert()
