@@ -260,6 +260,17 @@ class Panel(ScreenPanel):
         sz.add(t)
         sz.add(self.revo_sz)
         info.attach(sz, 3, 0, 1, 1)
+        # live toolhead speed and volumetric flow (also in the Revo Panel telemetry)
+        self.revo_live = {}
+        for i, (title, key) in enumerate((("SPEED", "vel"), ("FLOW", "flow"))):
+            col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+            t = Gtk.Label(label=title, xalign=0)
+            t.get_style_context().add_class("revo_tile_title")
+            v = Gtk.Label(label="–", xalign=0)
+            self.revo_live[key] = v
+            col.add(t)
+            col.add(v)
+            info.attach(col, i, 1, 1, 1)
         prog.pack_start(info, False, False, 0)
         self.revo_prog_win = window("PROGRESS", pad(prog), "JOB")
         box.pack_start(self.revo_prog_win, False, False, 0)
@@ -1103,6 +1114,8 @@ class Panel(ScreenPanel):
                 self.prev_pos = [pos, now]
             if "live_velocity" in data["motion_report"]:
                 self.vel = float(data["motion_report"]["live_velocity"])
+                if getattr(self, "revo_live", None):
+                    self.revo_live["vel"].set_label(f"{self.vel:.0f} {self.mms}")
                 mms_unit = (
                     f"{self.mms}"
                     if self.vel < 1000 and self.req_speed < 1000 and self._screen.width > 500
@@ -1162,6 +1175,8 @@ class Panel(ScreenPanel):
         self.flowrate = median(self.flowstore)
         self.flowstore = []
         self.labels["flowrate"].set_label(f"{self.flowrate:.1f} {self.mms3}")
+        if getattr(self, "revo_live", None):
+            self.revo_live["flow"].set_label(f"{self.flowrate:.1f} {self.mms3}")
         self.buttons["extrusion"].set_label(f"{self.extrusion:3}% {self.flowrate:5.1f} {self.mms3}")
         return True
 
