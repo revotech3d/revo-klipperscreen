@@ -89,3 +89,12 @@ def test_view_spool():
     # bez danych szpuli – jak dawniej
     v = bl.view(dict(SEQ, target=0), 8300.0, now=0)
     assert v["spool_line"] == "" and v["stats"][1][0] == "ENDS IN"
+
+
+
+def test_view_unit_past_estimate():
+    # 56 min into the first segment of a file estimated at 2 x 37 min: not shown as done yet
+    fb = {"mode": "endless", "unit": "segment", "done": 0, "target": 0, "loop": True, "file_units": 2, "unit_mark": 0}
+    v = bl.view(fb, 56 * 60, est_time=2 * 37 * 60, now=0)
+    assert v["bar_unit"] < 1.0
+    assert v["bar_unit"] >= 0.96

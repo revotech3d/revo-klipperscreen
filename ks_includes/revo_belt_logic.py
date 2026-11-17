@@ -75,6 +75,11 @@ def view(fb, print_duration, est_time=0.0, now=None, spool=None, unit_g=None):
     loop = bool(fb.get("loop"))
     per = unit_time(fb, est_time)
     current = max(0.0, float(print_duration) - float(fb.get("unit_mark", 0)))
+    # The file's estimate can be short (a lower speed or acceleration limit on the printer): once the
+    # unit runs past it, the estimate grows with it, so the bar never shows a unit done before the
+    # printer reports it and the times ahead follow the real pace.
+    if per and current > 0.97 * per:
+        per = current / 0.97
     v = {"mode": name, "sub": sub, "loop": loop, "counter": "", "counter_unit": "", "bar_unit": 0.0, "bar_all": 0.0,
          "stats": [], "target": target_text(fb, target), "target_title": "QUANTITY", "finishing": bool(fb.get("finishing")),
          "progress": None, "left": None, "spool_units": None, "spool_time": None, "spool_left": None, "spool_line": "", "spool_warn": False}
