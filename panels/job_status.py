@@ -226,6 +226,7 @@ class Panel(ScreenPanel):
         tl = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, valign=Gtk.Align.CENTER)
         lbl = Gtk.Label(label="REMAINING", xalign=0)
         lbl.get_style_context().add_class("revo_tile_title")
+        self.revo_left_title = lbl
         tl.add(lbl)
         left = self._unparent(self.labels["time_left"])
         left.get_style_context().add_class("revo_tile_value")
@@ -428,7 +429,11 @@ class Panel(ScreenPanel):
         if self.state not in ("printing", "paused"):
             return None
         duration = float(self._printer.get_stat("print_stats", "print_duration") or 0)
-        return bl.view(self._revo_belt_fb(), duration, self.file_metadata.get("estimated_time", 0))
+        fb = self._revo_belt_fb()
+        units = int(fb.get("file_units", 0) or 0)
+        g = float(self.file_metadata.get("filament_weight_total") or 0)
+        return bl.view(fb, duration, self.file_metadata.get("estimated_time", 0),
+                       spool=getattr(self, "_revo_spool", None), unit_g=g / units if g and units else None)
 
     def _revo_belt_update(self):
         from ks_includes import revo_belt_logic as bl
@@ -477,6 +482,7 @@ class Panel(ScreenPanel):
         code, st = agent.call("/status", timeout=2)
         if code == 200 and st.get("szpula"):
             left = st["szpula"].get("zostalo_g")
+            self._revo_spool = (left, st["szpula"].get("pelna_g"))
             GLib.idle_add(self.revo_sz.set_label, "?" if left is None else f"{left:.0f} g")
 
     def _revo_cam_check(self):
@@ -1002,8 +1008,9 @@ class Panel(ScreenPanel):
             else:
                 self.labels["lcdmessage"].hide()
             if getattr(self, "revo_stage", None) is not None:
-                self.revo_stage.set_label(f"▸ {str(msg).upper()}" if msg else "")
-                self.revo_stage.set_visible(bool(msg))
+                stage = bool(msg) and str(msg).lower().startswith(("clearing", "heating", "homing", "measuring"))
+                self.revo_stage.set_label(f"▸ {str(msg).upper()}" if stage else "")
+                self.revo_stage.set_visible(stage)
 
         if "toolhead" in data:
             if (
@@ -1147,15 +1154,26 @@ class Panel(ScreenPanel):
             v = self._revo_belt_view() or {}
             elapsed_label = f"{self.labels['elapsed'].get_text()}  {self.labels['duration'].get_text()}"
             self.buttons["elapsed"].set_label(elapsed_label)
+            spool = v.get("spool_time") is not None
+            if getattr(self, "revo_left_title", None) is not None:
+                self.revo_left_title.set_label("SPOOL ENDS IN" if spool else "REMAINING")
             if v.get("left") is not None:
                 self.labels["time_left"].set_label(bl.fmt_time(v["left"]))
+            elif spool:
+                self.labels["time_left"].set_label("~" + bl.fmt_time(v["spool_time"]))
             else:
                 self.labels["time_left"].set_label("∞")
             self.buttons["left"].set_label(f"{self.labels['left'].get_text()}  {self.labels['time_left'].get_text()}")
-            if v.get("progress") is not None:
+            if v.get("spool_used") is not None:
+                # no quantity limit: the bar is how much of the spool is used, not the file position
+                self.update_progress(v["spool_used"])
+                self.labels["progress_text"].set_label(f"SPOOL {v['spool_used'] * 100:.0f}%")
+            elif v.get("progress") is not None:
                 self.update_progress(v["progress"])
             else:
                 self.labels["progress_text"].set_label("∞")
+                if getattr(self, "revo_bar", None) is not None:
+                    self.revo_bar.set_fraction(0.0)   # file position means nothing in a loop
             return
         if self._flat_belt_endless_running() and not fb.get("mode"):
             # Endless: the file loops, so file position, percent and time left mean nothing.

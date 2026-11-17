@@ -61,8 +61,10 @@ def target_text(fb, target):
     return str(target)
 
 
-def view(fb, print_duration, est_time=0.0, now=None):
-    """Texts for the belt window. None when the print is not a belt print from [r]evo Slicer."""
+def view(fb, print_duration, est_time=0.0, now=None, spool=None, unit_g=None):
+    """Texts for the belt window. None when the print is not a belt print from [r]evo Slicer.
+    spool: (grams left, full spool grams or None); unit_g: filament per unit from the file –
+    with no quantity limit the belt prints until the spool ends, so that is what we count down."""
     mode = fb.get("mode") or ""
     if mode not in MODES:
         return None
@@ -75,7 +77,7 @@ def view(fb, print_duration, est_time=0.0, now=None):
     current = max(0.0, float(print_duration) - float(fb.get("unit_mark", 0)))
     v = {"mode": name, "sub": sub, "loop": loop, "counter": "", "counter_unit": "", "bar_unit": 0.0, "bar_all": 0.0,
          "stats": [], "target": target_text(fb, target), "target_title": "QUANTITY", "finishing": bool(fb.get("finishing")),
-         "progress": None, "left": None}
+         "progress": None, "left": None, "spool_units": None, "spool_time": None, "spool_used": None}
     if mode == "fixed":
         return v
     if mode == "endless":
@@ -96,6 +98,22 @@ def view(fb, print_duration, est_time=0.0, now=None):
         if per:
             left = max(0.0, (target - done) * per - current)
     v["left"] = left
+    if target == 0 and loop and spool and spool[0] is not None and unit_g:
+        g_left, g_full = float(spool[0]), spool[1]
+        n = g_left / float(unit_g)
+        v["spool_units"] = int(n)
+        if per:
+            v["spool_time"] = max(0.0, n * per)
+        if g_full:
+            v["spool_used"] = max(0.0, min(1.0, 1 - g_left / float(g_full)))
+            v["progress"] = v["spool_used"]
+        st = v["spool_time"]
+        v["stats"] = [
+            ("PER " + one, fmt_time(per) if per else "–"),
+            ("SPOOL FOR", f"{v['spool_units']} {one if v['spool_units'] == 1 else many}"),
+            ("SPOOL EMPTY", time.strftime("%H:%M", time.localtime(now + st)) if st is not None else "–"),
+        ]
+        return v
     v["stats"] = [
         ("PER " + one, fmt_time(per) if per else "–"),
         ("ENDS IN", fmt_time(left) if left is not None else "∞" if target == 0 else "–"),

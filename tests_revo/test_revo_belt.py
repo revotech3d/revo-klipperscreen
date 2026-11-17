@@ -70,3 +70,13 @@ def test_read_info_from_a_file(tmp_path):
     g.write_text("; HEADER\n" + "; thumbnail data\n" * 1000 + "PRINT_START\nFLAT_BELT_INFO MODE=plates TARGET=3 LOOP=1 FILE_UNITS=1 ADVANCE=175.6 UNIT=plate\nG1 X1\n")
     assert bl.file_badge(bl.read_info(str(g))) == "PLATES · 3 PLATES"
     assert bl.read_info(str(tmp_path / "missing.gcode")) is None
+
+
+def test_view_spool_no_limit():
+    fb = dict(SEQ, target=0)
+    v = bl.view(fb, 8300.0, now=0, spool=(500.0, 1000.0), unit_g=10.0)
+    assert v["spool_units"] == 50 and abs(v["spool_used"] - 0.5) < 1e-9
+    assert v["stats"][1] == ("SPOOL FOR", "50 PIECES")
+    # bez danych szpuli – jak dawniej
+    v = bl.view(fb, 8300.0, now=0)
+    assert v["spool_units"] is None and v["stats"][1][0] == "ENDS IN"
