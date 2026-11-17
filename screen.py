@@ -460,9 +460,10 @@ class KlipperScreen(Gtk.ApplicationWindow):
                     self._remove_all_panels()
                     # an open question from a macro (action:prompt, e.g. REVO-0101 nozzle check) stays on top:
                     # it is the reason the print waits, closing it left the operator without the question
-                    keep = self.prompt.prompt if self.prompt is not None else None
+                    # so does an error window: it often arrives just before the pause that it explains
+                    keep = (self.prompt.prompt if self.prompt is not None else None, getattr(self, "_revo_alert_dlg", None))
                     for dialog in list(self.dialogs):
-                        if dialog is not keep:
+                        if dialog not in keep:
                             self.gtk.remove_dialog(dialog)
             else:
                 self._remove_current_panel()
@@ -597,21 +598,52 @@ class KlipperScreen(Gtk.ApplicationWindow):
         return False
 
     def _revo_alert(self, header, text, level):
+        """Revo window on top with OK. Messages queue up: each one stays until OK, none replaces another."""
+        q = self.__dict__.setdefault("_revo_alert_q", [])
+        if any(h == header and t == text for h, t, _ in q):
+            return
+        q.append((header, text, level))
+        dlg = getattr(self, "_revo_alert_dlg", None)
+        if dlg is not None and dlg not in self.dialogs:   # closed from elsewhere
+            self._revo_alert_dlg = dlg = None
+        if dlg is None:
+            self._revo_alert_next()
+        elif getattr(self, "_revo_alert_head", None) is not None:   # the open window counts the waiting ones
+            self._revo_alert_head.set_label(f"{self._revo_alert_head_base}  ·  {len(q) - 1} MORE")
+
+    def _revo_alert_next(self):
         from ks_includes.widgets.prompts import revo_box, revo_style_answers
+        q = self._revo_alert_q
+        self._revo_alert_dlg = None
+        if not q:
+            return
         self.screensaver.close()
-        if getattr(self, "_revo_alert_dlg", None) is not None:   # a newer message replaces the previous one
-            self.gtk.remove_dialog(self._revo_alert_dlg)
+        header, text, level = q[0]
         err = level >= 3
-        box = revo_box(header, text, "■  ERROR · CHECK THE MACHINE" if err else "■  MESSAGE FROM THE MACHINE", error=err)
+        head = "■  ERROR · CHECK THE MACHINE" if err else "■  MESSAGE FROM THE MACHINE"
+        if len(q) > 1:
+            head += f"  ·  {len(q) - 1} MORE"
+        box = revo_box(header, text, head, error=err)
+        self._revo_alert_head, self._revo_alert_head_base = box.get_children()[0], head.split("  ·  ")[0]
         box.pack_start(Gtk.Box(vexpand=True), True, True, 0)
         buttons = [{"name": "OK", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
 
         def done(dialog, response_id):
-            self._revo_alert_dlg = None
             self.gtk.remove_dialog(dialog)
+            if q:
+                q.pop(0)
+            self._revo_alert_next()
 
         self._revo_alert_dlg = self.gtk.Dialog(" ", buttons, box, done)
         revo_style_answers(self._revo_alert_dlg, buttons, self.width)
+
+    def _revo_runout_alert(self):
+        """Pause from the filament sensor: REVO-0203 also on machines whose printer.cfg does not send it."""
+        for f in self.printer.get_filament_sensors():
+            st = self.printer.get_stat(f)
+            if st.get("enabled") and st.get("filament_detected") is False:
+                self._revo_alert("REVO-0203 · Filament ran out or is stuck", "The filament sensor stopped the print.", 3)
+                return
 
     def close_popup_message(self, widget=None):
         if self.popup_message is None:
@@ -989,6 +1021,8 @@ class KlipperScreen(Gtk.ApplicationWindow):
         self.state_printing()
         if self._config.get_main_config().getboolean("auto_open_extrude", fallback=True):
             self.show_panel("revo_filament" if self._config.get_main_config().get("theme", "") == "revo" else "extrude")
+        if self._config.get_main_config().get("theme", "") == "revo":
+            self._revo_runout_alert()
 
     def state_printing(self):
         self.base_panel.close_update_dialog(force=True)

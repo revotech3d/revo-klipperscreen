@@ -296,13 +296,21 @@ def run(win):
         if os.environ.get("SYM_PROMPT_ONLY"):
             print("PROMPT", prompt_screen(win), flush=True)
             reset(win)
+            win._revo_alert_q = []
             win.show_popup_message("REVO-0501 · Chamber door is open: Close the door and start the print again.", 3)
             pump(1.2)
             print("ALERT", shoot("alert"), flush=True)
             reset(win)
+            win._revo_alert_q = []
             win.show_popup_message("Must home axis first: 120.000 0.000 5.000 [0.000]", 3)
             pump(1.2)
             print("ALERT2", shoot("alert2"), flush=True)
+            reset(win)
+            win._revo_alert_q = []
+            win.show_popup_message("REVO-0203 · Filament ran out or is stuck: The filament sensor stopped the print.", 3)
+            win.show_popup_message("REVO-0501 · Chamber door is open: Close the door and start the print again.", 3)
+            pump(1.2)
+            print("ALERT3", shoot("alert3"), flush=True)
             return
         states = explore(win)
         states.append(stop_screen(win, states[0]["id"]))
