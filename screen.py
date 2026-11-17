@@ -561,7 +561,7 @@ class KlipperScreen(Gtk.ApplicationWindow):
             title, sep, text = (message or "").strip().partition(": ")
             if not sep:
                 title, text = "", title
-            for t, cls in (("■  MESSAGE · TAP TO CLOSE", "revo_toast_head"), (title.upper(), "revo_toast_title"), (text, "revo_toast_text")):
+            for t, cls in (("■  MESSAGE", "revo_toast_head"), (title.upper(), "revo_toast_title"), (text, "revo_toast_text")):
                 if not t:
                     continue
                 lb = Gtk.Label(label=t, xalign=0, wrap=True)
@@ -605,8 +605,13 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
         self.base_panel.update_shortcut_icon(level)
 
-        # Revo OS: a message stays until the operator taps it (Szymon's decision) – a newer message replaces it
-        if self._config.get_main_config().getboolean("autoclose_popups", False):
+        # Revo OS: information closes by itself after 3 s or on a tap (Szymon 17.11); errors and questions are
+        # Revo windows that stay until OK. A newer message replaces the previous one.
+        if self._config.get_main_config().get("theme", "") == "revo" and level <= 1:
+            if self.popup_timeout is not None:
+                GLib.source_remove(self.popup_timeout)
+            self.popup_timeout = GLib.timeout_add_seconds(3, self.close_popup_message)
+        elif self._config.get_main_config().getboolean("autoclose_popups", False):
             if self.popup_timeout is not None:
                 GLib.source_remove(self.popup_timeout)
                 self.popup_timeout = None
