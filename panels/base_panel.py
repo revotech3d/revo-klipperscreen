@@ -145,6 +145,18 @@ class BasePanel(ScreenPanel):
         self.titlebar = Gtk.Box(spacing=5, valign=Gtk.Align.CENTER)
         self.titlebar.get_style_context().add_class("title_bar")
         self.titlebar.add(self.control["item_box"])
+        # Revo: logo [r]evo3d in the top-left corner of the home screen (the home screen has no title)
+        self.control["logo"] = Gtk.Image()
+        try:
+            import os
+            from gi.repository import GdkPixbuf
+            path = os.path.join(os.path.dirname(__file__), "..", "styles", "revo", "images", "revo-logo.png")
+            self.control["logo"].set_from_pixbuf(GdkPixbuf.Pixbuf.new_from_file_at_scale(path, -1, 22, True))
+        except Exception as e:
+            logging.debug(f"Revo logo: {e}")
+        self.control["logo"].set_margin_start(12)
+        self.control["logo"].set_no_show_all(True)
+        self.titlebar.add(self.control["logo"])
         self.titlebar.add(self.titlelbl)
         self.titlebar.add(self.control["time_box"])
         self.titlebar.add(self.control["battery_box"])
@@ -692,6 +704,8 @@ class BasePanel(ScreenPanel):
             printer = self._screen.state.printer_name
         else:
             printer = ""
+        if "logo" in self.control:
+            self.control["logo"].set_visible(not title and self._config.get_main_config().get("theme", "") == "revo")
         if not title:
             self.titlelbl.set_label(f"{printer}")
             return
