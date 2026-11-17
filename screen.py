@@ -554,12 +554,30 @@ class KlipperScreen(Gtk.ApplicationWindow):
 
         self.log_notification(message, level)
 
-        msg = Gtk.Button(label=f"{message}", hexpand=True, vexpand=True)
-        for widget in msg.get_children():
-            if isinstance(widget, Gtk.Label):
-                widget.set_line_wrap(True)
-                widget.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
-                widget.set_max_width_chars(40)
+        if self._config.get_main_config().get("theme", "") == "revo":
+            # Revo OS: information as a dark Revo banner (head line, title, text) instead of the green pill
+            msg = Gtk.Button(hexpand=True, vexpand=True)
+            col = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+            title, sep, text = (message or "").strip().partition(": ")
+            if not sep:
+                title, text = "", title
+            for t, cls in (("■  MESSAGE · TAP TO CLOSE", "revo_toast_head"), (title.upper(), "revo_toast_title"), (text, "revo_toast_text")):
+                if not t:
+                    continue
+                lb = Gtk.Label(label=t, xalign=0, wrap=True)
+                lb.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+                lb.set_max_width_chars(40)
+                lb.get_style_context().add_class(cls)
+                col.pack_start(lb, False, False, 0)
+            msg.add(col)
+            msg.get_style_context().add_class("revo_toast")
+        else:
+            msg = Gtk.Button(label=f"{message}", hexpand=True, vexpand=True)
+            for widget in msg.get_children():
+                if isinstance(widget, Gtk.Label):
+                    widget.set_line_wrap(True)
+                    widget.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+                    widget.set_max_width_chars(40)
         msg.connect("clicked", self.close_popup_message)
         msg.get_style_context().add_class("message_popup")
         if level == 1:

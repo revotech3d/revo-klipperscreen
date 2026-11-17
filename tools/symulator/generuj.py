@@ -297,6 +297,9 @@ def run(win):
             win.show_panel("job_status", remove_all=True)
             pump(2.5)
             print("DONE_SCREEN", shoot("done"), flush=True)
+            win.show_popup_message("Printing PLA: We recommend an open chamber door.", 1)
+            pump(1.2)
+            print("TOAST", shoot("toast"), flush=True)
             return
         if os.environ.get("SYM_PROMPT_ONLY"):
             print("PROMPT", prompt_screen(win), flush=True)

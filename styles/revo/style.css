@@ -472,3 +472,8 @@ button.revo_fil, button.revo_preset.revo_fil, button.revo_print.revo_fil, radiob
 /* Blokada ekranu: nieprzezroczyste tło – wcześniej napis „LOCKED / tap to unlock” nakładał się na przyciski pod spodem */
 box.lock { background-color: #070B0F; }
 box.lock button.revo_lock, button.revo_lock { background-color: #070B0F; background-image: none; border: 0; color: #C9D4DD; font-size: 1.6em; letter-spacing: 4px; }
+/* Komunikat (informacja) w stylu Revo: ciemny panel z niebieskim paskiem zamiast zielonej „pigułki” */
+button.message_popup.revo_toast, .message_popup.revo_toast { background-color: rgba(11, 18, 25, 0.97); background-image: none; border: 1px solid #33495A; border-left: 4px solid #5AA9E6; border-radius: 0; padding: 12px 16px; box-shadow: 0 0 18px rgba(90, 169, 230, 0.25); }
+.revo_toast_head { font-family: "Share Tech Mono", monospace; font-size: 0.72em; letter-spacing: 2px; color: #5AA9E6; }
+.revo_toast_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; font-size: 1.1em; letter-spacing: 2px; color: #FFFFFF; }
+.revo_toast_text { color: #C9D4DD; }
