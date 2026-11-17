@@ -237,6 +237,10 @@ class Panel(ScreenPanel):
         self.revo_bar = Gtk.ProgressBar()
         self.revo_bar.get_style_context().add_class("revo_progress")
         prog.pack_start(self.revo_bar, False, False, 0)
+        # start stage from PRINT_START (M117: heating the belt, homing, measuring the bed, heating the nozzle)
+        self.revo_stage = Gtk.Label(xalign=0, no_show_all=True)
+        self.revo_stage.get_style_context().add_class("revo_stage")
+        prog.pack_start(self.revo_stage, False, False, 0)
 
         info = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         for i, (title, key) in enumerate((("ELAPSED", "duration"), ("LAYER", "layer"), ("HEIGHT", "pos_z"))):
@@ -315,6 +319,12 @@ class Panel(ScreenPanel):
         box.pack_end(self.revo_done, False, False, 0)
 
         self.revo_btns = self._unparent(self.buttons["button_grid"])
+        # smaller icons in the Pause / Cancel / Fine Tuning / Settings row: in a belt mode with the quantity stepper
+        # the 117 px row pushed the bottom bar with E-STOP half below the screen edge
+        for name, btn in self.buttons.items():
+            if isinstance(btn, Gtk.Button) and btn.get_image() is not None and btn.get_name():
+                sz = self._gtk.img_scale * 0.7
+                btn.set_image(self._gtk.Image(btn.get_name(), sz, sz))
         box.pack_end(self.revo_btns, False, False, 0)
         self.revo = box
         self.content.add(box)
@@ -985,11 +995,15 @@ class Panel(ScreenPanel):
             self.labels["lcdmessage"].show()
 
         if "display_status" in data and "message" in data["display_status"]:
-            if data["display_status"]["message"]:
-                self.labels["lcdmessage"].set_label(f"{data['display_status']['message']}")
+            msg = data["display_status"]["message"]
+            if msg:
+                self.labels["lcdmessage"].set_label(f"{msg}")
                 self.labels["lcdmessage"].show()
             else:
                 self.labels["lcdmessage"].hide()
+            if getattr(self, "revo_stage", None) is not None:
+                self.revo_stage.set_label(f"▸ {str(msg).upper()}" if msg else "")
+                self.revo_stage.set_visible(bool(msg))
 
         if "toolhead" in data:
             if (

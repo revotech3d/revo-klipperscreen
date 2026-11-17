@@ -477,3 +477,5 @@ button.message_popup.revo_toast, .message_popup.revo_toast { background-color: r
 .revo_toast_head { font-family: "Share Tech Mono", monospace; font-size: 0.72em; letter-spacing: 2px; color: #5AA9E6; }
 .revo_toast_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; font-size: 1.1em; letter-spacing: 2px; color: #FFFFFF; }
 .revo_toast_text { color: #C9D4DD; }
+/* etap startu druku (M117 z PRINT_START) w oknie PROGRESS */
+.revo_stage { font-family: "Share Tech Mono", monospace; font-size: 1.05em; letter-spacing: 2px; color: #5AA9E6; margin-top: 4px; }
