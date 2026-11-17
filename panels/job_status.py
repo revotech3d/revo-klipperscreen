@@ -368,6 +368,12 @@ class Panel(ScreenPanel):
             b["stats"].attach(col, i, 0, 1, 1)
             b["stat"].append((t, v))
         box.add(b["stats"])
+        # filament on the spool against the series: % left, enough to the end / for how many
+        b["spool"] = lbl("", "revo_tile_title")
+        b["spool"].set_no_show_all(True)
+        b["spool"].set_ellipsize(Pango.EllipsizeMode.NONE)
+        b["spool"].set_line_wrap(True)
+        box.add(b["spool"])
         # QUANTITY / PLATES / LENGTH: − wartość + ∞, wysyłane po chwili bez dotykania; FINISH AFTER …
         # one compact row (the screen is 800 px high: the bar with E-STOP must stay visible): − value + ∞ | FINISH AFTER …
         b["stepper"] = Gtk.Grid(column_homogeneous=True, column_spacing=6)
@@ -455,6 +461,10 @@ class Panel(ScreenPanel):
             t.set_label(title)
             val.set_label(value)
         b["target_title"].set_label(v["target_title"])
+        b["spool"].set_label(("⚠ " if v.get("spool_warn") else "") + v.get("spool_line", ""))
+        ctx = b["spool"].get_style_context()
+        (ctx.add_class if v.get("spool_warn") else ctx.remove_class)("revo_warn")
+        b["spool"].set_visible(bool(v.get("spool_line")))
         if self._belt_pending is None:
             b["value"].set_label(v["target"])
         texts = self._flat_belt_texts()
@@ -1164,10 +1174,10 @@ class Panel(ScreenPanel):
             else:
                 self.labels["time_left"].set_label("∞")
             self.buttons["left"].set_label(f"{self.labels['left'].get_text()}  {self.labels['time_left'].get_text()}")
-            if v.get("spool_used") is not None:
-                # no quantity limit: the bar is how much of the spool is used, not the file position
-                self.update_progress(v["spool_used"])
-                self.labels["progress_text"].set_label(f"SPOOL {v['spool_used'] * 100:.0f}%")
+            if v.get("left") is None and v.get("spool_left") is not None:
+                # no quantity limit: the bar is how much filament is left on the spool, not the file position
+                self.update_progress(v["spool_left"])
+                self.labels["progress_text"].set_label(f"SPOOL {v['spool_left'] * 100:.0f}%")
             elif v.get("progress") is not None:
                 self.update_progress(v["progress"])
             else:

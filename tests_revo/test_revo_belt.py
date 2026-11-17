@@ -72,11 +72,20 @@ def test_read_info_from_a_file(tmp_path):
     assert bl.read_info(str(tmp_path / "missing.gcode")) is None
 
 
-def test_view_spool_no_limit():
-    fb = dict(SEQ, target=0)
+def test_view_spool():
+    fb = dict(SEQ, target=0, unit_mark=8300.0)          # bieżąca sztuka dopiero się zaczęła
     v = bl.view(fb, 8300.0, now=0, spool=(500.0, 1000.0), unit_g=10.0)
-    assert v["spool_units"] == 50 and abs(v["spool_used"] - 0.5) < 1e-9
-    assert v["stats"][1] == ("SPOOL FOR", "50 PIECES")
+    assert v["spool_units"] == 50 and abs(v["progress"] - 0.5) < 1e-9
+    assert v["stats"][1] == ("SPOOL FOR", "50 PIECES") and v["spool_line"] == "FILAMENT 50% · ENOUGH FOR 50 PIECES"
+    # seria 59 szt., zrobione 12: brakuje filamentu
+    v = bl.view(dict(SEQ, unit_mark=8300.0), 8300.0, now=0, spool=(200.0, 1000.0), unit_g=10.0)
+    assert v["spool_warn"] and "ENOUGH FOR 20 OF 47 PIECES · CHANGE SPOOL" in v["spool_line"]
+    v = bl.view(dict(SEQ, unit_mark=8300.0), 8300.0, now=0, spool=(900.0, 1000.0), unit_g=10.0)
+    assert not v["spool_warn"] and v["spool_line"].endswith("ENOUGH FOR THE REST (47 PIECES)")
+    # endless: metry
+    e = {"mode": "endless", "unit": "segment", "done": 3, "target": 0, "loop": True, "advance": 100.0, "start_len": 100.0}
+    v = bl.view(e, 100.0, now=0, spool=(100.0, None), unit_g=5.0)
+    assert v["spool_line"] == "FILAMENT 100 g · ENOUGH FOR 2.00 M"
     # bez danych szpuli – jak dawniej
-    v = bl.view(fb, 8300.0, now=0)
-    assert v["spool_units"] is None and v["stats"][1][0] == "ENDS IN"
+    v = bl.view(dict(SEQ, target=0), 8300.0, now=0)
+    assert v["spool_line"] == "" and v["stats"][1][0] == "ENDS IN"

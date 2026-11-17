@@ -77,7 +77,7 @@ def view(fb, print_duration, est_time=0.0, now=None, spool=None, unit_g=None):
     current = max(0.0, float(print_duration) - float(fb.get("unit_mark", 0)))
     v = {"mode": name, "sub": sub, "loop": loop, "counter": "", "counter_unit": "", "bar_unit": 0.0, "bar_all": 0.0,
          "stats": [], "target": target_text(fb, target), "target_title": "QUANTITY", "finishing": bool(fb.get("finishing")),
-         "progress": None, "left": None, "spool_units": None, "spool_time": None, "spool_used": None}
+         "progress": None, "left": None, "spool_units": None, "spool_time": None, "spool_left": None, "spool_line": "", "spool_warn": False}
     if mode == "fixed":
         return v
     if mode == "endless":
@@ -98,28 +98,59 @@ def view(fb, print_duration, est_time=0.0, now=None, spool=None, unit_g=None):
         if per:
             left = max(0.0, (target - done) * per - current)
     v["left"] = left
-    if target == 0 and loop and spool and spool[0] is not None and unit_g:
-        g_left, g_full = float(spool[0]), spool[1]
-        n = g_left / float(unit_g)
-        v["spool_units"] = int(n)
-        if per:
-            v["spool_time"] = max(0.0, n * per)
-        if g_full:
-            v["spool_used"] = max(0.0, min(1.0, 1 - g_left / float(g_full)))
-            v["progress"] = v["spool_used"]
-        st = v["spool_time"]
-        v["stats"] = [
-            ("PER " + one, fmt_time(per) if per else "–"),
-            ("SPOOL FOR", f"{v['spool_units']} {one if v['spool_units'] == 1 else many}"),
-            ("SPOOL EMPTY", time.strftime("%H:%M", time.localtime(now + st)) if st is not None else "–"),
-        ]
-        return v
+    sp = spool_view(fb, spool, unit_g, done, target, per, current, now) if loop else None
+    if sp:
+        v.update(sp)
+        if target == 0:
+            if v["spool_left"] is not None:
+                v["progress"] = v["spool_left"]
+            st = v["spool_time"]
+            v["stats"] = [
+                ("PER " + one, fmt_time(per) if per else "–"),
+                ("SPOOL FOR", sp["spool_for"]),
+                ("SPOOL EMPTY", time.strftime("%H:%M", time.localtime(now + st)) if st is not None else "–"),
+            ]
+            return v
     v["stats"] = [
         ("PER " + one, fmt_time(per) if per else "–"),
         ("ENDS IN", fmt_time(left) if left is not None else "∞" if target == 0 else "–"),
         ("READY AT", time.strftime("%H:%M", time.localtime(now + left)) if left is not None else "–"),
     ]
     return v
+
+
+def spool_view(fb, spool, unit_g, done, target, per, current, now):
+    """Filament on the spool against the series: % left, whether it lasts to the end of the series,
+    and with no limit how many pieces / plates / metres it is enough for. None without spool data."""
+    if not spool or spool[0] is None or not unit_g:
+        return None
+    g_left, g_full = float(spool[0]), spool[1]
+    one, many = UNITS.get(fb.get("unit"), UNITS["segment"])
+    endless = fb.get("mode") == "endless"
+    frac = min(1.0, current / per) if per else 0.0
+    n = g_left / float(unit_g) + frac            # units the spool covers, counted from the start of the current one
+    left = max(0.0, min(1.0, g_left / float(g_full))) if g_full else None
+    pct = f"FILAMENT {left * 100:.0f}% · " if left is not None else f"FILAMENT {g_left:.0f} g · "
+
+    def amount(u):
+        if endless:
+            return f"{u * float(fb.get('advance', 0)) / 1000:.2f} M"
+        u = int(u)
+        return f"{u} {one if u == 1 else many}"
+    r = {"spool_left": left, "spool_units": int(n), "spool_time": max(0.0, n * per - current) if per else None,
+         "spool_for": amount(n), "spool_warn": False}
+    if target > 0:
+        need = max(0, target - done)
+        if n + 1e-9 >= need:
+            r["spool_line"] = pct + "ENOUGH FOR THE REST (" + amount(need) + ")"
+        else:
+            r["spool_warn"] = True
+            when = f" ≈ {time.strftime('%H:%M', time.localtime(now + r['spool_time']))}" if r["spool_time"] is not None else ""
+            first = f"{n * float(fb.get('advance', 0)) / 1000:.2f}" if endless else str(int(n))
+            r["spool_line"] = pct + f"ENOUGH FOR {first} OF {amount(need)} · CHANGE SPOOL{when}"
+    else:
+        r["spool_line"] = pct + "ENOUGH FOR " + amount(n)
+    return r
 
 
 # ---------- plik przed startem: tryb i ilość z linii FLAT_BELT_INFO ([r]evo Slicer) ----------
