@@ -51,11 +51,20 @@ class BasePanel(ScreenPanel):
         self.control["home"].connect("clicked", self._screen._menu_go_back, True)
         for control in self.control:
             self.set_control_sensitive(False, control)
-        self.control["estop"] = self._gtk.Button("emergency", scale=self.abscale)
-        # Revo OS: E-STOP in the action bar is held like every other E-STOP (HOLD_S), a tap does nothing
-        self.control["estop"].connect("pressed", self._estop_down)
-        self.control["estop"].connect("released", self._estop_up)
         self._estop_src = None
+        if self._config.get_main_config().get("theme", "") == "revo":
+            # Revo OS: the same red E-STOP · HOLD 1 S as on the home screen – a small icon in the corner was not
+            # recognisable as an emergency stop
+            from ks_includes.widgets.revo_estop import EStopHold
+            self.control["estop"] = EStopHold(lambda: self._screen._ws.api.emergency_stop(), width=150,
+                                              height=max(40, int(self._gtk.action_bar_height) - 14))
+            self.control["estop"].set_valign(Gtk.Align.CENTER)
+            self.control["estop"].da.show()   # the bar uses no_show_all, so show_all() would leave the drawing hidden
+        else:
+            self.control["estop"] = self._gtk.Button("emergency", scale=self.abscale)
+            # E-STOP in the action bar is held like every other E-STOP (HOLD_S), a tap does nothing
+            self.control["estop"].connect("pressed", self._estop_down)
+            self.control["estop"].connect("released", self._estop_up)
         self.control["estop"].set_no_show_all(True)
         self.shutdown = {
             "panel": "revo_wylacz" if self._config.get_main_config().get("theme", "") == "revo" else "shutdown",
@@ -231,6 +240,8 @@ class BasePanel(ScreenPanel):
         button: Gtk.Button
         for button in self.action_bar.get_children():
             img = button.get_image()
+            if img is None:   # Revo OS: the drawn E-STOP has no icon
+                continue
             name = button.get_name()
             pixbuf = img.get_pixbuf()
             if pixbuf is not None:
@@ -437,6 +448,8 @@ class BasePanel(ScreenPanel):
         revo = self._config.get_main_config().get("theme", "") == "revo"
         home = bool(self._screen._cur_panels) and self._screen._cur_panels[-1] == "main_menu"
         self.control["estop"].set_visible(printing or (revo and connected and not home))
+        if connected and hasattr(self.control["estop"], "reset"):
+            self.control["estop"].reset()   # machine back after an E-STOP: the button can stop it again
         self.control["shutdown"].set_visible(not printing)
         self.control["power"].set_visible(not printing)
         self.show_shortcut(self.shortcut["panel"])

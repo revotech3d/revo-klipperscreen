@@ -348,7 +348,7 @@ class KlippyGtk:
             # Revo: E-STOP on top of every window too – a message or question covers the bottom bar
             from ks_includes.widgets.revo_estop import EStopHold
             bar = Gtk.Box()
-            bar.pack_end(EStopHold(self.screen._ws.api.emergency_stop, width=120, height=40), False, False, 0)
+            bar.pack_end(EStopHold(lambda: self.screen._ws.api.emergency_stop(), width=120, height=40), False, False, 0)
             content_area.pack_start(bar, False, False, 0)
         content_area.add(content)
         if buttons and self.screen._config.get_main_config().get("theme", "") == "revo":
