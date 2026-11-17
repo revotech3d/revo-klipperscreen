@@ -334,6 +334,7 @@
 "Nie udało się wczytać plików.": "Could not load files.",
 "Nie udało się otworzyć pliku.": "Could not open the file.",
 "Czas": "Time",
+"CZAS": "TIME",
 "Wysokość": "Height",
 "DRUK ZAKOŃCZONY": "PRINT FINISHED",
 "DRUK ANULOWANY": "PRINT CANCELLED",

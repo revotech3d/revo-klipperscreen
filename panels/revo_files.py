@@ -124,7 +124,7 @@ class Panel(ScreenPanel):
         full = self._belt_path(path)
         self._belt = bl.read_info(full) if full else None
         f = self._files.get_file_info(path)
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         box.get_style_context().add_class("revo_home")
         title = _lbl(os.path.splitext(os.path.basename(path))[0], "revo_state", 0.5)
         title.set_line_wrap(True)
@@ -189,15 +189,19 @@ class Panel(ScreenPanel):
             code, st = agent.call("/status", timeout=1)
             left = (st.get("szpula") or {}).get("zostalo_g") if code == 200 else None
             if left is not None and float(need) * getattr(self, "_ile", 1) > left:
-                w = _lbl(f"Filament may run out: needs about {float(need) * getattr(self, '_ile', 1):.0f} g, na szpuli ok. {left:.0f} g.", "revo_err", 0.5)
+                w = _lbl(f"Filament may run out: needs about {float(need) * getattr(self, '_ile', 1):.0f} g, about {left:.0f} g left on the spool.", "revo_err", 0.5)
                 w.set_line_wrap(True)
                 box.pack_start(w, False, False, 0)
         buttons = [{"name": "Delete", "response": Gtk.ResponseType.REJECT, "style": "dialog-error"},
                    {"name": "Print", "response": Gtk.ResponseType.OK, "style": "dialog-primary"},
                    {"name": "Cancel", "response": Gtk.ResponseType.CANCEL, "style": "dialog-secondary"}]
-        self._gtk.Dialog("Print", buttons, box, self._resp, path)
+        dlg = self._gtk.Dialog("Print", buttons, box, self._resp, path)
+        # Revo buttons (72 px) and a smaller preview: with a belt mode, timelapse and the notes the buttons
+        # used to be pushed below the screen edge
+        from ks_includes.widgets.prompts import revo_style_answers
+        revo_style_answers(dlg, buttons, self._screen.width)
         if f.get("thumbnails"):
-            self.load_image_async(path, self._screen.width * 0.8, self._screen.height * 0.4,
+            self.load_image_async(path, self._screen.width * 0.6, self._screen.height * 0.2,
                                   callback=lambda p: p and img.set_from_pixbuf(p))
 
     def _belt_stepper(self, b, est):

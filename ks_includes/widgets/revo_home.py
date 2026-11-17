@@ -448,9 +448,11 @@ class RevoHome(RevoActions, Gtk.Box):
         tele.attach(self.t_light, 1, 0, 1, 1)
         self.pack_start(window("TELEMETRY", tele, "R.03"), False, False, 0)
 
-        # szpula: ile filamentu zostało (agent odejmuje zużycie); dotknięcie → ustaw / reset
+        # szpula: pasek tylko jako ostrzeżenie, gdy zostało < 10% (stan szpuli jest na ekranie Filament);
+        # na co dzień nie zabiera miejsca na ekranie głównym. Dotknięcie → ustaw / reset
         self.sz_btn = Gtk.Button(label="FILAMENT · spool level unknown")
         self.sz_btn.get_style_context().add_class("revo_spool")
+        self.sz_btn.set_no_show_all(True)
         self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
         self.pack_start(self.sz_btn, False, False, 0)
         # operator (gdy kierownik założył operatorów): kto pracuje na maszynie
@@ -648,7 +650,9 @@ class RevoHome(RevoActions, Gtk.Box):
                 f = fl.fraction(self.szpula)
                 self.sz_btn.set_label("FILAMENT · " + fl.label(self.szpula) + (f"  ({f * 100:.0f}%)" if f is not None else ""))
                 ctx = self.sz_btn.get_style_context()
-                (ctx.add_class if f is not None and f < 0.1 else ctx.remove_class)("revo_spool_low")
+                low = f is not None and f < 0.1
+                (ctx.add_class if low else ctx.remove_class)("revo_spool_low")
+                self.sz_btn.set_visible(low)
             vars_ = self.printer.get_stat("save_variables", "variables") or {}
             lock = rl.settings(vars_)
             want = lock["min"] * 60 if lock["on"] else 0
