@@ -432,7 +432,11 @@ class BasePanel(ScreenPanel):
 
     def update_action_bar(self):
         printing, connected, printer_select = self.get_printer_state()
-        self.control["estop"].set_visible(printing)
+        # Revo OS: E-STOP always on top – also while homing, leveling, moving axes or heating, not only in a print
+        # (the home screen has its own E-STOP in the top bar)
+        revo = self._config.get_main_config().get("theme", "") == "revo"
+        home = bool(self._screen._cur_panels) and self._screen._cur_panels[-1] == "main_menu"
+        self.control["estop"].set_visible(printing or (revo and connected and not home))
         self.control["shutdown"].set_visible(not printing)
         self.control["power"].set_visible(not printing)
         self.show_shortcut(self.shortcut["panel"])

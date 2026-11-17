@@ -344,6 +344,12 @@ class KlippyGtk:
         content_area.set_margin_end(5)
         content_area.set_margin_top(5)
         content_area.set_margin_bottom(0)
+        if self.screen._config.get_main_config().get("theme", "") == "revo":
+            # Revo: E-STOP on top of every window too – a message or question covers the bottom bar
+            from ks_includes.widgets.revo_estop import EStopHold
+            bar = Gtk.Box()
+            bar.pack_end(EStopHold(self.screen._ws.api.emergency_stop, width=120, height=40), False, False, 0)
+            content_area.pack_start(bar, False, False, 0)
         content_area.add(content)
         if buttons and self.screen._config.get_main_config().get("theme", "") == "revo":
             # Revo: every dialog with the same answer buttons (72 px, capitals, Revo colours) – tall default
