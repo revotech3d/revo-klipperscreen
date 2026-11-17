@@ -460,11 +460,11 @@ button.revo_start:active { background-color: #1A2838; border-color: #FFFFFF; }
 .revo_prompt { padding: 18px 20px 0 20px; }
 .revo_prompt_code { font-family: "Share Tech Mono", monospace; font-size: 1.05em; color: #F0A04B; letter-spacing: 2px; margin-top: 6px; }
 .revo_prompt_title { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.6em; font-weight: 700; letter-spacing: 2px; color: #F0A04B; }
-dialog.revo_prompt_dialog button { border-radius: 2px; border: 1px solid #33495A; background-color: #0B1219; background-image: none; margin: 6px; }
-dialog.revo_prompt_dialog button label { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; letter-spacing: 4px; color: #FFFFFF; }
-dialog.revo_prompt_dialog button.dialog-primary { border-color: #5AA9E6; background-color: rgba(90, 169, 230, 0.18); }
-dialog.revo_prompt_dialog button.dialog-error { border-color: #FF4D52; background-color: rgba(255, 77, 82, 0.12); }
-dialog.revo_prompt_dialog button.dialog-error label { color: #FF8A8E; }
+dialog.revo_prompt_dialog .dialog-action-area button { border-radius: 2px; border: 1px solid #33495A; background-color: #0B1219; background-image: none; margin: 6px; }
+dialog.revo_prompt_dialog .dialog-action-area button label { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-weight: 700; letter-spacing: 4px; color: #FFFFFF; }
+dialog.revo_prompt_dialog .dialog-action-area button.dialog-primary { border-color: #5AA9E6; background-color: rgba(90, 169, 230, 0.18); }
+dialog.revo_prompt_dialog .dialog-action-area button.dialog-error { border-color: #FF4D52; background-color: rgba(255, 77, 82, 0.12); }
+dialog.revo_prompt_dialog .dialog-action-area button.dialog-error label { color: #FF8A8E; }
 .revo_prompt_q { font-size: 1.3em; color: #FFFFFF; margin-top: 4px; }
 .revo_prompt_title.revo_err, .revo_prompt_code.revo_err { color: #FF4D52; }
 /* Filament: niższe przyciski, żeby ekran mieścił się nad dolnym paskiem */
