@@ -105,7 +105,7 @@ class Panel(ScreenPanel):
         g = Gtk.Grid(column_homogeneous=True, column_spacing=8, row_spacing=8)
         first = None
         for i, (m, t) in enumerate(fl.MATERIALS):
-            rb = Gtk.RadioButton.new_with_label_from_widget(first, f"{m}\n{t}°")
+            rb = Gtk.RadioButton.new_with_label_from_widget(first, f"{'OTHER' if m == 'INNY' else m}\n{t}°")   # INNY = code of the spool form
             rb.set_mode(False)
             rb.get_style_context().add_class("revo_preset")
             rb.set_size_request(-1, 64)

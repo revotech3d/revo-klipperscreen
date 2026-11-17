@@ -469,3 +469,6 @@ dialog.revo_prompt_dialog button.dialog-error label { color: #FF8A8E; }
 .revo_prompt_title.revo_err, .revo_prompt_code.revo_err { color: #FF4D52; }
 /* Filament: niższe przyciski, żeby ekran mieścił się nad dolnym paskiem */
 button.revo_fil, button.revo_preset.revo_fil, button.revo_print.revo_fil, radiobutton.revo_fil { min-height: 36px; padding-top: 2px; padding-bottom: 2px; }
+/* Blokada ekranu: nieprzezroczyste tło – wcześniej napis „LOCKED / tap to unlock” nakładał się na przyciski pod spodem */
+box.lock { background-color: #070B0F; }
+box.lock button.revo_lock, button.revo_lock { background-color: #070B0F; background-image: none; border: 0; color: #C9D4DD; font-size: 1.6em; letter-spacing: 4px; }

@@ -345,6 +345,11 @@ class KlippyGtk:
         content_area.set_margin_top(5)
         content_area.set_margin_bottom(0)
         content_area.add(content)
+        if buttons and self.screen._config.get_main_config().get("theme", "") == "revo":
+            # Revo: every dialog with the same answer buttons (72 px, capitals, Revo colours) – tall default
+            # buttons took space from the content and looked different in every window
+            from ks_includes.widgets.prompts import revo_style_answers
+            revo_style_answers(dialog, buttons, self.width)
 
         dialog.show_all()
         # Change cursor to blank
