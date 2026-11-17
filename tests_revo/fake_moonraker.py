@@ -12,7 +12,7 @@ TEST_FAZA = sys.argv[2] if len(sys.argv) > 2 else "idle"
 printing = "drukowanie" in MODE
 paused = MODE.endswith("-pauza")   # wstrzymany druk (PAUSE): ekran z RESUME
 _M = MODE[:-len("-pauza")] if paused else MODE
-koniec = MODE in ("koniec", "anulowany")   # wydruk zakończony / anulowany: ekran podsumowania
+koniec = MODE in ("koniec", "anulowany") or MODE.startswith("koniec-")   # wydruk zakończony / anulowany: ekran podsumowania
 # Belt: tryb druku z [r]evo Slicer (drukowanie-<tryb>), dane makra FLAT_BELT jak w trakcie prawdziwego druku
 BELT = {
     "fixed": ("obudowa-200x150_0.4_PETG.gcode", 6200, 2860, {"mode": "fixed", "unit": "segment", "target": 1, "file_units": 1}),
@@ -25,9 +25,11 @@ BELT = {
     "endless": ("PLA_tasma_320x2_10m.gcode", 1780, 31 * 1780 + 700, {"mode": "endless", "unit": "segment", "done": 31, "target": 70, "loop": True,
                 "file_units": 1, "unit_sum": 31 * 1780, "unit_mark": 31 * 1780, "advance": 140.0, "start_len": 340.0, "min_target": 2, "endless": True}),
 }
-TRYB = _M.split("drukowanie-")[1] if "drukowanie-" in _M else ("fixed" if _M == "drukowanie" else "")
+TRYB = _M.split("drukowanie-")[1] if "drukowanie-" in _M else _M.split("koniec-")[1] if _M.startswith("koniec-") else ("fixed" if _M == "drukowanie" else "")
 PLIK, EST, DUR, FB = BELT[TRYB] if TRYB in BELT else ("kostka-20mm_0.4_PETG.gcode", 6200, 2860, {})
 PLA = TRYB not in ("", "fixed")
+if _M.startswith("koniec-") and FB:   # seria skończona: zrobione = cel
+    FB = dict(FB, done=FB.get("target", 0))
 
 CONFIG = {
     "printer": {"kinematics": "corexy", "max_velocity": "500", "max_accel": "10000", "max_z_velocity": "15"},

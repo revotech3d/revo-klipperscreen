@@ -479,3 +479,10 @@ button.message_popup.revo_toast, .message_popup.revo_toast { background-color: #
 .revo_toast_text { color: #C9D4DD; }
 /* etap startu druku (M117 z PRINT_START) w oknie PROGRESS */
 .revo_stage { font-family: "Share Tech Mono", monospace; font-size: 1.05em; letter-spacing: 2px; color: #5AA9E6; margin-top: 4px; }
+
+/* ---- Revo: TA-DAAM po skończonym druku (miga) ---- */
+@keyframes revo_tada { 0% { background-color: #0F2232; border-color: #3ED663; } 50% { background-color: #145A32; border-color: #B8FFC9; } 100% { background-color: #0F2232; border-color: #3ED663; } }
+.revo_tada { border: 3px solid #3ED663; background-color: #0F2232; padding: 2px 6px; animation: revo_tada 1s ease-in-out infinite; }
+.revo_tada_big { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.9em; font-weight: 700; letter-spacing: 6px; color: #FFFFFF; }
+.revo_tada_mode { font-family: "Share Tech Mono", monospace; font-size: 1.0em; letter-spacing: 3px; color: #3ED663; }
+.revo_tada_count { font-family: "Barlow Semi Condensed", "Roboto", sans-serif; font-size: 1.5em; font-weight: 700; letter-spacing: 3px; color: #FFFFFF; }

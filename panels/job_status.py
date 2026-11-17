@@ -289,6 +289,18 @@ class Panel(ScreenPanel):
         self.revo_done_lbl.get_style_context().add_class("revo_state")
         self.revo_done_info = Gtk.Label(xalign=0.5)
         self.revo_done_info.get_style_context().add_class("revo_info")
+        # TA-DAAM: migający baner po skończonym druku – tryb Belt i ile sztuk / stołów / metrów
+        self.revo_tada = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        self.revo_tada.get_style_context().add_class("revo_tada")
+        self.revo_tada_big = Gtk.Label(label="TA-DAAM!", xalign=0.5)
+        self.revo_tada_big.get_style_context().add_class("revo_tada_big")
+        self.revo_tada_mode = Gtk.Label(xalign=0.5)
+        self.revo_tada_mode.get_style_context().add_class("revo_tada_mode")
+        self.revo_tada_count = Gtk.Label(xalign=0.5)
+        self.revo_tada_count.get_style_context().add_class("revo_tada_count")
+        for w in (self.revo_tada_big, self.revo_tada_mode, self.revo_tada_count):
+            self.revo_tada.add(w)
+        self.revo_done.add(self.revo_tada)
         self.revo_done.add(self.revo_done_lbl)
         self.revo_done.add(self.revo_done_info)
         eject = Gtk.Button(label="EJECT PART\n(hold)")
@@ -1380,6 +1392,21 @@ class Panel(ScreenPanel):
         GLib.timeout_add_seconds(4, lambda: ws.send_method("server.job_queue.pause") and False)
         self.revo_next.hide()
 
+    def _revo_tada_texts(self):
+        """(tryb, ile) dla banera po skończonym druku: Belt – tryb i ile sztuk / stołów / metrów; inny druk – PRINT FINISHED."""
+        from ks_includes import revo_belt_logic as bl
+        fb = self._revo_belt_fb()
+        mode = fb.get("mode") or ""
+        if mode not in bl.MODES or mode == "fixed":
+            return ("PRINT FINISHED", "")
+        done = int(fb.get("done", 0))
+        one, many = bl.UNITS.get(fb.get("unit"), bl.UNITS["segment"])
+        if mode == "endless":
+            count = f"{bl.length_m(fb, done):.2f} M PRINTED" if done else ""
+        else:
+            count = f"{done} {one if done == 1 else many} DONE" if done else ""
+        return (f"{bl.MODES[mode][0]} PRINT FINISHED", count)
+
     def _revo_state(self):
         if getattr(self, "revo", None) is None:
             return
@@ -1398,6 +1425,14 @@ class Panel(ScreenPanel):
             self.revo_done_info.set_label((f"{name}\n" if name else "") + f"Print time {secs // 3600} h {secs % 3600 // 60:02d} min · filament {fil:.1f} m{stopped}")
             for w in self.revo_done.get_children():
                 w.show_all()
+            tada = self._revo_tada_texts() if self.state == "complete" else None
+            if tada:
+                self.revo_tada_mode.set_label(tada[0])
+                self.revo_tada_count.set_label(tada[1])
+                self.revo_tada_count.set_visible(bool(tada[1]))
+                self.revo_done_lbl.hide()
+            else:
+                self.revo_tada.hide()
             self.revo_done.show()
             self.revo_btns.hide()
             # after the print the summary, EJECT, PRINT AGAIN / HOME SCREEN and the bottom bar need the room:
