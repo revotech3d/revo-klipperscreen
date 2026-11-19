@@ -77,10 +77,10 @@ def view(t, elapsed=0.0):
     else:
         v["faza"] = "idle"
         v["name"] = "TEST MASZYNY"
-        v["title"] = "Pełny test, ok. 15–25 min"
+        v["title"] = "Pełny test, ok. 25–35 min"
         v["desc"] = ("Maszyna sprawdzi po kolei elektronikę, każdy silnik, krańcówki, osie, pas, "
-                     "grzanie, wentylatory i oświetlenie. Przy każdym kroku potwierdzasz, czy działa. "
-                     "Zdejmij wydruki z pasa i załaduj filament.")
+                     "grzanie, wentylatory i oświetlenie, a na koniec ORBITA – wszystkie osie naraz. "
+                     "Przy każdym kroku potwierdzasz, czy działa. Zdejmij wydruki z pasa i załaduj filament.")
         v["img"] = "intro"
         v["buttons"] = [("ROZPOCZNIJ TEST", "REVO_SELFTEST", "ok")]
     return v

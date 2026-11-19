@@ -91,7 +91,7 @@ class Panel(ScreenPanel, RevoActions):
     def step_witaj(self):
         self._head("WELCOME TO REVO OS",
                    "A few short steps prepare the machine: network, consents, installed nozzle "
-                   "and finally the machine test. Setup takes a few minutes, the test about 15–25 min.")
+                   "and finally the machine test. Setup takes a few minutes, the test about 25–35 min.")
         self._nav("LET'S START", back=False)
 
     def step_jezyk(self):
