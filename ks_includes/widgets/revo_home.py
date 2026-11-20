@@ -90,6 +90,18 @@ class HexGauge(Gtk.DrawingArea):
         text(sub, 10, H * .83, (0.369, 0.459, 0.525), "Share Tech Mono")
 
 
+def _banner():
+    """Pasek-przycisk na ekranie głównym z tekstem ucinanym „…” – długi tekst nie poszerza ekranu."""
+    b = Gtk.Button()
+    lb = Gtk.Label(label="", xalign=0.5)
+    lb.set_ellipsize(Pango.EllipsizeMode.END)
+    lb.set_max_width_chars(1)
+    lb.set_hexpand(True)
+    b.add(lb)
+    lb.show()   # pasek ma no_show_all – etykieta musi być widoczna sama
+    return b
+
+
 def window(title, child, code=""):
     """OrionUI: okno z paskiem tytułu (■ TITLE ... code)."""
     box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
@@ -475,12 +487,19 @@ class RevoHome(RevoActions, Gtk.Box):
         self.pack_start(self.rap_btn, False, False, 0)
         self._rap_asked = None
         # [r]evo Mission: następny wydruk z kolejki zleceń – start jednym dotknięciem (z potwierdzeniem)
-        self.q_btn = Gtk.Button(label="")
+        self.q_btn = _banner()
         self.q_btn.get_style_context().add_class("revo_spool")
         self.q_btn.set_no_show_all(True)
         self.q_btn.connect("clicked", lambda *a: self._queue_ask())
         self.pack_start(self.q_btn, False, False, 0)
         self.nastepne = None
+        # [r]evo Mission: notatka przekazania zmiany (z Revo Panel) – dotknięcie pokazuje całość
+        self.note_btn = _banner()
+        self.note_btn.get_style_context().add_class("revo_serwis_alert")
+        self.note_btn.set_no_show_all(True)
+        self.note_btn.connect("clicked", lambda *a: self._note_show())
+        self.pack_start(self.note_btn, False, False, 0)
+        self.notatka = None
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -556,11 +575,42 @@ class RevoHome(RevoActions, Gtk.Box):
                 GLib.idle_add(self._consent_check, st)
                 GLib.idle_add(self._set_raport, st.get("raport"))
                 GLib.idle_add(self._set_queue, st.get("nastepne"), st.get("raport"))
+                GLib.idle_add(self._set_note, st.get("notatka"))
             code, lic = agent.call("/licencja", timeout=1)
             if code == 200:
                 GLib.idle_add(self._set_lic, lic)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_note(self, n):
+        self.notatka = n
+        if not n:
+            self.note_btn.hide()
+            return False
+        self.note_btn.get_child().set_label(f"SHIFT NOTE · {n['kto']}: {n['tekst'].splitlines()[0]}")
+        self.note_btn.show()
+        return False
+
+    def _note_show(self):
+        n = self.notatka
+        if not n:
+            return
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.get_style_context().add_class("revo_home")
+        box.pack_start(_lbl("SHIFT HANDOVER NOTE", "revo_state", 0.5), False, False, 4)
+        lb = _lbl(n["tekst"], "revo_splash_text", 0.0)
+        lb.set_line_wrap(True)
+        box.pack_start(lb, False, False, 0)
+        box.pack_start(_lbl(f"{n['kto']} · {n['at']}", "revo_info", 0.0), False, False, 0)
+        buttons = [{"name": "Clear note", "response": Gtk.ResponseType.REJECT},
+                   {"name": "Close", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+        self.p._gtk.Dialog("Shift note", buttons, box, self._note_resp)
+
+    def _note_resp(self, dialog, resp):
+        self.p._gtk.remove_dialog(dialog)
+        if resp == Gtk.ResponseType.REJECT:
+            self.note_btn.hide()
+            threading.Thread(target=agent.call, args=("/notatka", {"tekst": ""}), daemon=True).start()
 
     def _set_queue(self, n, rap):
         self.nastepne = n
@@ -569,7 +619,7 @@ class RevoHome(RevoActions, Gtk.Box):
             self.q_btn.hide()
             return False
         more = f" · +{n['w_kolejce'] - 1} in queue" if n.get("w_kolejce", 1) > 1 else ""
-        self.q_btn.set_label(f"NEXT: {n['nazwa']} · {n['numer']} · {n['sztuk_w_pliku']} pcs{more}  ›")
+        self.q_btn.get_child().set_label(f"NEXT: {n['nazwa']} · {n['numer']} · {n['sztuk_w_pliku']} pcs{more}  ›")
         self.q_btn.show()
         return False
 
