@@ -467,6 +467,13 @@ class RevoHome(RevoActions, Gtk.Box):
         self.lic_btn.set_no_show_all(True)
         self.lic_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_licencja", "Licencja"))
         self.pack_start(self.lic_btn, False, False, 0)
+        # raport wydruku: po końcu druku operator potwierdza zdjęcie części (ile dobrych / wadliwych, rodzaj raportu)
+        self.rap_btn = Gtk.Button(label="")
+        self.rap_btn.get_style_context().add_class("revo_serwis_alert")
+        self.rap_btn.set_no_show_all(True)
+        self.rap_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_odbior", "Part removal"))
+        self.pack_start(self.rap_btn, False, False, 0)
+        self._rap_asked = None
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -540,11 +547,26 @@ class RevoHome(RevoActions, Gtk.Box):
                 GLib.idle_add(self._set_operator, st.get("operatorzy") or [], st.get("operator"))
                 self.system = st.get("system")
                 GLib.idle_add(self._consent_check, st)
+                GLib.idle_add(self._set_raport, st.get("raport"))
             code, lic = agent.call("/licencja", timeout=1)
             if code == 200:
                 GLib.idle_add(self._set_lic, lic)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_raport(self, r):
+        if not r or r.get("drukuje"):
+            self.rap_btn.hide()
+            return False
+        self.rap_btn.set_label(f"PRINT ENDED · CONFIRM PART REMOVAL · {r['id']}  ›")
+        self.rap_btn.show()
+        # raz na raport otwórz potwierdzenie samo, gdy ekran główny jest widoczny
+        cp = getattr(self.screen, "_cur_panels", [])
+        ss = getattr(self.screen, "screensaver", None)
+        if self._rap_asked != r["id"] and cp and cp[-1] == "main_menu" and not (ss is not None and ss.is_showing):
+            self._rap_asked = r["id"]
+            self.screen.show_panel("revo_odbior", "Part removal")
+        return False
 
     def _set_lic(self, lic):
         ctx = self.lic_btn.get_style_context()
