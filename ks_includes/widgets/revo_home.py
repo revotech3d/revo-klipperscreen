@@ -474,6 +474,13 @@ class RevoHome(RevoActions, Gtk.Box):
         self.rap_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_odbior", "Part removal"))
         self.pack_start(self.rap_btn, False, False, 0)
         self._rap_asked = None
+        # [r]evo Mission: następny wydruk z kolejki zleceń – start jednym dotknięciem (z potwierdzeniem)
+        self.q_btn = Gtk.Button(label="")
+        self.q_btn.get_style_context().add_class("revo_spool")
+        self.q_btn.set_no_show_all(True)
+        self.q_btn.connect("clicked", lambda *a: self._queue_ask())
+        self.pack_start(self.q_btn, False, False, 0)
+        self.nastepne = None
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -548,11 +555,53 @@ class RevoHome(RevoActions, Gtk.Box):
                 self.system = st.get("system")
                 GLib.idle_add(self._consent_check, st)
                 GLib.idle_add(self._set_raport, st.get("raport"))
+                GLib.idle_add(self._set_queue, st.get("nastepne"), st.get("raport"))
             code, lic = agent.call("/licencja", timeout=1)
             if code == 200:
                 GLib.idle_add(self._set_lic, lic)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_queue(self, n, rap):
+        self.nastepne = n
+        idle = self.printer.state not in ("printing", "paused") and not (rap and not rap.get("drukuje"))
+        if not n or not idle:
+            self.q_btn.hide()
+            return False
+        more = f" · +{n['w_kolejce'] - 1} in queue" if n.get("w_kolejce", 1) > 1 else ""
+        self.q_btn.set_label(f"NEXT: {n['nazwa']} · {n['numer']} · {n['sztuk_w_pliku']} pcs{more}  ›")
+        self.q_btn.show()
+        return False
+
+    def _queue_ask(self):
+        n = self.nastepne
+        if not n:
+            return
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.get_style_context().add_class("revo_home")
+        box.pack_start(_lbl("START NEXT PRINT?", "revo_state", 0.5), False, False, 4)
+        info = [f"{n['nazwa']} – {n['sztuk_w_pliku']} pcs", f"Order {n['numer']}" + (f" · {n['klient']}" if n.get("klient") else ""),
+                f"Done {n['dobre']} of {n['sztuk']}" + (f" · due {n['termin']}" if n.get("termin") else ""), n["plik"].rsplit("/", 1)[-1]]
+        for t in info:
+            lb = _lbl(t, "revo_splash_text", 0.0)
+            lb.set_line_wrap(True)
+            box.pack_start(lb, False, False, 0)
+        buttons = [{"name": "Cancel", "response": Gtk.ResponseType.CANCEL},
+                   {"name": "Start", "response": Gtk.ResponseType.OK, "style": "dialog-primary"}]
+        self.p._gtk.Dialog("Queue", buttons, box, self._queue_resp)
+
+    def _queue_resp(self, dialog, resp):
+        self.p._gtk.remove_dialog(dialog)
+        if resp != Gtk.ResponseType.OK or not self.nastepne:
+            return
+        qid = self.nastepne["id"]
+
+        def run():
+            code, r = agent.call("/mission/start", {"id": qid}, timeout=10)
+            if code != 200:
+                GLib.idle_add(self.screen.show_popup_message, r.get("message") or "The print did not start.", 2)
+        self.q_btn.hide()
+        threading.Thread(target=run, daemon=True).start()
 
     def _set_raport(self, r):
         if not r or r.get("drukuje"):
