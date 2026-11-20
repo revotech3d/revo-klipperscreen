@@ -500,6 +500,13 @@ class RevoHome(RevoActions, Gtk.Box):
         self.note_btn.connect("clicked", lambda *a: self._note_show())
         self.pack_start(self.note_btn, False, False, 0)
         self.notatka = None
+        # farma [r]evo Mission: hub wysyła druk tylko na potwierdzony pusty stół
+        self.plate_btn = _banner()
+        self.plate_btn.get_style_context().add_class("revo_serwis_alert")
+        self.plate_btn.set_no_show_all(True)
+        self.plate_btn.get_child().set_label("FARM · TAP WHEN THE PLATE IS CLEAR – the hub can send the next print")
+        self.plate_btn.connect("clicked", lambda *a: (self.plate_btn.hide(), threading.Thread(target=agent.call, args=("/stol-wolny", {"wolny": True}), daemon=True).start()))
+        self.pack_start(self.plate_btn, False, False, 0)
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -576,11 +583,18 @@ class RevoHome(RevoActions, Gtk.Box):
                 GLib.idle_add(self._set_raport, st.get("raport"))
                 GLib.idle_add(self._set_queue, st.get("nastepne"), st.get("raport"))
                 GLib.idle_add(self._set_note, st.get("notatka"))
+                GLib.idle_add(self._set_plate, st)
             code, lic = agent.call("/licencja", timeout=1)
             if code == 200:
                 GLib.idle_add(self._set_lic, lic)
         threading.Thread(target=run, daemon=True).start()
         return self._timer is not None
+
+    def _set_plate(self, st):
+        mu, rap = st.get("mission_ust") or {}, st.get("raport")
+        show = mu.get("farma") and not st.get("stol_wolny") and self.printer.state not in ("printing", "paused") and not (rap and not rap.get("drukuje"))
+        self.plate_btn.set_visible(bool(show))
+        return False
 
     def _set_note(self, n):
         self.notatka = n
