@@ -19,7 +19,7 @@ class Panel(RevoActions, ScreenPanel):
         super().__init__(screen, title or "Filament")
         self.p, self.printer, self.screen = self, self._printer, self._screen
         self.flow, self.secs, self._timer = 10, 10, None
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         box.get_style_context().add_class("revo_home")
 
         top = Gtk.Grid(column_homogeneous=True, column_spacing=10)
@@ -86,7 +86,7 @@ class Panel(RevoActions, ScreenPanel):
             self.fg.attach(rb, i, 0, 1, 1)
         box.pack_start(self.fg, False, False, 0)
 
-        box.pack_start(_lbl("TIME (s)", "revo_info"), False, False, 4)
+        # no "TIME (s)" heading: the buttons say "5 s / 10 s / 20 s" and the screen has to fit above the bottom bar
         tg = Gtk.Grid(column_homogeneous=True, column_spacing=6)
         first = None
         for i, t in enumerate(TIMES):
@@ -101,9 +101,7 @@ class Panel(RevoActions, ScreenPanel):
         box.pack_start(tg, False, False, 0)
 
         self.calc = _lbl("", "revo_info", 0.5)
-        self.calc.set_line_wrap(True)
-        self.calc.set_max_width_chars(40)
-        box.pack_start(self.calc, False, False, 4)
+        box.pack_start(self.calc, False, False, 0)
         ex = Gtk.Grid(column_homogeneous=True, column_spacing=8)
         b1 = Gtk.Button(label="COFNIJ 5 mm")
         b1.get_style_context().add_class("revo_preset")
@@ -147,7 +145,8 @@ class Panel(RevoActions, ScreenPanel):
         if self.flow > lim:
             self.fbtn[10].set_active(True)
         mm = self.flow * self.secs / FIL_AREA
-        self.calc.set_label(f"{self.flow} mm³/s × {self.secs} s = {self.flow * self.secs} mm³ ({mm:.0f} mm filament)\nnozzle limit: {lim} mm³/s")
+        # one line: the screen has to fit above the bottom bar (the flows over the nozzle limit are greyed out)
+        self.calc.set_label(f"{self.flow} mm³/s × {self.secs} s = {self.flow * self.secs} mm³ · {mm:.0f} mm · max {lim} mm³/s")
         st = self._printer.get_stat("extruder") or {}
         t, tg = st.get("temperature"), st.get("target") or 0
         self.t_temp.value.set_label("–" if t is None else f"{t:.0f}°")

@@ -1,5 +1,4 @@
-# Revo OS – Ruch: pozycja, bazowanie, osie, taśma, E-STOP (przytrzymanie 1 s)
-import time
+# Revo OS – Ruch: pozycja, bazowanie, osie, taśma (E-STOP na dolnym pasku)
 
 import gi
 
@@ -8,7 +7,6 @@ from gi.repository import GLib, Gtk
 
 from ks_includes.screen_panel import ScreenPanel
 from ks_includes.widgets.revo_home import RevoActions, Tile, _lbl, window
-from ks_includes.widgets.revo_estop import HOLD_S
 
 STEPS = [0.1, 1, 10, 50, 100]
 
@@ -17,7 +15,7 @@ class Panel(RevoActions, ScreenPanel):
     def __init__(self, screen, title, **kwargs):
         super().__init__(screen, title or "Motion")
         self.p, self.printer, self.screen = self, self._printer, self._screen
-        self.step, self._timer, self._estop = 10, None, None
+        self.step, self._timer = 10, None
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         box.get_style_context().add_class("revo_home")
 
@@ -82,12 +80,8 @@ class Panel(RevoActions, ScreenPanel):
             bg.set_margin_start(6); bg.set_margin_end(6); bg.set_margin_top(6); bg.set_margin_bottom(6)
             box.pack_start(window("BELT", bg, "EJECT"), False, False, 0)
 
-        self.es = Gtk.Button(label="E-STOP · HOLD 1 s")
-        self.es.get_style_context().add_class("revo_estop")
-        self.es.set_size_request(-1, 40)
-        self.es.connect("pressed", self._es_down)
-        self.es.connect("released", self._es_up)
-        box.pack_end(self.es, False, False, 0)
+        # E-STOP: the red E-STOP · HOLD 1 S of the bottom bar (on every screen) – a second one here pushed the bar
+        # off the bottom of the screen
         self.content.add(box)
 
     def _btn(self, lab, cb, cls, h):
@@ -108,26 +102,6 @@ class Panel(RevoActions, ScreenPanel):
 
     def belt(self, d):
         self.gcode(f"MANUAL_STEPPER STEPPER={self._belt()} SET_POSITION=0 MOVE={self.step * d:g} SPEED=50")
-
-    def _es_down(self, w):
-        self._estop = time.monotonic()
-        GLib.timeout_add(50, self._es_tick)
-
-    def _es_up(self, w):
-        self._estop = None
-        self.es.set_label("E-STOP · HOLD 1 s")
-
-    def _es_tick(self):
-        if self._estop is None:
-            return False
-        left = HOLD_S - (time.monotonic() - self._estop)
-        if left <= 0:
-            self._estop = None
-            self._screen._ws.api.emergency_stop()
-            self.es.set_label("STOPPED")
-            return False
-        self.es.set_label(f"HOLD… {left:.1f} s")
-        return True
 
     def refresh(self):
         th = self._printer.get_stat("toolhead") or {}

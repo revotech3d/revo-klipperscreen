@@ -174,6 +174,13 @@ class BasePanel(ScreenPanel):
         # Main layout
         self.main_grid = Gtk.Grid()
         self.revo_bar = RevoStatusBar(self._screen)
+        # Revo OS: a panel taller than the screen scrolls instead of pushing the action bar down off the screen,
+        # so the bottom buttons stay at the same height on every panel
+        self.content_area = self.content
+        if self._config.get_main_config().get("theme", "") == "revo":
+            self.content_area = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+            self.content_area.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+            self.content_area.add(self.content)
         self._build_main_grid()
 
         self.update_time()
@@ -199,7 +206,7 @@ class BasePanel(ScreenPanel):
 
     def _reconfigure_main_grid(self):
         self.main_grid.remove(self.titlebar)
-        self.main_grid.remove(self.content)
+        self.main_grid.remove(self.content_area)
         self.main_grid.remove(self.action_bar)
         self.main_grid.remove(self.revo_bar)
         self._build_main_grid()
@@ -210,7 +217,7 @@ class BasePanel(ScreenPanel):
             # Revo OS: pasek statusu z lewej, przez całą wysokość
             self.main_grid.attach(self.revo_bar, 0, 0, 1, 3)
             self.main_grid.attach(self.titlebar, 1, 0, 1, 1)
-            self.main_grid.attach(self.content, 1, 1, 1, 1)
+            self.main_grid.attach(self.content_area, 1, 1, 1, 1)
             self.main_grid.attach(self.action_bar, 1, 2, 1, 1)
             self.action_bar.set_orientation(orientation=Gtk.Orientation.HORIZONTAL)
             self.action_bar.set_hexpand(True)
@@ -218,7 +225,7 @@ class BasePanel(ScreenPanel):
         else:
             self.main_grid.attach(self.revo_bar, 0, 0, 1, 2)
             self.main_grid.attach(self.titlebar, 2, 0, 1, 1)
-            self.main_grid.attach(self.content, 2, 1, 1, 1)
+            self.main_grid.attach(self.content_area, 2, 1, 1, 1)
             self.main_grid.attach(self.action_bar, 1, 0, 1, 2)
             self.action_bar.set_orientation(orientation=Gtk.Orientation.VERTICAL)
             self.action_bar.set_hexpand(False)

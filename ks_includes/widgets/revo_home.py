@@ -417,23 +417,31 @@ class RevoHome(RevoActions, Gtk.Box):
         top.pack_end(self.estop, False, False, 0)
         self.pack_start(top, False, False, 0)
 
+        # Between the header and START PRINT: banners, schematic and telemetry scroll when the screen is full, so
+        # START PRINT and the tile row stay at the same place at the bottom whatever banners are shown.
+        mid = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        scroll = Gtk.ScrolledWindow(hexpand=True, vexpand=True)
+        scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        scroll.add(mid)
+        self.pack_start(scroll, True, True, 0)
+
         # zdalny podgląd aktywny: widoczny pasek z możliwością zakończenia
         self.live_btn = Gtk.Button(label="REVOTECH WIDZI KAMERĘ I EKRAN · ZAKOŃCZ")
         self.live_btn.get_style_context().add_class("revo_live_alert")
         self.live_btn.set_no_show_all(True)
         self.live_btn.connect("clicked", lambda *a: threading.Thread(target=agent.call, args=("/podglad/koniec", {}), daemon=True).start() or self.live_btn.hide())
-        self.pack_start(self.live_btn, False, False, 0)
+        mid.pack_start(self.live_btn, False, False, 0)
 
         # przypomnienie serwisowe – widoczne tylko, gdy przegląd jest po terminie
         self.serwis_btn = Gtk.Button(label="")
         self.serwis_btn.get_style_context().add_class("revo_serwis_alert")
         self.serwis_btn.set_no_show_all(True)
         self.serwis_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_serwis", "Przeglądy"))
-        self.pack_start(self.serwis_btn, False, False, 0)
+        mid.pack_start(self.serwis_btn, False, False, 0)
 
         # schemat w środku, kafelki w kolumnach po bokach
         self.schem = Schematic(logic.machine_type(self.printer))
-        self.schem.set_size_request(200, 166)  # E-STOP in the header takes the height back
+        self.schem.set_size_request(200, 110)  # shrinks for banners before the middle has to scroll
         self.schem.set_margin_start(8)
         self.schem.set_margin_end(8)
         self.t_nozzle = Tile("DYSZA", self.nozzle_dialog)
@@ -451,14 +459,14 @@ class RevoHome(RevoActions, Gtk.Box):
         sv = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         sv.pack_start(self.schem, True, True, 0)
         sv.pack_start(hexes, False, False, 0)
-        self.pack_start(window("SCHEMATIC VIEW", sv, "R.00"), True, True, 0)
+        mid.pack_start(window("SCHEMATIC VIEW", sv, "R.00"), True, True, 0)
         self.t_nozzle = Tile("TEMPERATURE", lambda: self.screen.show_panel("revo_temp", "Temperature"))
         self.t_nozzle.value.get_style_context().add_class("revo_tile_value_small")
         self.t_light.title.set_label("LIGHTS")
         tele = Gtk.Grid(column_homogeneous=True, column_spacing=5, row_spacing=5)
         tele.attach(self.t_nozzle, 0, 0, 1, 1)
         tele.attach(self.t_light, 1, 0, 1, 1)
-        self.pack_start(window("TELEMETRY", tele, "R.03"), False, False, 0)
+        mid.pack_start(window("TELEMETRY", tele, "R.03"), False, False, 0)
 
         # szpula: pasek tylko jako ostrzeżenie, gdy zostało < 10% (stan szpuli jest na ekranie Filament);
         # na co dzień nie zabiera miejsca na ekranie głównym. Dotknięcie → ustaw / reset
@@ -466,39 +474,39 @@ class RevoHome(RevoActions, Gtk.Box):
         self.sz_btn.get_style_context().add_class("revo_spool")
         self.sz_btn.set_no_show_all(True)
         self.sz_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_szpula", "Szpula", panel_name="revo_szpula_s", mode="szpula"))
-        self.pack_start(self.sz_btn, False, False, 0)
+        mid.pack_start(self.sz_btn, False, False, 0)
         # operator (gdy kierownik założył operatorów): kto pracuje na maszynie
         self.op_btn = Gtk.Button(label="")
         self.op_btn.get_style_context().add_class("revo_spool")
         self.op_btn.set_no_show_all(True)
         self.op_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_operator", "Operator"))
-        self.pack_start(self.op_btn, False, False, 0)
+        mid.pack_start(self.op_btn, False, False, 0)
         # licencja: pasek tylko gdy trzeba działać (okres próbny / blokada)
         self.lic_btn = Gtk.Button(label="")
         self.lic_btn.get_style_context().add_class("revo_spool")
         self.lic_btn.set_no_show_all(True)
         self.lic_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_licencja", "Licencja"))
-        self.pack_start(self.lic_btn, False, False, 0)
+        mid.pack_start(self.lic_btn, False, False, 0)
         # raport wydruku: po końcu druku operator potwierdza zdjęcie części (ile dobrych / wadliwych, rodzaj raportu)
         self.rap_btn = Gtk.Button(label="")
         self.rap_btn.get_style_context().add_class("revo_serwis_alert")
         self.rap_btn.set_no_show_all(True)
         self.rap_btn.connect("clicked", lambda *a: self.screen.show_panel("revo_odbior", "Part removal"))
-        self.pack_start(self.rap_btn, False, False, 0)
+        mid.pack_start(self.rap_btn, False, False, 0)
         self._rap_asked = None
         # [r]evo Mission: następny wydruk z kolejki zleceń – start jednym dotknięciem (z potwierdzeniem)
         self.q_btn = _banner()
         self.q_btn.get_style_context().add_class("revo_spool")
         self.q_btn.set_no_show_all(True)
         self.q_btn.connect("clicked", lambda *a: self._queue_ask())
-        self.pack_start(self.q_btn, False, False, 0)
+        mid.pack_start(self.q_btn, False, False, 0)
         self.nastepne = None
         # [r]evo Mission: notatka przekazania zmiany (z Revo Panel) – dotknięcie pokazuje całość
         self.note_btn = _banner()
         self.note_btn.get_style_context().add_class("revo_serwis_alert")
         self.note_btn.set_no_show_all(True)
         self.note_btn.connect("clicked", lambda *a: self._note_show())
-        self.pack_start(self.note_btn, False, False, 0)
+        mid.pack_start(self.note_btn, False, False, 0)
         self.notatka = None
         # farma [r]evo Mission: hub wysyła druk tylko na potwierdzony pusty stół
         self.plate_btn = _banner()
@@ -506,7 +514,7 @@ class RevoHome(RevoActions, Gtk.Box):
         self.plate_btn.set_no_show_all(True)
         self.plate_btn.get_child().set_label("FARM · TAP WHEN THE PLATE IS CLEAR – the hub can send the next print")
         self.plate_btn.connect("clicked", lambda *a: (self.plate_btn.hide(), threading.Thread(target=agent.call, args=("/stol-wolny", {"wolny": True}), daemon=True).start()))
-        self.pack_start(self.plate_btn, False, False, 0)
+        mid.pack_start(self.plate_btn, False, False, 0)
         self._op_asked = False
         self.szpula = None
         self.system = None
@@ -520,6 +528,7 @@ class RevoHome(RevoActions, Gtk.Box):
         # no preset row here (customer feedback): PLA / PETG / ABS-ASA and heaters off live on the Filament screen
 
         nav = Gtk.Grid(column_homogeneous=True, column_spacing=4)
+        nav.set_vexpand(False)   # the icons ask to expand; the free height goes to the middle, the row sits at the bottom
         items = [("spool", "Filament", lambda: self.p.menu_item_clicked(None, {"panel": "revo_filament", "name": "Filament"})),
                  ("extruder", "Dysza", self.nozzle_dialog),
                  ("file", "Pliki", lambda: self.p.menu_item_clicked(None, {"panel": "revo_files", "name": "Pliki"})),
